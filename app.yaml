@@ -1,0 +1,17 @@
+command:
+  - uvicorn
+  - "--app-dir"
+  - "apps/backend"
+  - "main:app"
+  - "--host"
+  - "0.0.0.0"
+  - "--port"
+  - "9000"
+
+env:
+  - name: DATABRICKS_SERVER_HOSTNAME
+    valueFrom: workspace_url          # auto-filled by Apps
+  - name: DATABRICKS_TOKEN
+    valueFrom: user_token             # user’s browser token
+  - name: DATABRICKS_WAREHOUSE_HTTP_PATH
+    value: "/sql/1.0/warehouses/b4526cd9412a6183"   # edit later

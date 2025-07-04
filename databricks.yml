@@ -1,3 +1,20 @@
+bundle:
+  name: lake-forge
+
+resources:
+  apps:
+    lake_forge_app:
+      name: lake-forge
+      source_code_path: .
+      description: "Metadata-driven ingestion UI"
+
+targets:
+  dev:
+    default: true
+    workspace:
+      host: https://adb-1654813071808666.6.azuredatabricks.net   
+
 sync:
   exclude:
     - "**/node_modules/**"
+    - "**/__pycache__/**"

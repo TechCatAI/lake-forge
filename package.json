@@ -1,9 +1,10 @@
 {
   "name": "lake-forge",
   "private": true,
-  "workspaces": [
-    "apps/frontend"
-  ],
+  "workspaces": ["apps/frontend"],
+  "scripts": {
+    "build:frontend": "bash scripts/build_frontend.sh"
+  },
   "devDependencies": {
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.6",

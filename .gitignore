@@ -34,3 +34,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# pycache
+**__pycache__**
+
+# build_frontend artifacts
+apps/backend/static
