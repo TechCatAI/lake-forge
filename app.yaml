@@ -10,8 +10,8 @@ command:
 
 env:
   - name: DATABRICKS_SERVER_HOSTNAME
-    valueFrom: workspace_url          # auto-filled by Apps
+    value: ${DATABRICKS_SERVER_HOSTNAME}
   - name: DATABRICKS_TOKEN
-    valueFrom: user_token             # user’s browser token
+    value: ${DATABRICKS_TOKEN}
   - name: DATABRICKS_WAREHOUSE_HTTP_PATH
-    value: "/sql/1.0/warehouses/b4526cd9412a6183"   # edit later
+    value: "/sql/1.0/warehouses/b4526cd9412a6183"

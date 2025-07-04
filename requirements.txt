@@ -1,5 +1,5 @@
-fastapi
-uvicorn[standard]
-python-dotenv
-databricks-sql-connector
-databricks-sdk
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+python-dotenv==1.1.1
+databricks-sql-connector==3.7.3
+databricks-sdk==0.21.0
