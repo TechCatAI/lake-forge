@@ -1,0 +1,141 @@
+.
+├── app.yaml
+├── apps
+│   ├── backend
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── crud.cpython-311.pyc
+│   │   │   ├── crud.cpython-313.pyc
+│   │   │   ├── db.cpython-311.pyc
+│   │   │   ├── db.cpython-312.pyc
+│   │   │   ├── db.cpython-313.pyc
+│   │   │   ├── main.cpython-311.pyc
+│   │   │   ├── main.cpython-312.pyc
+│   │   │   ├── main.cpython-313.pyc
+│   │   │   ├── models.cpython-311.pyc
+│   │   │   └── models.cpython-313.pyc
+│   │   ├── crud.py
+│   │   ├── db.py
+│   │   ├── main.py
+│   │   ├── models.py
+│   │   ├── routes
+│   │   │   ├── __pycache__
+│   │   │   │   ├── rules.cpython-311.pyc
+│   │   │   │   ├── tables.cpython-311.pyc
+│   │   │   │   └── tables.cpython-313.pyc
+│   │   │   ├── rules.py
+│   │   │   └── tables.py
+│   │   └── static
+│   │       ├── _next
+│   │       │   ├── 1HKh-X13vV8gg9XHcYZaF
+│   │       │   └── static
+│   │       │       ├── 1HKh-X13vV8gg9XHcYZaF
+│   │       │       │   ├── _buildManifest.js
+│   │       │       │   └── _ssgManifest.js
+│   │       │       ├── chunks
+│   │       │       │   ├── 315-74ea8f89bb60d8b3.js
+│   │       │       │   ├── 87c73c54-c06bf96ac97e82fd.js
+│   │       │       │   ├── 970-fd0aad2ad4842d4d.js
+│   │       │       │   ├── app
+│   │       │       │   │   ├── _not-found
+│   │       │       │   │   │   └── page-231e15739b5135fa.js
+│   │       │       │   │   ├── layout-b7fa043da95602ab.js
+│   │       │       │   │   └── page-5e2edfbb30a527cc.js
+│   │       │       │   ├── framework-a306ef668059fb4f.js
+│   │       │       │   ├── main-9d7f293403753cbf.js
+│   │       │       │   ├── main-app-bc574d652aaceb14.js
+│   │       │       │   ├── pages
+│   │       │       │   │   ├── _app-a48f070af90c9683.js
+│   │       │       │   │   └── _error-b8c2e08355edc3b4.js
+│   │       │       │   ├── polyfills-42372ed130431b0a.js
+│   │       │       │   └── webpack-2f7d16d907ebca1d.js
+│   │       │       ├── css
+│   │       │       │   └── f0411033d528775d.css
+│   │       │       └── media
+│   │       │           ├── 569ce4b8f30dc480-s.p.woff2
+│   │       │           ├── 747892c23ea88013-s.woff2
+│   │       │           ├── 8d697b304b401681-s.woff2
+│   │       │           ├── 93f479601ee12b01-s.p.woff2
+│   │       │           ├── 9610d9e46709d722-s.woff2
+│   │       │           └── ba015fad6dcf6784-s.woff2
+│   │       ├── 404.html
+│   │       ├── favicon.ico
+│   │       ├── file.svg
+│   │       ├── globe.svg
+│   │       ├── index.html
+│   │       ├── index.txt
+│   │       ├── next.svg
+│   │       ├── vercel.svg
+│   │       └── window.svg
+│   └── frontend
+│       ├── eslint.config.mjs
+│       ├── next-env.d.ts
+│       ├── next.config.ts
+│       ├── out
+│       │   ├── _next
+│       │   │   ├── 1HKh-X13vV8gg9XHcYZaF
+│       │   │   └── static
+│       │   │       ├── 1HKh-X13vV8gg9XHcYZaF
+│       │   │       │   ├── _buildManifest.js
+│       │   │       │   └── _ssgManifest.js
+│       │   │       ├── chunks
+│       │   │       │   ├── 315-74ea8f89bb60d8b3.js
+│       │   │       │   ├── 87c73c54-c06bf96ac97e82fd.js
+│       │   │       │   ├── 970-fd0aad2ad4842d4d.js
+│       │   │       │   ├── app
+│       │   │       │   │   ├── _not-found
+│       │   │       │   │   │   └── page-231e15739b5135fa.js
+│       │   │       │   │   ├── layout-b7fa043da95602ab.js
+│       │   │       │   │   └── page-5e2edfbb30a527cc.js
+│       │   │       │   ├── framework-a306ef668059fb4f.js
+│       │   │       │   ├── main-9d7f293403753cbf.js
+│       │   │       │   ├── main-app-bc574d652aaceb14.js
+│       │   │       │   ├── pages
+│       │   │       │   │   ├── _app-a48f070af90c9683.js
+│       │   │       │   │   └── _error-b8c2e08355edc3b4.js
+│       │   │       │   ├── polyfills-42372ed130431b0a.js
+│       │   │       │   └── webpack-2f7d16d907ebca1d.js
+│       │   │       ├── css
+│       │   │       │   └── f0411033d528775d.css
+│       │   │       └── media
+│       │   │           ├── 569ce4b8f30dc480-s.p.woff2
+│       │   │           ├── 747892c23ea88013-s.woff2
+│       │   │           ├── 8d697b304b401681-s.woff2
+│       │   │           ├── 93f479601ee12b01-s.p.woff2
+│       │   │           ├── 9610d9e46709d722-s.woff2
+│       │   │           └── ba015fad6dcf6784-s.woff2
+│       │   ├── 404.html
+│       │   ├── favicon.ico
+│       │   ├── file.svg
+│       │   ├── globe.svg
+│       │   ├── index.html
+│       │   ├── index.txt
+│       │   ├── next.svg
+│       │   ├── vercel.svg
+│       │   └── window.svg
+│       ├── package.json
+│       ├── postcss.config.mjs
+│       ├── public
+│       │   ├── file.svg
+│       │   ├── globe.svg
+│       │   ├── next.svg
+│       │   ├── vercel.svg
+│       │   └── window.svg
+│       ├── README.md
+│       ├── src
+│       │   └── app
+│       │       ├── favicon.ico
+│       │       ├── globals.css
+│       │       ├── layout.tsx
+│       │       └── page.tsx
+│       └── tsconfig.json
+├── databricks.yml
+├── package-lock.json
+├── package.json
+├── README.md
+├── requirements.txt
+├── scripts
+│   └── build_frontend.sh
+└── tree.txt
+
+33 directories, 106 files

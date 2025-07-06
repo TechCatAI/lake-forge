@@ -12,9 +12,9 @@ command:
 
 env:
   - name: DATABRICKS_SERVER_HOSTNAME
-    value: ${DATABRICKS_SERVER_HOSTNAME}
-  - name: DATABRICKS_TOKEN
-    value: ${DATABRICKS_TOKEN}
+    value: "adb-1654813071808666.6.azuredatabricks.net"
+  # - name: DATABRICKS_TOKEN
+  #   valueFrom: databricks-pat
   - name: DATABRICKS_WAREHOUSE_HTTP_PATH
     value: "/sql/1.0/warehouses/b4526cd9412a6183"
   - name: LAKEBASE_INSTANCE
@@ -23,5 +23,7 @@ env:
     value: "lakeforge_db"
   - name: LAKEBASE_SCHEMA
     value: "mdf_app"
+  - name: LAKEBASE_READWRITE_DNS
+    value: "instance-802be291-9414-4a59-b464-61b09c33f76d.database.azuredatabricks.net"
   - name: LAKEBASE_USER
     value: "patkelly92@gmail.com"

@@ -1,157 +1,73 @@
-# Product Requirements Document (PRD)
+# Product Requirements Document Template
 
 ## Project Name
-TechCat Studio (`techcat-studio`)
+`lakeforge`
 
-## Product Overview
-TechCat Studio is an AI-native developer workspace designed to streamline and automate the early and ongoing phases of building software powered by AI agents. It enables developers to define project structure, generate and manage `.codex/` infrastructure files (PRD, TASKS, AGENTS, etc.), and convert user feedback into actionable work.
+---
 
-The tool helps solo builders, indie hackers, and AI-native developers bring structure to project chaos — acting as a launchpad and living system of record for AI-assisted development.
+## 🧭 Product Overview
+`Lakeforge` is a cutting-edge solution accelerator designed to revolutionize metadata-driven data ingestion within the Databricks ecosystem. By leveraging Databricks' latest OLTP Postgres database, Lakebase, alongside Next.js for a seamless UI/UX experience, and Python FastAPI for robust backend API functionality, Lakeforge offers a comprehensive, interactive application hosted entirely within Databricks. This innovative product empowers users to efficiently create and manage the ingestion of bronze datasets through a sophisticated metadata framework. Users can effortlessly view and update metadata and validation rules via a modern, sleek frontend UI, significantly reducing the complexity and time associated with traditional methods. Lakeforge is poised to streamline the data ingestion process, enabling faster time-to-market for data products by providing a plug-and-play metadata framework that integrates seamlessly with templatized notebooks.
 
 ---
 
 ## Core Objectives
-
-1. Scaffold infrastructure files using Codex agents from natural language input.
-2. Orchestrate multi-agent workflows to generate, refine, and track project documentation and tasks.
-3. Use markdown files as the canonical source of truth, optimized for version control and LLM context.
-4. Offer a structured UI to manage projects, trigger document workflows, and process feedback.
-5. Automate a feedback-to-task pipeline that appends actionable items to `.codex/PROPOSED-TASKS.md`.
+1. **Streamline Metadata Management**: Simplify the process of managing metadata-driven ingestion within Databricks by providing a unified platform.
+2. **Enhance User Experience**: Deliver a modern, intuitive UI that allows users to interact with and update metadata configurations in real-time.
+3. **Accelerate Time-to-Market**: Enable faster deployment of data products by offering a prebuilt metadata framework that reduces manual intervention.
+4. **Centralize Data Operations**: Consolidate disparate systems into a single, cohesive application that operates entirely within the Databricks environment.
 
 ---
 
-## Target Users
-
-- AI-native developers
-- Solo founders and indie hackers
-- Technical product teams and internal tools developers
-- Codex / CrewAI / LLMOps enthusiasts
-
----
-
-## Core Features (MVP)
-
-### 1. UI Framework & Navigation
-
-- Next.js + Tailwind-based SPA with App Router
-- Sidebar navigation across key sections:
-  - `Dashboard`, `Projects`, `Documents`, `Generate`, `Feedback`, `Settings`
-
-### 2. Project Management
-
-- View and manage all projects in the `Projects` page
-- New Project form with:
-  - Project name
-  - High-level goals
-  - Tech stack
-- On creation, auto-generates:
-  - `.codex/PRD.md`, `.codex/TASK-LOG.json`, `.codex/AGENTS.md`, `.codex/ARCHITECTURE.md`
-
-### 3. Document Generation
-
-- `Generate` page with inputs for:
-  - Project selection
-  - File type to generate
-  - Natural language description of desired output
-- Agent-assisted generation of `.md` files (editable, previewable, downloadable)
-
-### 4. Document Management
-
-- `Documents` page for browsing/editing all markdown outputs
-- Inline actions: edit, download, regenerate, view diff (future)
-- File metadata: author, last modified, size
-
-### 5. Dashboard
-
-- KPI Cards: Total Projects, Generated Files, Feedback Received, Tasks Completed
-- Recent Activity log (e.g. file generation, task creation)
-- Quick Actions: “New Project”, “Generate Documentation”, “Submit Feedback”
-
-### 6. Feedback System
-
-- `Feedback` page to capture structured or freeform feedback
-- Sends entries to Airtable (MVP) → PostgreSQL later
-- Optionally parsed by `feedback_interpreter` to propose new tasks
-
-### 7. Task Logging & Tracking
-
-- Completed actions are logged to `.codex/TASK-LOG.json` by `task_logger` agent
-- `planner` or other agents can write to `.codex/PROPOSED-TASKS.md`
-- Visual dashboard of Active, In-Progress, and Completed tasks (Phase 2+)
+## 🧑‍🎯 Target Users
+Lakeforge is designed for a diverse range of users within the data ecosystem, including:
+- **Data Engineers**: Technical professionals responsible for building and maintaining data pipelines who require efficient tools to manage metadata and ingestion processes.
+- **Non-Technical Business Users**: Individuals who need to interact with data configurations without deep technical knowledge, benefiting from an intuitive UI.
+- **Databricks Developers**: Developers working within the Databricks platform who seek streamlined solutions for integrating and managing data ingestion workflows.
 
 ---
 
-## Tech Stack (MVP)
-
-| Layer     | Technology                     |
-|-----------|--------------------------------|
-| Frontend  | Next.js (App Router), React, Tailwind, ShadCN UI |
-| Backend   | OpenAI API (via Codex GUI), FastAPI (optional) |
-| Storage   | Local `.md` files, Airtable (feedback MVP), PostgreSQL (v2) |
-| Infra     | GitHub, Azure App Service, Docker, Vercel (alt option) |
+## 🧩 Core Features (MVP)
+- **Interactive UI**: A sleek, modern interface built with Next.js, allowing users to view and edit table configurations, data quality rules, and schedules.
+- **Real-Time Updates**: Users can make live updates to metadata configurations, which are instantly reflected in the underlying Lakebase tables.
+- **Comprehensive Metadata Management**: A detailed view of table configurations, data quality rules, and associated costs, all accessible from a single dashboard.
+- **Seamless Integration**: A plug-and-play framework that allows users to integrate their own notebooks, enhancing flexibility and customization.
+- **In-App Hosting**: Hosted entirely within Databricks Apps, ensuring a cohesive and integrated user experience.
 
 ---
 
-## Stretch Goals (Post-MVP)
+## 🔧 Tech Stack
 
-- GitHub integration: commit `.codex/` files directly
-- CrewAI orchestration support
-- `.prompt/` template manager with version control
-- Agent visualizer and trace debugger
-- AI-powered diff viewer with semantic change summaries
-- Real-time feedback inbox and alerts
-- Team collaboration and file locking
-
----
-
-## Success Criteria
-
-- Can bootstrap a new project with properly scaffolded `.codex/` directory
-- Documents are editable and versioned via the UI
-- Users can submit feedback and view it in-app
-- Feedback can trigger actionable task generation
+| Component          | Technology                  |
+|--------------------|-----------------------------|
+| Frontend UI        | React, Next.js              |
+| Backend API        | Python FastAPI              |
+| Database           | Databricks Lakebase (Postgres) |
+| Hosting            | Databricks Apps             |
+| Model Serving      | Databricks Model Serving Endpoints |
 
 ---
 
-## Known Constraints
-
-- No user auth or multi-user accounts in v1
-- GitHub integration not yet implemented
-- Feedback pipeline is partially manual in MVP
-- LLM prompt latency may impact response speed
+## 💡 Stretch Goals (Post-MVP)
+- **Automated DLT Job Creation**: Enable users to programmatically initiate DLT jobs and pipelines directly from the UI.
+- **Advanced Cost Metrics**: Provide detailed cost and usage metrics per table, schema, user, and group.
+- **AI-Driven Insights**: Implement AI suggestions for optimal column selection as watermark keys and other metadata enhancements.
 
 ---
 
-## Future Value Propositions (Paid Tiers)
-
-| Feature | Description |
-|--------|-------------|
-| Prompt Manager | Reuse prompt templates across agents or projects |
-| File Diff Viewer | “What changed and why?” powered by LLM |
-| Project Metrics | Live stats on progress, usage, task activity |
-| Agent History Viewer | See past outputs, revert or fork generations |
-| AI QA Agent | Scan `.codex/` files for gaps or hallucinations |
-| GitHub Sync | One-click push/pull to connected repo |
-| Agent Builder UI | Drag-and-drop to configure agent pipelines |
-| Team Mode | Commenting, file locking, workspace permissions |
-| Feedback Inbox AI | Prioritize and cluster feedback into task groups |
-| Agentic Roadmapping | Suggest next steps based on task logs and docs |
+## ✅ Success Criteria
+- **User Adoption**: Achieve a significant user base within the first year, focusing on enterprise clients.
+- **Efficiency Gains**: Reduce the time required for metadata updates and data ingestion by at least 50%.
+- **User Satisfaction**: Attain high user satisfaction scores through surveys and feedback, emphasizing the UI/UX experience.
+- **Market Penetration**: Establish Lakeforge as a leading solution within the Databricks ecosystem for metadata-driven ingestion.
 
 ---
 
-### Pricing Structure (Preview)
+## 🪵 Known Constraints
+- **Databricks Integration**: Current limitations with Databricks Apps and serverless compute egress rules may impact initial deployment.
+- **Feature Rollout**: Pending updates for native Lakebase attachment to Databricks Apps in Azure East US workspaces.
+- **Scalability and Cost**: Potential challenges related to scaling and cost management within the Databricks environment.
+- **Tooling Limitations**: All components must be natively supported within Databricks to maintain a cohesive user experience.
 
-- **Free Tier**
-  - One project
-  - Basic file generation
-  - Local-only usage
+--- 
 
-- **Pro Tier**
-  - Multi-project support
-  - Feedback → task conversion
-  - File diff + prompt history tools
-
-- **Team Tier**
-  - Collaboration features
-  - GitHub sync + CI workflows
-  - Agent orchestration pipelines
+This document outlines a strategic vision for `Lakeforge`, positioning it as a transformative tool for data ingestion within Databricks, designed to meet the needs of enterprise clients with a focus on efficiency, integration, and user experience.

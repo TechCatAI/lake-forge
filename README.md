@@ -51,7 +51,21 @@ databricks bundle deploy --target dev
 ```
 This command will build the frontend and deploy the app to the `dev` environment on Databricks.
 
+## NOTE ON AUTHENTICATION
+The app, when deployed locally, relies on the `DATABRICKS_SERVER_HOSTNAME` and `DATABRICKS_TOKEN` environment variables for authentication. Ensure these are set correctly in your environment before running the app.
+When deployed to Databricks, the app will use Oauth authentication. Logic for this is handled in teh `db.py` file, where if the `DATABRICKS_SERVER_HOSTNAME` and `DATABRICKS_TOKEN` environment variables are not set, it will use the Databricks Oauth flow to authenticate users.
 
-# CURRENT LIMITATIONS
+### Database Connection setup
+
+
+# CURRENT LIMITATIONS ENCOUNTERED
+- I encountered an issue where we can connect to postgres through notebooks, but not from a databricks app. Clusters and notebooks live inside the workspace VNet and can hit thenative Postgres port 5432. 
+  Lakehouse Apps run in a locked-down serverless network where only HTTPS/443 is open. The serverless egress policy blocks communication to Postgres. At the time of writing (2025-07-05), there is no "native resource type" in the Databricks app configuration that allows you to connect to Postgres Lakebase resource directly.
+
+## Environment -- What happens?
+- Local dev:	        You hit the public DNS entry → Azure LB → Lakebase. No egress policy blocks you, and you’re using a PAT (or a manually generated credential) that the instance accepts, so the connection succeeds.
+- Databricks Notebook:	Same as local dev; notebooks run on Workspace compute where the workspace VNet already trusts Lakebase.
+- Databricks App:	    The container runs in a locked-down serverless subnet. Until you attach a Lakebase resource to the App, outbound TCP packets to the Lakebase private IP are dropped/reset by the App firewall.
+  - Even after you attach the resource, if you still try to connect with a PAT or an expired OAuth token (you generated it at module-import time), Lakebase drops the TLS session. Both cases surface to psycopg2 as server closed the connection unexpectedly.
 - There was an issue with adding new dependencies to the requirements files, regarding a "-" in the requirements.txt file. This occurs in dbx cli 0.252.0 or lower.
   - Upgrading databricks cli version to 0.258.0 resolves this issue.
