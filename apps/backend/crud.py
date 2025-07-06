@@ -1,11 +1,11 @@
-# apps/backend/crud.py
+import psycopg2.extras
 from db import get_conn
 from models import TableConfigIn, TableConfigOut, DQRuleIn, DQRuleOut
 
 def list_tables() -> list[TableConfigOut]:
-    with get_conn() as c, c.cursor() as cur:
-        cur.execute("SELECT * FROM mdf_app.table_config ORDER BY id")
-        rows = [TableConfigOut(**dict(r)) for r in cur.fetchall()]
+    with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur: # makes every row behave like a dict
+        cur.execute("SELECT * FROM mdf_app.table_config ORDER BY id;")
+        rows = [TableConfigOut(**row) for row in cur.fetchall()]   # row is already dict-like
     return rows
 
 def create_table(cfg: TableConfigIn) -> TableConfigOut:

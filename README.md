@@ -43,6 +43,15 @@ pip install uv          # uv is tiny
 uv pip install -r requirements.txt
 ```
 
+## HOW TO DEPLOY
+To deploy the app to Databricks, you can use the following command:
+```bash
+npm run build:frontend
+databricks bundle deploy --target dev
+```
+This command will build the frontend and deploy the app to the `dev` environment on Databricks.
+
+
 # CURRENT LIMITATIONS
 - There was an issue with adding new dependencies to the requirements files, regarding a "-" in the requirements.txt file. This occurs in dbx cli 0.252.0 or lower.
   - Upgrading databricks cli version to 0.258.0 resolves this issue.
