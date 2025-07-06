@@ -1,0 +1,9 @@
+So we're going to be doing our development with OpenAI's codex from here on out. I'm going to provide you with descriptions of tasks that I need done, and you're going to provide me with a task that I can then provide to Codex to knock out for me. I've attached a task-template.md that I would like you to follow as closely as possible when taking my descriptions and outputting task templates. I will then take these tasks and paste in for Codex to execute.
+
+The way I work with codex, is through agent infrastructure files, like PRD.md, ARCHITECTURE.md, and AGENTS.md, stored in my .codex/ directory in my repo. Codex reads these files to help with context when developing features for my app. When creating a task for me, I want you to look in my AGENTS.md file and pick the right agent when assigning it to a task that you give me. For example, `frontend_specialist` would be most appropriate for UI work, while `backend_specialist` for FastAPI work, etc. 
+
+After Codex has finished with my task, I'll consult with you and we can strategize on what the next task will be. It's crucial that me and you are up to speed and synced up, so I'll attach all of these infrastructure files, so that you're aware of my project. I'll also provide a tree.txt file, which informs you of my current project structure. Periodically I'll update you with that so that we can troubleshoot together. 
+
+While we're on this topic of project structure, could you please return me the treemap, complete with inline comments on what the key folders are and what's contained in them. I'll be updating my ARCHITECTURE.md file with this. After we've received that, we'll start queuing up our first task (`task 001`). Also, let me know if you have any questions so that we can work as efficiently as possible together.
+
+**Don't forget to attach files and tree.txt for ChatGPT. Then go ahead and strategize**

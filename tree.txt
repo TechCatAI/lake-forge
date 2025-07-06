@@ -3,54 +3,22 @@
 ├── apps
 │   ├── backend
 │   │   ├── __init__.py
-│   │   ├── __pycache__
-│   │   │   ├── crud.cpython-311.pyc
-│   │   │   ├── crud.cpython-313.pyc
-│   │   │   ├── db.cpython-311.pyc
-│   │   │   ├── db.cpython-312.pyc
-│   │   │   ├── db.cpython-313.pyc
-│   │   │   ├── main.cpython-311.pyc
-│   │   │   ├── main.cpython-312.pyc
-│   │   │   ├── main.cpython-313.pyc
-│   │   │   ├── models.cpython-311.pyc
-│   │   │   └── models.cpython-313.pyc
 │   │   ├── crud.py
 │   │   ├── db.py
 │   │   ├── main.py
 │   │   ├── models.py
 │   │   ├── routes
-│   │   │   ├── __pycache__
-│   │   │   │   ├── rules.cpython-311.pyc
-│   │   │   │   ├── tables.cpython-311.pyc
-│   │   │   │   └── tables.cpython-313.pyc
 │   │   │   ├── rules.py
 │   │   │   └── tables.py
 │   │   └── static
 │   │       ├── _next
-│   │       │   ├── 1HKh-X13vV8gg9XHcYZaF
+│   │       │   ├── EKXSMFHnxepwDMiLK_v9W
 │   │       │   └── static
-│   │       │       ├── 1HKh-X13vV8gg9XHcYZaF
-│   │       │       │   ├── _buildManifest.js
-│   │       │       │   └── _ssgManifest.js
-│   │       │       ├── chunks
-│   │       │       │   ├── 315-74ea8f89bb60d8b3.js
-│   │       │       │   ├── 87c73c54-c06bf96ac97e82fd.js
-│   │       │       │   ├── 970-fd0aad2ad4842d4d.js
-│   │       │       │   ├── app
-│   │       │       │   │   ├── _not-found
-│   │       │       │   │   │   └── page-231e15739b5135fa.js
-│   │       │       │   │   ├── layout-b7fa043da95602ab.js
-│   │       │       │   │   └── page-5e2edfbb30a527cc.js
-│   │       │       │   ├── framework-a306ef668059fb4f.js
-│   │       │       │   ├── main-9d7f293403753cbf.js
-│   │       │       │   ├── main-app-bc574d652aaceb14.js
-│   │       │       │   ├── pages
-│   │       │       │   │   ├── _app-a48f070af90c9683.js
-│   │       │       │   │   └── _error-b8c2e08355edc3b4.js
-│   │       │       │   ├── polyfills-42372ed130431b0a.js
-│   │       │       │   └── webpack-2f7d16d907ebca1d.js
 │   │       │       ├── css
 │   │       │       │   └── f0411033d528775d.css
+│   │       │       ├── EKXSMFHnxepwDMiLK_v9W
+│   │       │       │   ├── _buildManifest.js
+│   │       │       │   └── _ssgManifest.js
 │   │       │       └── media
 │   │       │           ├── 569ce4b8f30dc480-s.p.woff2
 │   │       │           ├── 747892c23ea88013-s.woff2
@@ -73,30 +41,13 @@
 │       ├── next.config.ts
 │       ├── out
 │       │   ├── _next
-│       │   │   ├── 1HKh-X13vV8gg9XHcYZaF
+│       │   │   ├── EKXSMFHnxepwDMiLK_v9W
 │       │   │   └── static
-│       │   │       ├── 1HKh-X13vV8gg9XHcYZaF
-│       │   │       │   ├── _buildManifest.js
-│       │   │       │   └── _ssgManifest.js
-│       │   │       ├── chunks
-│       │   │       │   ├── 315-74ea8f89bb60d8b3.js
-│       │   │       │   ├── 87c73c54-c06bf96ac97e82fd.js
-│       │   │       │   ├── 970-fd0aad2ad4842d4d.js
-│       │   │       │   ├── app
-│       │   │       │   │   ├── _not-found
-│       │   │       │   │   │   └── page-231e15739b5135fa.js
-│       │   │       │   │   ├── layout-b7fa043da95602ab.js
-│       │   │       │   │   └── page-5e2edfbb30a527cc.js
-│       │   │       │   ├── framework-a306ef668059fb4f.js
-│       │   │       │   ├── main-9d7f293403753cbf.js
-│       │   │       │   ├── main-app-bc574d652aaceb14.js
-│       │   │       │   ├── pages
-│       │   │       │   │   ├── _app-a48f070af90c9683.js
-│       │   │       │   │   └── _error-b8c2e08355edc3b4.js
-│       │   │       │   ├── polyfills-42372ed130431b0a.js
-│       │   │       │   └── webpack-2f7d16d907ebca1d.js
 │       │   │       ├── css
 │       │   │       │   └── f0411033d528775d.css
+│       │   │       ├── EKXSMFHnxepwDMiLK_v9W
+│       │   │       │   ├── _buildManifest.js
+│       │   │       │   └── _ssgManifest.js
 │       │   │       └── media
 │       │   │           ├── 569ce4b8f30dc480-s.p.woff2
 │       │   │           ├── 747892c23ea88013-s.woff2
@@ -138,4 +89,4 @@
 │   └── build_frontend.sh
 └── tree.txt
 
-33 directories, 106 files
+23 directories, 67 files
