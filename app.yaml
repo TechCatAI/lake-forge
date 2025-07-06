@@ -1,12 +1,14 @@
+# Since there is no build hook yet, we need to build the frontend and start the API in a single command.
+# This is a workaround until the build hook is implemented.
 command:
-  - uvicorn
-  - "--app-dir"
-  - "apps/backend"
-  - "main:app"
-  - "--host"
-  - "0.0.0.0"
-  - "--port"
-  - "8000"
+  - bash
+  - -c
+  - |
+      set -e
+      echo "▶️ Building frontend…"
+      bash scripts/build_frontend.sh
+      echo "▶️ Starting API…"
+      uvicorn --app-dir apps/backend main:app --host 0.0.0.0 --port 8000
 
 env:
   - name: DATABRICKS_SERVER_HOSTNAME
@@ -15,3 +17,11 @@ env:
     value: ${DATABRICKS_TOKEN}
   - name: DATABRICKS_WAREHOUSE_HTTP_PATH
     value: "/sql/1.0/warehouses/b4526cd9412a6183"
+  - name: LAKEBASE_INSTANCE
+    value: "lake-forge"
+  - name: LAKEBASE_DB
+    value: "lakeforge_db"
+  - name: LAKEBASE_SCHEMA
+    value: "mdf_app"
+  - name: LAKEBASE_USER
+    value: "patkelly92@gmail.com"

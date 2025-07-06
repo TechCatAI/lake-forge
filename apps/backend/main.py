@@ -2,9 +2,22 @@
 from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from db import get_conn          # relative import still works
+from fastapi.middleware.cors import CORSMiddleware
+from routes import tables, rules
+from db import get_conn          
 
 app = FastAPI(title="Lake-Forge API")
+
+# CORS (Next.js will call from same origin in prod; allow localhost dev)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "https://*.databricksusercontent.com"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(tables.router)
+app.include_router(rules.router)
 
 # Simple health check
 @app.get("/api/health")

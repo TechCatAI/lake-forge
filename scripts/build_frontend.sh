@@ -23,9 +23,10 @@ npm ci
 # Production build and static export
 npm run build
 
-echo "▶️  [lake-forge] Syncing static files → backend…"
+echo "▶️  Syncing static files → backend…"
 mkdir -p "$BACKEND_STATIC_DIR"
-rsync -a --delete "$STATIC_OUT_DIR/" "$BACKEND_STATIC_DIR/"
+find "$BACKEND_STATIC_DIR" -mindepth 1 -delete
+cp -R "$STATIC_OUT_DIR"/. "$BACKEND_STATIC_DIR"/
 
 echo "✅  Frontend build & copy complete."
 
