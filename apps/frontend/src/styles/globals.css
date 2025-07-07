@@ -1,0 +1,21 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Poppins:wght@600;700&display=swap");
+@import "tailwindcss";
+
+@theme inline {
+  --font-body: "Inter", sans-serif;
+  --font-display: "Poppins", sans-serif;
+}
+
+body {
+  @apply bg-blueprint-surface text-white font-sans;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @apply font-display;
+}
+
