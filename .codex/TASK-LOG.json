@@ -14,5 +14,17 @@
       "apps/frontend/src/components/ui/sheet.tsx",
       "apps/frontend/src/lib/utils.ts"
     ]
+  },
+  {
+    "task_id": "task-002",
+    "agent": "backend_specialist",
+    "date": "2025-07-07",
+    "summary": "Implemented PATCH /api/tables/{id} endpoint with validation, update schema, CRUD logic, route, and tests.",
+    "output_files": [
+      "apps/backend/models.py",
+      "apps/backend/crud.py",
+      "apps/backend/routes/tables.py",
+      "tests/test_tables_patch.py"
+    ]
   }
 ]
