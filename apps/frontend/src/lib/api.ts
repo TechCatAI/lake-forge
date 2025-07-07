@@ -1,5 +1,5 @@
 export interface APIError {
-  detail: string
+  detail: string | Array<{ loc: string[]; msg: string }>
 }
 
 export interface TableConfig {

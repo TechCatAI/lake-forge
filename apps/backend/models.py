@@ -20,6 +20,18 @@ class TableConfigBase(BaseModel):
 
 
 class TableConfigIn(TableConfigBase):  # for POST/PATCH
+    @validator("pk_columns", pre=True)
+    def _parse_pk(cls, v):
+        if v is None or v == "":
+            return []
+        if isinstance(v, str):
+            return [p.strip() for p in v.split(",") if p.strip()]
+        if isinstance(v, dict):
+            return list(v.values())
+        if isinstance(v, list):
+            return v
+        raise ValueError("pk_columns must be a comma string or list")
+
     @validator("pk_columns")
     def _require_pk_if_incremental(cls, v, values):
         load_type = values.get("load_type")
@@ -54,12 +66,12 @@ class TableConfigUpdate(BaseModel):
 
     @validator("pk_columns", pre=True)
     def _parse_pk(cls, v):
-        if v is None:
-            return v
+        if v is None or v == "":
+            return []
         if isinstance(v, str):
-            if not v:
-                return []
             return [part.strip() for part in v.split(",") if part.strip()]
+        if isinstance(v, dict):
+            return list(v.values())
         if isinstance(v, list):
             return v
         raise ValueError("pk_columns must be a comma string or list")

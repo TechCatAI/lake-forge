@@ -42,7 +42,11 @@ def test_create_table_allows_empty_pk_for_full(monkeypatch):
                 'connection_id': p['connection_id'],
                 'load_type': p['load_type'],
                 'pk_columns': p['pk_columns'],
-                'ingest_options': p['ingest_options'],
+                'ingest_options': (
+                    p['ingest_options'].adapted
+                    if hasattr(p['ingest_options'], 'adapted')
+                    else p['ingest_options']
+                ),
             }
 
     class DummyConn:
