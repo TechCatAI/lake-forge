@@ -83,8 +83,8 @@ export function EditableCell<T>({
       className={cn('w-full border px-1', className)}
       value={value}
       onChange={(e) => setValue(e.target.value)}
-      onBlur={save}
       onKeyDown={handleKey}
+      autoFocus
     />
   ) : (
     <div
