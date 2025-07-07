@@ -55,5 +55,23 @@
       "apps/frontend/src/lib/api.ts",
       "package-lock.json"
     ]
+  },
+  {
+    "task_id": "task-005",
+    "agent": "full_stack_specialist",
+    "date": "2025-07-07",
+    "summary": "Fixed SQL placeholders and server validation for tables API, added modal create flow with optimistic PATCH, and introduced tests for CRUD and API endpoints.",
+    "output_files": [
+      "apps/backend/crud.py",
+      "apps/backend/db.py",
+      "apps/backend/main.py",
+      "apps/backend/models.py",
+      "apps/backend/routes/rules.py",
+      "apps/backend/routes/tables.py",
+      "apps/frontend/src/app/table-config/AddTableDialog.tsx",
+      "apps/frontend/src/app/table-config/page.tsx",
+      "tests/test_api_tables.py",
+      "tests/test_crud_update.py"
+    ]
   }
 ]
