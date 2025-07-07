@@ -235,7 +235,9 @@ export default function TableConfigPage() {
   return (
     <div className="p-4 overflow-auto">
       <div className="flex justify-between mb-2 sticky top-0 bg-background z-10">
-        <h1 className="text-2xl font-bold">Table Configuration</h1>
+        <h1 className="text-2xl font-bold text-blueprint-blue font-display">
+          Table Configuration
+        </h1>
         <div className="flex items-center gap-2">
           {dirtyRows.size > 0 && (
             <Button onClick={saveChanges} disabled={savingAll}>
@@ -267,9 +269,7 @@ export default function TableConfigPage() {
           {table.getRowModel().rows.map((row) => (
             <tr
               key={row.id}
-              className={`transition-colors ${
-                row.index % 2 === 0 ? 'bg-zinc-900/40' : ''
-              } hover:bg-zinc-700`}
+              className="even:bg-zinc-900/40 hover:bg-zinc-700 transition-colors"
             >
               {row.getVisibleCells().map((cell, idx) => {
                 const value = cell.getValue();
