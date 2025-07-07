@@ -59,14 +59,13 @@ export default function TableConfigPage() {
     field: K,
     value: TableConfig[K],
   ) {
-    setData((ds) => ds.map((r) => (r.id === id ? { ...r, [field]: value } : r)));
+    setData((ds) => ds.map((r) => (r.id === id ? { ...r, [field]: value } : r)))
     setDirtyRows((map) => {
-      const next = new Map(map);
-      const current: Partial<TableConfig> = next.get(id) ?? {};
-      (current as Partial<TableConfig>)[field] = value;
-      next.set(id, current);
-      return next;
-    });
+      const next = new Map(map)
+      const cur = { ...(next.get(id) ?? {}), [field]: value }
+      next.set(id, cur)
+      return next
+    })
   }
 
   async function saveChanges() {
@@ -268,7 +267,9 @@ export default function TableConfigPage() {
           {table.getRowModel().rows.map((row) => (
             <tr
               key={row.id}
-              className="even:bg-zinc-900/40 hover:bg-zinc-700 transition-colors"
+              className={`transition-colors ${
+                row.index % 2 === 0 ? 'bg-zinc-900/40' : ''
+              } hover:bg-zinc-700`}
             >
               {row.getVisibleCells().map((cell, idx) => {
                 const value = cell.getValue();
