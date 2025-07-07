@@ -89,5 +89,19 @@
       "tests/test_api_tables.py",
       "tests/test_crud_create.py"
     ]
+  },
+  {
+    "task_id": "task-007",
+    "agent": "full_stack_specialist",
+    "date": "2025-07-07",
+    "summary": "Saving queued edits no longer crashes; Creating a new row with empty PK list (full load) succeeds",
+    "output_files": [
+      "apps/backend/models.py",
+      "apps/backend/crud.py",
+      "apps/backend/routes/tables.py",
+      "apps/frontend/src/app/table-config/AddTableDialog.tsx",
+      "apps/frontend/src/app/table-config/page.tsx",
+      "tests/test_api_tables.py" 
+    ]
   }
 ]
