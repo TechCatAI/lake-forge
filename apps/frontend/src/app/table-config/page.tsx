@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-static";
 import { useState, useEffect, useRef } from "react";
 import {
   ColumnDef,
@@ -26,6 +27,8 @@ export default function TableConfigPage() {
   const [dirtyRows, setDirtyRows] = useState<Map<number, Partial<TableConfig>>>(
     new Map(),
   );
+  const origData = useRef<Map<number, TableConfig>>(new Map());
+  const [dirtyCount, setDirtyCount] = useState(0);
   const [savingAll, setSavingAll] = useState(false);
 
   useEffect(() => {
@@ -45,6 +48,9 @@ export default function TableConfigPage() {
       setLoading(true);
       const rows = await fetchTables();
       setData(rows);
+      origData.current = new Map(rows.map((r) => [r.id, r]));
+      setDirtyRows(new Map());
+      setDirtyCount(0);
     } catch (err) {
       const detail = (err as APIError).detail;
       const msg = Array.isArray(detail) ? detail[0].msg : detail;
@@ -62,8 +68,20 @@ export default function TableConfigPage() {
     setData((ds) => ds.map((r) => (r.id === id ? { ...r, [field]: value } : r)))
     setDirtyRows((map) => {
       const next = new Map(map)
-      const cur = { ...(next.get(id) ?? {}), [field]: value }
-      next.set(id, cur)
+      const orig = origData.current.get(id)
+      if (!orig) return next
+      const prev = next.get(id) ?? {}
+      const changed = { ...prev, [field]: value }
+      if (orig[field] === value) {
+        delete (changed as Record<string, unknown>)[field as string]
+      }
+      if (Object.keys(changed).length === 0) next.delete(id)
+      else next.set(id, changed)
+      const count = Array.from(next.values()).reduce(
+        (sum, d) => sum + Object.keys(d).length,
+        0,
+      )
+      setDirtyCount(count)
       return next
     })
   }
@@ -88,6 +106,7 @@ export default function TableConfigPage() {
     for (const res of results) {
       if ('row' in res) {
         setData((ds) => ds.map((r) => (r.id === res.id ? res.row : r)));
+        origData.current.set(res.id, res.row);
         remaining.delete(res.id);
       } else {
         const prev = before.get(res.id);
@@ -100,12 +119,18 @@ export default function TableConfigPage() {
       }
     }
     setDirtyRows(remaining);
-    if (remaining.size === 0) toast.success('Saved');
+    const count = Array.from(remaining.values()).reduce(
+      (sum, d) => sum + Object.keys(d).length,
+      0,
+    );
+    setDirtyCount(count);
+    if (count === 0) toast.success('Saved');
     setSavingAll(false);
   }
 
   function addRow(row: TableConfig) {
     setData((d) => [row, ...d]);
+    origData.current.set(row.id, row);
     setLastAdded(row.id);
   }
 
@@ -239,12 +264,12 @@ export default function TableConfigPage() {
           Table Configuration
         </h1>
         <div className="flex items-center gap-2">
-          {dirtyRows.size > 0 && (
+          {dirtyCount > 0 && (
             <Button onClick={saveChanges} disabled={savingAll}>
               {savingAll && (
                 <span className="h-4 w-4 mr-1 border-2 border-current border-t-transparent rounded-full animate-spin" />
               )}
-              Save changes ({dirtyRows.size})
+              Save changes ({dirtyCount})
             </Button>
           )}
           <AddTableDialog onCreate={addRow} />
