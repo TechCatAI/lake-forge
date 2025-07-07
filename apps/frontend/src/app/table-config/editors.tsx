@@ -1,6 +1,7 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import { cn } from '../../lib/utils'
+import Spinner from '../../components/Spinner'
 
 export function EditableCell<T>({
   initialValue,
@@ -8,12 +9,14 @@ export function EditableCell<T>({
   className,
   parse = (v: string) => v as unknown as T,
   format = (v: T) => String(v ?? ''),
+  saving,
 }: {
   initialValue: T
   onSave(value: T): void
   className?: string
   parse?: (val: string) => T
   format?: (val: T) => string
+  saving?: boolean
 }) {
   const [editing, setEditing] = useState(false)
   const [value, setValue] = useState(format(initialValue))
@@ -35,6 +38,14 @@ export function EditableCell<T>({
       setEditing(false)
       setValue(format(initialValue))
     }
+  }
+
+  if (saving) {
+    return (
+      <div className={cn('flex justify-center items-center py-1', className)}>
+        <Spinner className="h-4 w-4" />
+      </div>
+    )
   }
 
   return editing ? (
