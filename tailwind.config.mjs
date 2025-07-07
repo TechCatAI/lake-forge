@@ -1,6 +1,7 @@
 export default {
   content: [
-    './apps/frontend/src/**/*.{ts,tsx,js,jsx}'
+    './apps/**/*.{ts,tsx}',
+    './components/**/*.{ts,tsx}',
   ],
   theme: {
     extend: {

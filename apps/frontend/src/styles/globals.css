@@ -7,7 +7,8 @@
 }
 
 body {
-  @apply bg-blueprint-surface text-white font-sans;
+  background-color: #0F0F0F;
+  @apply text-white font-sans;
 }
 
 h1,
