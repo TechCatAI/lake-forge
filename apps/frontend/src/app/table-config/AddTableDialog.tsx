@@ -51,8 +51,7 @@ export default function AddTableDialog({
       const row = await createTable({
         ...form,
         pk_columns: form.pk_columns
-          .split(",")
-          .map((p) => p.trim())
+          .split(/\s*,\s*/)
           .filter(Boolean),
         source_kind: "volume",
         is_enabled: true,
@@ -146,7 +145,7 @@ export default function AddTableDialog({
             </select>
             <input
               className="border w-full px-1"
-              placeholder="PK Columns"
+              placeholder="id,date"
               value={form.pk_columns}
               onChange={(e) => setForm({ ...form, pk_columns: e.target.value })}
               onKeyDown={(e) => {

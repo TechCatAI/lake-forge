@@ -1,5 +1,7 @@
+import json
 import psycopg2.extras
 from psycopg2 import sql
+from fastapi import HTTPException
 from db import get_conn
 from models import (
     TableConfigIn,
@@ -53,14 +55,23 @@ def create_table(cfg: TableConfigIn) -> TableConfigOut:
         if isinstance(val, str) and not val.strip():
             raise ValueError(f"{f} is required")
     pk_columns = data.get("pk_columns")
+    if pk_columns in (None, ""):
+        pk_columns = []
     if isinstance(pk_columns, dict):
         pk_columns = list(pk_columns.values())
-    elif isinstance(pk_columns, str):
+    if isinstance(pk_columns, str):
         pk_columns = [pk_columns]
-    data["pk_columns"] = pk_columns
+    data["pk_columns"] = list(pk_columns)
 
     if data.get("load_type") == "incremental" and not pk_columns:
         raise ValueError("pk_columns is required for incremental load")
+
+    data["ingest_options"] = psycopg2.extras.Json(
+        data.get("ingest_options", {}), dumps=lambda v: json.dumps(v, default=str)
+    )
+
+    if data.get("load_type") == "full" and not data["pk_columns"]:
+        data["pk_columns"] = []
 
     q = """
     INSERT INTO mdf_app.table_config
@@ -87,6 +98,22 @@ def update_table(id: int, payload: TableConfigUpdate) -> TableConfigOut:
 
     fields = payload.dict(exclude_none=True)
     user = fields.pop("updated_by", None) or "system"
+
+    invalid = [
+        c
+        for c, v in fields.items()
+        if c not in {"pk_columns", "ingest_options"} and isinstance(v, (list, dict))
+    ]
+    if invalid:
+        raise HTTPException(
+            status_code=422,
+            detail=[{"loc": ["body", f], "msg": "must be scalar"} for f in invalid],
+        )
+
+    if "ingest_options" in fields:
+        fields["ingest_options"] = psycopg2.extras.Json(
+            fields["ingest_options"], dumps=lambda v: json.dumps(v, default=str)
+        )
 
     stmt, params = build_update_sql("mdf_app.table_config", fields)
     params.update({"id": id, "updated_by": user})

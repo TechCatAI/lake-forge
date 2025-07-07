@@ -18,7 +18,11 @@ def create_table(cfg: TableConfigIn):
     try:
         return crud.create_table(cfg)
     except ValueError as e:
-        raise HTTPException(status_code=422, detail=str(e))
+        field = str(e).split()[0]
+        raise HTTPException(
+            status_code=422,
+            detail=[{"loc": ["body", field], "msg": str(e)}],
+        )
 
 
 @router.patch("/{id}", response_model=TableConfigOut)

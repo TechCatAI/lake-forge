@@ -75,10 +75,26 @@ def test_post_full_allows_empty_pk(monkeypatch):
     assert resp.status_code == 201
 
 
+def test_post_full_empty_string_pk(monkeypatch):
+    monkeypatch.setattr(crud, "create_table", stub_create_table)
+    payload = valid_payload()
+    payload["pk_columns"] = ""
+    resp = client.post("/api/tables", json=payload)
+    assert resp.status_code == 201
+
+
 def test_post_incremental_requires_pk():
     payload = valid_payload()
     payload["load_type"] = "incremental"
     payload["pk_columns"] = []
+    resp = client.post("/api/tables", json=payload)
+    assert resp.status_code == 422
+
+
+def test_post_incremental_empty_string_pk():
+    payload = valid_payload()
+    payload["load_type"] = "incremental"
+    payload["pk_columns"] = ""
     resp = client.post("/api/tables", json=payload)
     assert resp.status_code == 422
 
@@ -93,4 +109,10 @@ def test_patch_happy(monkeypatch):
 def test_patch_bad_enum(monkeypatch):
     monkeypatch.setattr(crud, "update_table", stub_update_table)
     resp = client.patch("/api/tables/1", json={"load_type": "bad"})
+    assert resp.status_code == 422
+
+
+def test_patch_invalid_payload(monkeypatch):
+    monkeypatch.setattr(crud, "update_table", stub_update_table)
+    resp = client.patch("/api/tables/1", json={"catalog": {"x": 1}})
     assert resp.status_code == 422

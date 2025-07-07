@@ -46,7 +46,9 @@ export default function TableConfigPage() {
       const rows = await fetchTables();
       setData(rows);
     } catch (err) {
-      toast.error((err as APIError).detail || "Failed to load");
+      const detail = (err as APIError).detail;
+      const msg = Array.isArray(detail) ? detail[0].msg : detail;
+      toast.error(msg || "Failed to load");
     } finally {
       setLoading(false);
     }
@@ -92,7 +94,10 @@ export default function TableConfigPage() {
         const prev = before.get(res.id);
         if (prev)
           setData((ds) => ds.map((r) => (r.id === res.id ? prev : r)));
-        toast.error(res.err.detail || 'Error');
+        const msg = Array.isArray(res.err.detail)
+          ? res.err.detail[0].msg
+          : res.err.detail;
+        toast.error(msg || 'Error');
       }
     }
     setDirtyRows(remaining);
@@ -162,22 +167,26 @@ export default function TableConfigPage() {
     {
       accessorKey: "load_type",
       header: "Load Type",
-      cell: ({ row, getValue }) => (
-        <select
-          className="border rounded px-1"
-          defaultValue={getValue<string>()}
-          onChange={(e) =>
-            handleEdit(
-              row.original.id,
-              "load_type",
-              e.target.value as TableConfig["load_type"],
-            )
-          }
-        >
-          <option value="full">full</option>
-          <option value="incremental">incremental</option>
-        </select>
-      ),
+      cell: ({ row, getValue }) => {
+        const val = getValue() as unknown;
+        if (typeof val !== "string") return <span>{JSON.stringify(val)}</span>;
+        return (
+          <select
+            className="border rounded px-1"
+            defaultValue={val}
+            onChange={(e) =>
+              handleEdit(
+                row.original.id,
+                "load_type",
+                e.target.value as TableConfig["load_type"],
+              )
+            }
+          >
+            <option value="full">full</option>
+            <option value="incremental">incremental</option>
+          </select>
+        );
+      },
     },
     {
       accessorKey: "pk_columns",
@@ -250,21 +259,26 @@ export default function TableConfigPage() {
         <tbody>
           {table.getRowModel().rows.map((row) => (
             <tr key={row.id} className="hover:bg-gray-50">
-              {row.getVisibleCells().map((cell, idx) => (
-                <td
-                  key={cell.id}
-                  className="border px-2"
-                  ref={
-                    idx === 1
-                      ? (el) => {
-                          firstCellRefs.current[row.original.id] = el;
-                        }
-                      : undefined
-                  }
-                >
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
+              {row.getVisibleCells().map((cell, idx) => {
+                const value = cell.getValue();
+                return (
+                  <td
+                    key={cell.id}
+                    className="border px-2"
+                    ref={
+                      idx === 1
+                        ? (el) => {
+                            firstCellRefs.current[row.original.id] = el;
+                          }
+                        : undefined
+                    }
+                  >
+                    {typeof value === "object" && !cell.column.columnDef.cell
+                      ? JSON.stringify(value)
+                      : flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                );
+              })}
             </tr>
           ))}
         </tbody>
