@@ -20,7 +20,12 @@ class TableConfigBase(BaseModel):
 
 
 class TableConfigIn(TableConfigBase):  # for POST/PATCH
-    pass
+    @validator("pk_columns")
+    def _require_pk_if_incremental(cls, v, values):
+        load_type = values.get("load_type")
+        if load_type == "incremental" and (not v or len(v) == 0):
+            raise ValueError("pk_columns required for incremental load")
+        return v
 
 
 class TableConfigOut(TableConfigBase):  # for GET

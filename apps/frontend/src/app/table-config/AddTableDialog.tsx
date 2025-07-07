@@ -37,7 +37,7 @@ export default function AddTableDialog({
     form.schema_name &&
     form.table_name &&
     form.source_path &&
-    form.pk_columns;
+    (form.load_type === "incremental" ? form.pk_columns : true);
 
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});

@@ -30,13 +30,21 @@ export function EditableCell<T>({
     if (editing) inputRef.current?.focus()
   }, [editing])
 
+  function save() {
+    setEditing(false)
+    onSave(parse(value))
+  }
+
+  function cancel() {
+    setEditing(false)
+    setValue(format(initialValue))
+  }
+
   function handleKey(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter') {
-      setEditing(false)
-      onSave(parse(value))
+      save()
     } else if (e.key === 'Escape') {
-      setEditing(false)
-      setValue(format(initialValue))
+      cancel()
     }
   }
 
@@ -54,15 +62,12 @@ export function EditableCell<T>({
       className={cn('w-full border px-1', className)}
       value={value}
       onChange={(e) => setValue(e.target.value)}
-      onBlur={() => {
-        setEditing(false)
-        onSave(parse(value))
-      }}
+      onBlur={save}
       onKeyDown={handleKey}
     />
   ) : (
     <div
-      className={cn('w-full px-1 py-1', className)}
+      className={cn('w-full px-1 py-1 cursor-text', className)}
       onClick={() => setEditing(true)}
     >
       {format(initialValue)}
