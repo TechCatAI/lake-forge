@@ -27,7 +27,10 @@ export function EditableCell<T>({
   }, [initialValue, format])
 
   useEffect(() => {
-    if (editing) inputRef.current?.focus()
+    if (editing) {
+      inputRef.current?.focus()
+      inputRef.current?.select()
+    }
   }, [editing])
 
   function save() {
@@ -38,6 +41,24 @@ export function EditableCell<T>({
   function cancel() {
     setEditing(false)
     setValue(format(initialValue))
+  }
+
+  function startEditing(initial?: string) {
+    setEditing(true)
+    setValue(initial !== undefined ? initial : format(initialValue))
+  }
+
+  function handleDisplayKey(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      startEditing()
+    } else if (e.key === 'Backspace' || e.key === 'Delete') {
+      e.preventDefault()
+      startEditing('')
+    } else if (e.key.length === 1 && !e.metaKey && !e.ctrlKey && !e.altKey) {
+      e.preventDefault()
+      startEditing(e.key)
+    }
   }
 
   function handleKey(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -67,8 +88,10 @@ export function EditableCell<T>({
     />
   ) : (
     <div
-      className={cn('w-full px-1 py-1 cursor-text', className)}
-      onClick={() => setEditing(true)}
+      className={cn('w-full px-1 py-1 cursor-text outline-none', className)}
+      tabIndex={0}
+      onClick={() => startEditing()}
+      onKeyDown={handleDisplayKey}
     >
       {format(initialValue)}
     </div>
