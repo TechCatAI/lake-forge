@@ -1,5 +1,5 @@
 import psycopg2.extras
-from sqlalchemy import text
+from psycopg2 import sql
 from db import get_conn
 from models import (
     TableConfigIn,
@@ -8,6 +8,24 @@ from models import (
     DQRuleIn,
     DQRuleOut,
 )
+
+
+def build_update_sql(
+    table: str, cols: dict[str, object]
+) -> tuple[sql.SQL, dict[str, object]]:
+    """Return UPDATE statement and params for given columns."""
+    if not cols:
+        raise ValueError("No columns provided")
+
+    assignments = [sql.SQL(f"{col} = %({col})s") for col in cols.keys()]
+    assignments.append(sql.SQL("updated_at = now()"))
+    assignments.append(sql.SQL("updated_by = %(updated_by)s"))
+
+    stmt = sql.SQL("UPDATE {} SET {} WHERE id = %(id)s RETURNING *;").format(
+        sql.SQL(table), sql.SQL(", ").join(assignments)
+    )
+
+    return stmt, cols.copy()
 
 
 def list_tables() -> list[TableConfigOut]:
@@ -22,6 +40,21 @@ def list_tables() -> list[TableConfigOut]:
 
 
 def create_table(cfg: TableConfigIn) -> TableConfigOut:
+    data = cfg.dict()
+    required = [
+        "source_system",
+        "catalog",
+        "schema_name",
+        "table_name",
+        "source_path",
+    ]
+    for f in required:
+        val = data.get(f)
+        if isinstance(val, str) and not val.strip():
+            raise ValueError(f"{f} is required")
+    if not data.get("pk_columns"):
+        raise ValueError("pk_columns is required")
+
     q = """
     INSERT INTO mdf_app.table_config
       (source_kind, source_system, catalog, schema_name, table_name,
@@ -34,8 +67,10 @@ def create_table(cfg: TableConfigIn) -> TableConfigOut:
             %(user)s, %(user)s)
     RETURNING *;
     """
-    with get_conn() as c, c.cursor() as cur:
-        cur.execute(q, {**cfg.dict(), "user": "lake-forge-api"})
+    with get_conn() as c, c.cursor(
+        cursor_factory=psycopg2.extras.RealDictCursor
+    ) as cur:
+        cur.execute(q, {**data, "user": "lake-forge-api"})
         row = cur.fetchone()
     return TableConfigOut(**dict(row))
 
@@ -44,26 +79,15 @@ def update_table(id: int, payload: TableConfigUpdate) -> TableConfigOut:
     """Partially update a table configuration."""
 
     fields = payload.dict(exclude_none=True)
-    if not fields:
-        raise ValueError("No fields provided for update")
+    user = fields.pop("updated_by", None) or "system"
 
-    set_clauses = [f"{col} = :{col}" for col in fields]
-    set_clauses.append("updated_by = :user")
-    q = text(
-        f"""
-        UPDATE mdf_app.table_config
-        SET {', '.join(set_clauses)}
-        WHERE id = :id
-        RETURNING *;
-        """
-    )
-
-    params = {**fields, "id": id, "user": "lake-forge-api"}
+    stmt, params = build_update_sql("mdf_app.table_config", fields)
+    params.update({"id": id, "updated_by": user})
 
     with get_conn() as c, c.cursor(
         cursor_factory=psycopg2.extras.RealDictCursor
     ) as cur:
-        cur.execute(str(q), params)
+        cur.execute(stmt, params)
         row = cur.fetchone()
 
     return TableConfigOut(**dict(row))

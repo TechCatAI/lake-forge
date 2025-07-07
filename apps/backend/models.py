@@ -45,6 +45,7 @@ class TableConfigUpdate(BaseModel):
     load_type: Optional[Literal["full", "incremental"]] = None
     pk_columns: Optional[List[str] | str] = None
     ingest_options: Optional[dict[str, Any]] = None
+    updated_by: Optional[str] = None
 
     @validator("pk_columns", pre=True)
     def _parse_pk(cls, v):

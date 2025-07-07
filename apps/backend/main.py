@@ -4,7 +4,6 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from routes import tables, rules
-from db import get_conn          
 
 app = FastAPI(title="Lake-Forge API")
 
@@ -19,10 +18,12 @@ app.add_middleware(
 app.include_router(tables.router)
 app.include_router(rules.router)
 
+
 # Simple health check
 @app.get("/api/health")
 def health():
     return {"status": "ok"}
+
 
 # ────────────────────────
 # STATIC UI (placeholder)
@@ -32,5 +33,3 @@ def health():
 static_dir = Path(__file__).parent / "static"
 static_dir.mkdir(exist_ok=True)
 app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
-
-
