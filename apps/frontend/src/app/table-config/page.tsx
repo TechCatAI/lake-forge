@@ -209,11 +209,19 @@ export default function TableConfigPage() {
     {
       accessorKey: "updated_at",
       header: "Updated At",
-      cell: ({ getValue }) => (
-        <div className="text-right">
-          {new Date(getValue<string>()).toLocaleString()}
-        </div>
-      ),
+      cell: ({ getValue }) => {
+        const val = getValue() as string | null | undefined
+        if (!val) return <div className="text-right">&mdash;</div>
+        const date = new Date(val)
+        return (
+          <div className="text-right">
+            {date.toLocaleString('en-US', {
+              dateStyle: 'short',
+              timeStyle: 'short',
+            })}
+          </div>
+        )
+      },
     },
   ];
 
@@ -258,7 +266,10 @@ export default function TableConfigPage() {
         </thead>
         <tbody>
           {table.getRowModel().rows.map((row) => (
-            <tr key={row.id} className="hover:bg-gray-50">
+            <tr
+              key={row.id}
+              className="even:bg-muted/30 hover:bg-muted transition-colors"
+            >
               {row.getVisibleCells().map((cell, idx) => {
                 const value = cell.getValue();
                 return (
