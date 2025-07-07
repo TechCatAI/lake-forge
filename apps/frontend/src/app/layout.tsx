@@ -18,7 +18,7 @@ export default function RootLayout({
       <body className="antialiased flex">
         <Sidebar />
         <main className="flex-1 md:ml-60">{children}</main>
-        <Toaster richColors />
+        <Toaster theme="dark" richColors />
       </body>
     </html>
   );
