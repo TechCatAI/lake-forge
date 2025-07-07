@@ -1,5 +1,5 @@
 # apps/backend/routes/tables.py
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from models import TableConfigIn, TableConfigOut, TableConfigUpdate
 
 # from crud import list_tables, create_table
@@ -15,7 +15,10 @@ def list_tables():
 
 @router.post("", response_model=TableConfigOut, status_code=201)
 def create_table(cfg: TableConfigIn):
-    return crud.create_table(cfg)
+    try:
+        return crud.create_table(cfg)
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
 
 
 @router.patch("/{id}", response_model=TableConfigOut)
