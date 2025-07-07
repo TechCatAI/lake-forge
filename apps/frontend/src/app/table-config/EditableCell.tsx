@@ -1,30 +1,32 @@
 'use client'
-import { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { cn } from '../../lib/utils'
 import Spinner from '../../components/Spinner'
 
-export function EditableCell<T>({
-  initialValue,
-  onSave,
-  className,
-  parse = (v: string) => v as unknown as T,
-  format = (v: T) => String(v ?? ''),
-  saving,
-}: {
+export interface EditableCellProps<T> {
   initialValue: T
   onSave(value: T): void
   className?: string
   parse?: (val: string) => T
   format?: (val: T) => string
   saving?: boolean
-}) {
+}
+
+function EditableCellInner<T>({
+  initialValue,
+  onSave,
+  className,
+  parse = (v: string) => v as unknown as T,
+  format = (v: T) => String(v ?? ''),
+  saving,
+}: EditableCellProps<T>) {
   const [editing, setEditing] = useState(false)
   const [value, setValue] = useState(format(initialValue))
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     setValue(format(initialValue))
-  }, [initialValue, format])
+  }, [initialValue]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (editing) {
@@ -84,6 +86,7 @@ export function EditableCell<T>({
       value={value}
       onChange={(e) => setValue(e.target.value)}
       onKeyDown={handleKey}
+      onBlur={save}
       autoFocus
     />
   ) : (
@@ -97,6 +100,11 @@ export function EditableCell<T>({
     </div>
   )
 }
+
+export const EditableCell = React.memo(
+  EditableCellInner,
+  (a, b) => a.initialValue === b.initialValue && a.saving === b.saving,
+) as typeof EditableCellInner
 
 export function Switch({ checked, onChange }: { checked: boolean; onChange(v: boolean): void }) {
   return (
