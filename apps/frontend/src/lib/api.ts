@@ -16,7 +16,7 @@ export interface TableConfig {
   load_type: 'full' | 'incremental'
   pk_columns: string[]
   ingest_options: Record<string, unknown>
-  updated_at?: string
+  updated_at: string | null
 }
 
 export type TableInput = Omit<TableConfig, 'id' | 'updated_at'>

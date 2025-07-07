@@ -124,5 +124,16 @@
       "apps/frontend/src/app/table-config/EditableCell.tsx",
       "apps/frontend/src/app/table-config/page.tsx"
     ]
+  },
+  {
+    "task_id": "task-011",
+    "agent": "full_stack_specialist",
+    "date": "2025-07-07",
+    "summary": "Expose updated_at field from backend and display it in table grid.",
+    "output_files": [
+      "apps/backend/models.py",
+      "apps/frontend/src/lib/api.ts",
+      "apps/frontend/src/app/table-config/page.tsx"
+    ]
   }
 ]

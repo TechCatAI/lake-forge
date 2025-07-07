@@ -1,6 +1,7 @@
 # apps/backend/models.py
 from pydantic import BaseModel, validator
 from typing import List, Optional, Literal, Any
+from datetime import datetime
 
 
 # ---------- TableConfig ----------
@@ -42,6 +43,7 @@ class TableConfigIn(TableConfigBase):  # for POST/PATCH
 
 class TableConfigOut(TableConfigBase):  # for GET
     id: int
+    updated_at: Optional[datetime] = None
 
 
 class TableConfigUpdate(BaseModel):
