@@ -209,7 +209,7 @@ export default function TableConfigPage() {
       accessorKey: "updated_at",
       header: "Updated At",
       cell: ({ getValue }) => {
-        const val = getValue() as string | null | undefined
+        const val = getValue() as string | null
         if (!val) return <div className="text-right">&mdash;</div>
         const date = new Date(val)
         return (
