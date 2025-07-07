@@ -24,12 +24,3 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
-
-@layer utilities {
-  .bg-muted {
-    @apply bg-zinc-100 dark:bg-zinc-800/60;
-  }
-  .bg-muted\/30 {
-    @apply bg-zinc-50 dark:bg-zinc-800/30;
-  }
-}
