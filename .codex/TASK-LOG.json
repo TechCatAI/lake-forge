@@ -73,5 +73,21 @@
       "tests/test_api_tables.py",
       "tests/test_crud_update.py"
     ]
+  },
+  {
+    "task_id": "task-006",
+    "agent": "full_stack_specialist",
+    "date": "2025-07-07",
+    "summary": "Implemented single-click inline editing with batch save logic and allowed empty pk_columns for full load mode.",
+    "output_files": [
+      "README.md",
+      "apps/backend/crud.py",
+      "apps/backend/models.py",
+      "apps/frontend/src/app/table-config/AddTableDialog.tsx",
+      "apps/frontend/src/app/table-config/EditableCell.tsx",
+      "apps/frontend/src/app/table-config/page.tsx",
+      "tests/test_api_tables.py",
+      "tests/test_crud_create.py"
+    ]
   }
 ]

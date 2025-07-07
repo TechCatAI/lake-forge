@@ -58,6 +58,12 @@ When deployed to Databricks, the app will use Oauth authentication. Logic for th
 ### Database Connection setup
 
 
+### Table Config Editing
+Changes made in the Table Config grid are now kept locally until you click
+**Save changes**. Edit any cell with a single click, then use the button in the
+header to persist all pending updates at once.
+
+
 # CURRENT LIMITATIONS ENCOUNTERED
 - I encountered an issue where we can connect to postgres through notebooks, but not from a databricks app. Clusters and notebooks live inside the workspace VNet and can hit thenative Postgres port 5432. 
   Lakehouse Apps run in a locked-down serverless network where only HTTPS/443 is open. The serverless egress policy blocks communication to Postgres. At the time of writing (2025-07-05), there is no "native resource type" in the Databricks app configuration that allows you to connect to Postgres Lakebase resource directly.

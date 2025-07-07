@@ -52,8 +52,15 @@ def create_table(cfg: TableConfigIn) -> TableConfigOut:
         val = data.get(f)
         if isinstance(val, str) and not val.strip():
             raise ValueError(f"{f} is required")
-    if not data.get("pk_columns"):
-        raise ValueError("pk_columns is required")
+    pk_columns = data.get("pk_columns")
+    if isinstance(pk_columns, dict):
+        pk_columns = list(pk_columns.values())
+    elif isinstance(pk_columns, str):
+        pk_columns = [pk_columns]
+    data["pk_columns"] = pk_columns
+
+    if data.get("load_type") == "incremental" and not pk_columns:
+        raise ValueError("pk_columns is required for incremental load")
 
     q = """
     INSERT INTO mdf_app.table_config

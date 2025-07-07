@@ -67,6 +67,22 @@ def test_post_validation_error():
     assert resp.status_code == 422
 
 
+def test_post_full_allows_empty_pk(monkeypatch):
+    monkeypatch.setattr(crud, "create_table", stub_create_table)
+    payload = valid_payload()
+    payload["pk_columns"] = []
+    resp = client.post("/api/tables", json=payload)
+    assert resp.status_code == 201
+
+
+def test_post_incremental_requires_pk():
+    payload = valid_payload()
+    payload["load_type"] = "incremental"
+    payload["pk_columns"] = []
+    resp = client.post("/api/tables", json=payload)
+    assert resp.status_code == 422
+
+
 def test_patch_happy(monkeypatch):
     monkeypatch.setattr(crud, "update_table", stub_update_table)
     resp = client.patch("/api/tables/1", json={"catalog": "x"})
