@@ -267,10 +267,7 @@ export default function TableConfigPage() {
         </thead>
         <tbody>
           {table.getRowModel().rows.map((row) => (
-            <tr
-              key={row.id}
-              className="even:bg-zinc-900/40 hover:bg-zinc-700 transition-colors"
-            >
+            <tr key={row.id}>
               {row.getVisibleCells().map((cell, idx) => {
                 const value = cell.getValue();
                 return (

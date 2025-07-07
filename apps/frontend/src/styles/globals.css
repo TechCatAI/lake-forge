@@ -20,3 +20,21 @@ h6 {
   @apply font-display;
 }
 
+/*
+  Apply zebra striping to all tables across the app. Every even row gets
+  a subtle background color and hovering a row highlights it to improve
+  readability. New tables added in the future automatically inherit this
+  style.
+*/
+table tbody tr {
+  @apply transition-colors;
+}
+
+table tbody tr:nth-child(even) {
+  @apply bg-zinc-900/40;
+}
+
+table tbody tr:hover {
+  @apply bg-zinc-700;
+}
+
