@@ -20,3 +20,15 @@ h6 {
   @apply font-display;
 }
 
+@layer base {
+  table tbody tr:nth-child(even) {
+    @apply bg-zinc-900/40;
+  }
+  table tbody tr {
+    @apply transition-colors;
+  }
+  table tbody tr:hover {
+    @apply bg-zinc-700;
+  }
+}
+
