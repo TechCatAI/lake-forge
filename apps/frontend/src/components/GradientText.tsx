@@ -18,7 +18,7 @@ export default function GradientText({
 }: GradientTextProps) {
   const gradientStyle = {
     backgroundImage: `linear-gradient(to right, ${colors.join(', ')})`,
-    animationDuration: `${animationSpeed}s`,
+    animation: `gradient ${animationSpeed}s linear infinite`,
   }
 
   return (
