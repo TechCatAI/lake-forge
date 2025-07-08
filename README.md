@@ -52,8 +52,9 @@ databricks bundle deploy --target dev
 This command will use the build the frontend and deploy the app to the `dev` environment on Databricks.
 
 ## NOTE ON AUTHENTICATION
-The app, when deployed locally, relies on the `DATABRICKS_SERVER_HOSTNAME` and `DATABRICKS_TOKEN` environment variables for authentication. Ensure these are set correctly in your environment before running the app.
+- The app, when deployed locally, relies on the `DATABRICKS_SERVER_HOSTNAME` and `DATABRICKS_TOKEN` environment variables for authentication. Ensure these are set correctly in your environment before running the app.
 When deployed to Databricks, the app will use Oauth authentication. Logic for this is handled in teh `db.py` file, where if the `DATABRICKS_SERVER_HOSTNAME` and `DATABRICKS_TOKEN` environment variables are not set, it will use the Databricks Oauth flow to authenticate users.
+- When running the app in the databricks cloud environment, the app will use it's service principal id to authenticate to Lakebase. Make sure that proper permissions are set for the service principal to access Lakebase resources. It needs a proper sql role assigned to it.
 
 ### Database Connection setup
 

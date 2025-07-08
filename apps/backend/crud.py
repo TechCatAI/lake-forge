@@ -10,11 +10,9 @@ from models import (
     DQRuleIn,
     DQRuleOut,
 )
+import logging
 
-
-def build_update_sql(
-    table: str, cols: dict[str, object]
-) -> tuple[sql.SQL, dict[str, object]]:
+def build_update_sql(table: str, cols: dict[str, object]) -> tuple[sql.SQL, dict[str, object]]:
     """Return UPDATE statement and params for given columns."""
     if not cols:
         raise ValueError("No columns provided")
@@ -23,22 +21,20 @@ def build_update_sql(
     assignments.append(sql.SQL("updated_at = now()"))
     assignments.append(sql.SQL("updated_by = %(updated_by)s"))
 
-    stmt = sql.SQL("UPDATE {} SET {} WHERE id = %(id)s RETURNING *;").format(
-        sql.SQL(table), sql.SQL(", ").join(assignments)
-    )
+    stmt = sql.SQL("UPDATE {} SET {} WHERE id = %(id)s RETURNING *;").format(sql.SQL(table), sql.SQL(", ").join(assignments))
 
     return stmt, cols.copy()
 
 
 def list_tables() -> list[TableConfigOut]:
-    with get_conn() as c, c.cursor(
-        cursor_factory=psycopg2.extras.RealDictCursor
-    ) as cur:  # makes every row behave like a dict
-        cur.execute("SELECT * FROM mdf_app.table_config ORDER BY id;")
-        rows = [
-            TableConfigOut(**row) for row in cur.fetchall()
-        ]  # row is already dict-like
-    return rows
+    try:
+        with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:  # makes every row behave like a dict
+            cur.execute("SELECT * FROM mdf_app.table_config ORDER BY id;")
+            rows = [TableConfigOut(**row) for row in cur.fetchall()]  # row is already dict-like
+        return rows
+    except Exception as e:
+        logging.error(f"Error listing tables: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error while listing tables")
 
 
 def create_table(cfg: TableConfigIn) -> TableConfigOut:
@@ -85,9 +81,7 @@ def create_table(cfg: TableConfigIn) -> TableConfigOut:
             %(user)s, %(user)s)
     RETURNING *;
     """
-    with get_conn() as c, c.cursor(
-        cursor_factory=psycopg2.extras.RealDictCursor
-    ) as cur:
+    with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(q, {**data, "user": "lake-forge-api"})
         row = cur.fetchone()
     return TableConfigOut(**dict(row))
@@ -118,9 +112,7 @@ def update_table(id: int, payload: TableConfigUpdate) -> TableConfigOut:
     stmt, params = build_update_sql("mdf_app.table_config", fields)
     params.update({"id": id, "updated_by": user})
 
-    with get_conn() as c, c.cursor(
-        cursor_factory=psycopg2.extras.RealDictCursor
-    ) as cur:
+    with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(stmt, params)
         row = cur.fetchone()
 

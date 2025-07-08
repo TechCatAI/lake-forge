@@ -9,33 +9,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Lakebase connection settings
-INSTANCE = os.getenv("LAKEBASE_INSTANCE")
-HOST = os.getenv("LAKEBASE_READ_WRITE_DNS")
-DB_NAME = os.getenv("LAKEBASE_DB")
-SCHEMA = os.getenv("LAKEBASE_SCHEMA")
-DB_USER = os.getenv("LAKEBASE_USER")
-
-# # VERSION 3:
-# ws = WorkspaceClient()
-
-# def fresh_token() -> str:
-#     cred = ws.database.generate_database_credential(
-#         request_id=str(uuid.uuid4()),
-#         instance_names=[INSTANCE],
-#         lifetime_seconds=900                 # 15 min max
-#     )
-#     return cred.token
-
-# def get_conn():
-#     return psycopg2.connect(
-#         host     = HOST,
-#         dbname   = DB_NAME,
-#         user     = DB_USER,
-#         password = fresh_token(),            # <-- always current
-#         sslmode  = "require",
-#         port     = 5432                      # Lakebase listens here inside the VPC
-#     )
-
+INSTANCE = os.getenv("PGAPPNAME")
+HOST = os.getenv("PGHOST")
+DB_NAME = os.getenv("PGDATABASE")
+SCHEMA = os.getenv("PG_SCHEMA")
+DB_USER = os.getenv("PGUSER")
 
 # VERSION 2:
 @lru_cache(maxsize=1)
@@ -68,7 +46,6 @@ def ws() -> WorkspaceClient:
             "No OAuth client vars (CLIENT_ID/SECRET) and no PAT found. "
             "Set a PAT locally or run inside Databricks Apps."
         )
-
     return WorkspaceClient(config=cfg)
 
 
@@ -104,8 +81,7 @@ def get_conn():
     """Return a *new* psycopg2 connection to Lakebase."""
     return psycopg2.connect(
         host=lakebase_dns(),
-        # host     = "instance-802be291-9414-4a59-b464-61b09c33f76d.database.azuredatabricks.net",
-        port = 443 if os.getenv("DATABRICKS_APP_NAME") else 5432,  # 443 in Apps, 5432 in local dev
+        port=5432,
         dbname=DB_NAME,
         user=DB_USER,
         password=fresh_token(),  # short-lived OAuth
