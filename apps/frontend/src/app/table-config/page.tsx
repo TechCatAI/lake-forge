@@ -10,6 +10,7 @@ import LoadingSpinner from "../../components/LoadingSpinner";
 import { toast } from "sonner";
 import { EditableCell, Switch } from "./EditableCell";
 import Button from "../../components/ui/button";
+import GradientText from "../../components/GradientText";
 import AddTableDialog from "./AddTableDialog";
 import {
   fetchTables,
@@ -259,9 +260,14 @@ export default function TableConfigPage() {
   return (
     <div className="p-4 overflow-auto">
       <div className="flex justify-between mb-2 sticky top-0 bg-background z-10">
-        <h1 className="text-2xl font-bold text-blueprint-blue font-display">
+        <GradientText
+          colors={["#40ffaa", "#4079ff", "#40ffaa", "#4079ff", "#40ffaa"]}
+          animationSpeed={3}
+          showBorder={false}
+          className="text-2xl font-bold font-display"
+        >
           Table Configuration
-        </h1>
+        </GradientText>
         <div className="flex items-center gap-2">
           {dirtyCount > 0 && (
             <Button onClick={saveChanges} disabled={savingAll}>
