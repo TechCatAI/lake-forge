@@ -50,7 +50,7 @@ def ws() -> WorkspaceClient:
     pat = os.getenv("DATABRICKS_TOKEN")
     host = os.environ["DATABRICKS_HOST"]
 
-    if cid and csec:  # ← Apps path (OAuth M2M)
+    if cid and csec:  # ← Deployed Apps path (OAuth M2M)
         cfg = Config(
             host=host,
             auth_type="oauth-m2m",
@@ -105,7 +105,7 @@ def get_conn():
     return psycopg2.connect(
         host=lakebase_dns(),
         # host     = "instance-802be291-9414-4a59-b464-61b09c33f76d.database.azuredatabricks.net",
-        port=5432,
+        port = 443 if os.getenv("DATABRICKS_APP_NAME") else 5432,  # 443 in Apps, 5432 in local dev
         dbname=DB_NAME,
         user=DB_USER,
         password=fresh_token(),  # short-lived OAuth

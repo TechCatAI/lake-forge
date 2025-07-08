@@ -49,7 +49,7 @@ To deploy the app to Databricks, you can use the following command:
 npm run build:frontend
 databricks bundle deploy --target dev
 ```
-This command will build the frontend and deploy the app to the `dev` environment on Databricks.
+This command will use the build the frontend and deploy the app to the `dev` environment on Databricks.
 
 ## NOTE ON AUTHENTICATION
 The app, when deployed locally, relies on the `DATABRICKS_SERVER_HOSTNAME` and `DATABRICKS_TOKEN` environment variables for authentication. Ensure these are set correctly in your environment before running the app.
