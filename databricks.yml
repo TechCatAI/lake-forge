@@ -3,7 +3,7 @@ bundle:
 
 resources:
   apps:
-    lake_forge_app:
+    app:
       name: lake-forge
       source_code_path: .
       description: "Metadata-driven ingestion UI"
