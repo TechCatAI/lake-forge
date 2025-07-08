@@ -135,5 +135,14 @@
       "apps/frontend/src/lib/api.ts",
       "apps/frontend/src/app/table-config/page.tsx"
     ]
+  },
+  {
+    "task_id": "task-012",
+    "agent": "full_stack_specialist",
+    "date": "2025-07-08",
+    "summary": "Fix gradient animation style for Table Configuration title.",
+    "output_files": [
+      "apps/frontend/src/components/GradientText.tsx"
+    ]
   }
 ]
