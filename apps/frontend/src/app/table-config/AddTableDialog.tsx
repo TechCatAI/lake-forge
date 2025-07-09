@@ -167,7 +167,7 @@ export default function AddTableDialog({
             </select>
             <input
               className="border w-full px-1"
-              placeholder="{"key":"value"}"
+              placeholder='{"key":"value"}'
               value={form.ingest_options}
               onChange={(e) => setForm({ ...form, ingest_options: e.target.value })}
             />
