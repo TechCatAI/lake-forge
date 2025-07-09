@@ -13,6 +13,7 @@ from models import (
 )
 import logging
 
+
 def build_update_sql(table: str, cols: dict[str, object]) -> tuple[sql.SQL, dict[str, object]]:
     """Return UPDATE statement and params for given columns."""
     if not cols:
@@ -190,3 +191,15 @@ def update_rule(id: int, payload: DQRuleUpdate) -> DQRuleOut:
             row["fqtn"] = cur.fetchone()["fqtn"]
 
     return DQRuleOut(**dict(row))
+
+
+def delete_table(id: int) -> None:
+    """Delete table config by ID."""
+    with get_conn() as c, c.cursor() as cur:
+        cur.execute("DELETE FROM mdf_app.table_config WHERE id = %s;", (id,))
+
+
+def delete_rule(id: int) -> None:
+    """Delete data quality rule by ID."""
+    with get_conn() as c, c.cursor() as cur:
+        cur.execute("DELETE FROM mdf_app.dq_rule WHERE id = %s;", (id,))
