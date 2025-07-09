@@ -13,11 +13,17 @@ class TableConfigBase(BaseModel):
     table_name: str
     is_enabled: bool = False
     source_path: str
-    file_format: Optional[str] = None
+    file_format: Optional[Literal["parquet", "csv", "json", "avro"]] = None
     connection_id: Optional[int] = None
     load_type: Literal["full", "incremental"]
     pk_columns: List[str]
     ingest_options: dict[str, Any] = {}
+
+    @validator("source_path")
+    def _non_blank_path(cls, v: str) -> str:
+        if not v or not str(v).strip():
+            raise ValueError("source_path must not be blank")
+        return v
 
 
 class TableConfigIn(TableConfigBase):  # for POST/PATCH
@@ -59,7 +65,7 @@ class TableConfigUpdate(BaseModel):
     table_name: Optional[str] = None
     is_enabled: Optional[bool] = None
     source_path: Optional[str] = None
-    file_format: Optional[str] = None
+    file_format: Optional[Literal["parquet", "csv", "json", "avro"]] = None
     connection_id: Optional[int] = None
     load_type: Optional[Literal["full", "incremental"]] = None
     pk_columns: Optional[List[str] | str] = None
@@ -83,6 +89,12 @@ class TableConfigUpdate(BaseModel):
         load_type = values.get("load_type")
         if load_type == "incremental" and (not v or len(v) == 0):
             raise ValueError("pk_columns required for incremental load")
+        return v
+
+    @validator("source_path")
+    def _non_blank_patch(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None and not str(v).strip():
+            raise ValueError("source_path must not be blank")
         return v
 
 

@@ -64,6 +64,15 @@ Changes made in the Table Config grid are now kept locally until you click
 **Save changes**. Edit any cell with a single click, then use the button in the
 header to persist all pending updates at once.
 
+#### Table Config Columns
+
+| Column | Type | Allowed Values |
+|--------|------|----------------|
+| `source_kind` | enum | `volume`, `external`, `jdbc` |
+| `source_path` | text | non-empty string |
+| `file_format` | enum | `parquet`, `csv`, `json`, `avro` |
+| `ingest_options` | JSON | any object |
+
 
 # CURRENT LIMITATIONS ENCOUNTERED
 - I encountered an issue where we can connect to postgres through notebooks, but not from a databricks app. Clusters and notebooks live inside the workspace VNet and can hit thenative Postgres port 5432. 
@@ -74,5 +83,4 @@ header to persist all pending updates at once.
 - Databricks Notebook:	Same as local dev; notebooks run on Workspace compute where the workspace VNet already trusts Lakebase.
 - Databricks App:	    The container runs in a locked-down serverless subnet. Until you attach a Lakebase resource to the App, outbound TCP packets to the Lakebase private IP are dropped/reset by the App firewall.
   - Even after you attach the resource, if you still try to connect with a PAT or an expired OAuth token (you generated it at module-import time), Lakebase drops the TLS session. Both cases surface to psycopg2 as server closed the connection unexpectedly.
-- There was an issue with adding new dependencies to the requirements files, regarding a "-" in the requirements.txt file. This occurs in dbx cli 0.252.0 or lower.
-  - Upgrading databricks cli version to 0.258.0 resolves this issue.
+- There was an issue with adding new dependencies to the requirements files, regarding a "-" in the requirements.txt file. This occurs in dbx cli 0.252.0 or lower.  - Upgrading databricks cli version to 0.258.0 resolves this issue.
