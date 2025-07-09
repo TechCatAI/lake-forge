@@ -10,6 +10,7 @@ import { cn } from '../lib/utils';
 const navItems = [
   { name: 'Dashboard', href: '/' },
   { name: 'Table Config', href: '/table-config' },
+  { name: 'DQ Rules', href: '/dq-rules' },
 ] as const;
 
 function NavLinks({ pathname }: { pathname: string | null }) {

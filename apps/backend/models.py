@@ -100,3 +100,16 @@ class DQRuleIn(DQRuleBase):
 
 class DQRuleOut(DQRuleBase):
     id: int
+    updated_at: Optional[datetime] = None
+
+
+class DQRuleUpdate(BaseModel):
+    """Partial DQ rule update payload."""
+
+    class Config:
+        extra = "forbid"
+
+    rule_name: Optional[str] = None
+    rule_sql: Optional[str] = None
+    severity: Optional[Literal["warn", "fail", "drop"]] = None
+    updated_by: Optional[str] = None
