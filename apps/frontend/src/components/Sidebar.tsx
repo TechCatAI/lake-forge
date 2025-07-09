@@ -29,7 +29,7 @@ function NavLinks({ pathname, collapsed }: { pathname: string | null; collapsed?
                 collapsed && 'justify-center'
               )}
             >
-              <item.icon className="h-5 w-5" />
+              <item.icon className="h-5 w-5 shrink-0" />
               {!collapsed && <span>{item.name}</span>}
             </Link>
           </li>
@@ -59,7 +59,7 @@ export default function Sidebar() {
       <Sheet>
         <SheetTrigger>
           <Button className="m-4 md:hidden" aria-label="Open navigation">
-            <MenuIcon className="h-5 w-5" />
+            <MenuIcon className="h-5 w-5 shrink-0" />
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="md:hidden p-0">
@@ -79,7 +79,7 @@ export default function Sidebar() {
           onClick={() => setCollapsed(!collapsed)}
           aria-label="Toggle sidebar"
         >
-          <MenuIcon className="h-5 w-5" />
+          <MenuIcon className="h-5 w-5 shrink-0" />
         </button>
         <NavLinks pathname={pathname} collapsed={collapsed} />
       </aside>

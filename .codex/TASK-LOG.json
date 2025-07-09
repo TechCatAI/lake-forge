@@ -165,5 +165,14 @@
       "apps/frontend/package.json",
       "tests/test_api_delete.py"
     ]
+  },
+  {
+    "task_id": "task-unknown",
+    "agent": "frontend_specialist",
+    "date": "2025-07-09",
+    "summary": "Prevented sidebar icons from shrinking when the navigation is collapsed.",
+    "output_files": [
+      "apps/frontend/src/components/Sidebar.tsx"
+    ]
   }
 ]
