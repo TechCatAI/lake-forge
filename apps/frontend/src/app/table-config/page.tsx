@@ -13,8 +13,20 @@ import Button from "../../components/ui/button";
 import GradientText from "../../components/GradientText";
 import AddTableDialog from "./AddTableDialog";
 import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "../../components/ui/alert-dialog";
+import { Trash } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
   fetchTables,
   updateTable,
+  deleteTable,
   type TableConfig,
   type APIError,
 } from "../../lib/api";
@@ -132,6 +144,32 @@ export default function TableConfigPage() {
     setData((d) => [row, ...d]);
     origData.current.set(row.id, row);
     setLastAdded(row.id);
+  }
+
+  function handleDelete(id: number) {
+    const prev = data.find((r) => r.id === id);
+    if (!prev) return;
+    setData((ds) => ds.filter((r) => r.id !== id));
+    deleteTable(id).then(
+      () => {
+        origData.current.delete(id);
+        setDirtyRows((map) => {
+          const next = new Map(map);
+          next.delete(id);
+          const count = Array.from(next.values()).reduce(
+            (sum, d) => sum + Object.keys(d).length,
+            0,
+          );
+          setDirtyCount(count);
+          return next;
+        });
+      },
+      (err: APIError) => {
+        setData((ds) => [prev, ...ds]);
+        const msg = Array.isArray(err.detail) ? err.detail[0].msg : err.detail;
+        toast.error(msg || 'Error');
+      },
+    );
   }
 
   const columns: ColumnDef<TableConfig>[] = [
@@ -320,6 +358,28 @@ export default function TableConfigPage() {
         )
       },
     },
+    {
+      id: "delete",
+      header: "",
+      cell: ({ row }) => (
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Trash className="h-4 w-4 text-red-500 cursor-pointer opacity-0 group-hover:opacity-100" />
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>Delete row?</AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel asChild>
+                <Button>Cancel</Button>
+              </AlertDialogCancel>
+              <AlertDialogAction asChild>
+                <Button onClick={() => handleDelete(row.original.id)}>Delete</Button>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      ),
+    },
   ];
 
   const table = useReactTable({
@@ -369,17 +429,20 @@ export default function TableConfigPage() {
           ))}
         </thead>
         <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr
-              key={row.id}
-              className="even:bg-zinc-900/40 hover:bg-zinc-700 transition-colors"
-            >
-              {row.getVisibleCells().map((cell, idx) => {
-                const value = cell.getValue();
-                return (
-                  <td
-                    key={cell.id}
-                    className="border px-2"
+          <AnimatePresence>
+            {table.getRowModel().rows.map((row) => (
+              <motion.tr
+                layout
+                exit={{ opacity: 0 }}
+                key={row.id}
+                className="group even:bg-zinc-900/40 hover:bg-zinc-700 transition-colors"
+              >
+                {row.getVisibleCells().map((cell, idx) => {
+                  const value = cell.getValue();
+                  return (
+                    <td
+                      key={cell.id}
+                      className="border px-2"
                     ref={
                       idx === 1
                         ? (el) => {
@@ -394,8 +457,9 @@ export default function TableConfigPage() {
                   </td>
                 );
               })}
-            </tr>
-          ))}
+              </motion.tr>
+            ))}
+          </AnimatePresence>
         </tbody>
       </table>
     </div>
