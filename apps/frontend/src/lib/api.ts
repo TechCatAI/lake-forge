@@ -102,3 +102,17 @@ export async function createTable(payload: TableInput): Promise<TableConfig> {
   }
   return res.json()
 }
+
+export async function deleteTable(id: number): Promise<void> {
+  const res = await fetch(`/api/tables/${id}`, { method: 'DELETE' })
+  if (!res.ok) {
+    throw (await res.json()) as APIError
+  }
+}
+
+export async function deleteRule(id: number): Promise<void> {
+  const res = await fetch(`/api/rules/${id}`, { method: 'DELETE' })
+  if (!res.ok) {
+    throw (await res.json()) as APIError
+  }
+}

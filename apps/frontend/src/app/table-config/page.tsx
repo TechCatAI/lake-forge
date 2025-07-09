@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { Trash } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ColumnDef,
   flexRender,
@@ -15,9 +17,16 @@ import AddTableDialog from "./AddTableDialog";
 import {
   fetchTables,
   updateTable,
+  deleteTable,
   type TableConfig,
   type APIError,
 } from "../../lib/api";
+import {
+  AlertDialog,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+} from "../../components/ui/alert-dialog";
 
 export default function TableConfigPage() {
   const [data, setData] = useState<TableConfig[]>([]);
@@ -30,6 +39,11 @@ export default function TableConfigPage() {
   const origData = useRef<Map<number, TableConfig>>(new Map());
   const [dirtyCount, setDirtyCount] = useState(0);
   const [savingAll, setSavingAll] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState<{
+    id: number;
+    row: TableConfig;
+    index: number;
+  } | null>(null);
 
   useEffect(() => {
     loadTables();
@@ -132,6 +146,34 @@ export default function TableConfigPage() {
     setData((d) => [row, ...d]);
     origData.current.set(row.id, row);
     setLastAdded(row.id);
+  }
+
+  async function handleDelete(id: number, row: TableConfig, index: number) {
+    setData((ds) => ds.filter((r) => r.id !== id));
+    try {
+      await deleteTable(id);
+      origData.current.delete(id);
+      setDirtyRows((map) => {
+        const next = new Map(map);
+        next.delete(id);
+        const count = Array.from(next.values()).reduce(
+          (sum, d) => sum + Object.keys(d).length,
+          0,
+        );
+        setDirtyCount(count);
+        return next;
+      });
+      toast.success('Deleted');
+    } catch (err) {
+      setData((ds) => {
+        const next = [...ds];
+        next.splice(index, 0, row);
+        return next;
+      });
+      const detail = (err as APIError).detail;
+      const msg = Array.isArray(detail) ? detail[0].msg : detail;
+      toast.error(msg || 'Error deleting');
+    }
   }
 
   const columns: ColumnDef<TableConfig>[] = [
@@ -369,35 +411,79 @@ export default function TableConfigPage() {
           ))}
         </thead>
         <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr
-              key={row.id}
-              className="even:bg-zinc-900/40 hover:bg-zinc-700 transition-colors"
-            >
-              {row.getVisibleCells().map((cell, idx) => {
-                const value = cell.getValue();
-                return (
-                  <td
-                    key={cell.id}
-                    className="border px-2"
-                    ref={
-                      idx === 1
-                        ? (el) => {
-                            firstCellRefs.current[row.original.id] = el;
-                          }
-                        : undefined
+          <AnimatePresence initial={false}>
+            {table.getRowModel().rows.map((row) => (
+              <motion.tr
+                layout
+                exit={{ opacity: 0 }}
+                key={row.id}
+                className="group even:bg-zinc-900/40 hover:bg-zinc-700 transition-colors"
+              >
+                {row.getVisibleCells().map((cell, idx) => {
+                  const value = cell.getValue();
+                  return (
+                    <td
+                      key={cell.id}
+                      className="border px-2"
+                      ref={
+                        idx === 1
+                          ? (el) => {
+                              firstCellRefs.current[row.original.id] = el;
+                            }
+                          : undefined
+                      }
+                    >
+                      {typeof value === "object" && !cell.column.columnDef.cell
+                        ? JSON.stringify(value)
+                        : flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  );
+                })}
+                <td className="border px-2 text-right w-8">
+                  <Trash
+                    className="h-4 w-4 opacity-0 group-hover:opacity-100 text-red-500 cursor-pointer"
+                    onClick={() =>
+                      setConfirmDelete({
+                        id: row.original.id,
+                        row: row.original,
+                        index: row.index,
+                      })
                     }
-                  >
-                    {typeof value === "object" && !cell.column.columnDef.cell
-                      ? JSON.stringify(value)
-                      : flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
+                  />
+                </td>
+              </motion.tr>
+            ))}
+          </AnimatePresence>
         </tbody>
       </table>
+      <AlertDialog
+        open={!!confirmDelete}
+        onOpenChange={(o) => !o && setConfirmDelete(null)}
+      >
+        {confirmDelete && (
+          <>
+            <AlertDialogTitle>Delete row?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone.
+            </AlertDialogDescription>
+            <AlertDialogFooter>
+              <Button onClick={() => setConfirmDelete(null)}>Cancel</Button>
+              <Button
+                onClick={() => {
+                  if (confirmDelete)
+                    handleDelete(
+                      confirmDelete.id,
+                      confirmDelete.row,
+                      confirmDelete.index,
+                    ).then(() => setConfirmDelete(null));
+                }}
+              >
+                Delete
+              </Button>
+            </AlertDialogFooter>
+          </>
+        )}
+      </AlertDialog>
     </div>
   );
 }

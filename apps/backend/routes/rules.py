@@ -21,3 +21,9 @@ def create_rule(cfg: DQRuleIn):
 @router.patch("/{id}", response_model=DQRuleOut)
 def update_rule(id: int, payload: DQRuleUpdate):
     return crud.update_rule(id, payload)
+
+
+@router.delete("/{id}", status_code=204)
+def delete_rule(id: int):
+    crud.delete_rule(id)
+    return

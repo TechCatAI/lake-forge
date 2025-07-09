@@ -17,7 +17,9 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased flex">
         <Sidebar />
-        <main className="flex-1 md:ml-60">{children}</main>
+        <main className="flex-1" style={{ marginLeft: 'var(--sidebar-width)' }}>
+          {children}
+        </main>
         <Toaster theme="dark" richColors />
       </body>
     </html>

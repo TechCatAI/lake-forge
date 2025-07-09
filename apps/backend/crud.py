@@ -190,3 +190,19 @@ def update_rule(id: int, payload: DQRuleUpdate) -> DQRuleOut:
             row["fqtn"] = cur.fetchone()["fqtn"]
 
     return DQRuleOut(**dict(row))
+
+
+def delete_table(id: int) -> None:
+    """Delete a table configuration by ID."""
+    with get_conn() as c, c.cursor() as cur:
+        cur.execute("DELETE FROM mdf_app.table_config WHERE id = %s", (id,))
+        if cur.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Table not found")
+
+
+def delete_rule(id: int) -> None:
+    """Delete a DQ rule by ID."""
+    with get_conn() as c, c.cursor() as cur:
+        cur.execute("DELETE FROM mdf_app.dq_rule WHERE id = %s", (id,))
+        if cur.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Rule not found")
