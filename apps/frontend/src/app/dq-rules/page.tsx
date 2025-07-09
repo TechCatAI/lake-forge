@@ -10,6 +10,7 @@ import LoadingSpinner from "../../components/LoadingSpinner";
 import { toast } from "sonner";
 import { EditableCell } from "../table-config/EditableCell";
 import Button from "../../components/ui/button";
+import Tooltip from "../../components/ui/tooltip";
 import GradientText from "../../components/GradientText";
 import AddRuleDialog from "./AddRuleDialog";
 import {
@@ -20,6 +21,7 @@ import {
   type TableConfig,
   type APIError,
 } from "../../lib/api";
+import { cn } from "../../lib/utils";
 
 function SQLCell({
   value,
@@ -174,6 +176,16 @@ export default function DQRulesPage() {
 
   const columns: ColumnDef<DQRule>[] = [
     {
+      header: "Table Name",
+      accessorKey: "fqtn",
+      enableSorting: true,
+      cell: ({ getValue }) => (
+        <Tooltip content={getValue<string>()}>
+          <span className="truncate">{getValue<string>()}</span>
+        </Tooltip>
+      ),
+    },
+    {
       accessorKey: "table_config_id",
       header: "Enabled",
       cell: ({ getValue }) => {
@@ -299,9 +311,12 @@ export default function DQRulesPage() {
               {row.getVisibleCells().map((cell, idx) => (
                 <td
                   key={cell.id}
-                  className="border px-2"
+                  className={cn(
+                    'border px-2',
+                    idx === 0 && 'sticky left-0 bg-surface',
+                  )}
                   ref={
-                    idx === 1
+                    idx === 2
                       ? (el) => {
                           firstCellRefs.current[row.original.id] = el;
                         }

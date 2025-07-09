@@ -18,6 +18,7 @@ SAMPLE_ROW = {
     "rule_sql": "select 1",
     "severity": "warn",
     "updated_at": None,
+    "fqtn": "c.s.t",
 }
 
 
