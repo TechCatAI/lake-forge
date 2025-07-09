@@ -124,8 +124,7 @@ def list_rules() -> list[DQRuleOut]:
     """List all data quality rules."""
     q = """
         SELECT id, table_config_id, rule_name, rule_sql, severity, updated_at
-        FROM dq_rule
-        ORDER BY id;
+        FROM mdf_app.dq_rule ORDER BY id;
     """
     with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(q)
@@ -135,7 +134,7 @@ def list_rules() -> list[DQRuleOut]:
 
 def create_rule(cfg: DQRuleIn) -> DQRuleOut:
     q = """
-        INSERT INTO dq_rule
+        INSERT INTO mdf_app.dq_rule
             (table_config_id, rule_name, rule_sql, severity, created_by, updated_by)
         VALUES (%(table_config_id)s, %(rule_name)s, %(rule_sql)s, %(severity)s, %(user)s, %(user)s)
         RETURNING *;
@@ -152,7 +151,7 @@ def update_rule(id: int, payload: DQRuleUpdate) -> DQRuleOut:
     fields = payload.dict(exclude_none=True)
     user = fields.pop("updated_by", None) or "system"
 
-    stmt, params = build_update_sql("dq_rule", fields)
+    stmt, params = build_update_sql("mdf_app.dq_rule", fields)
     params.update({"id": id, "updated_by": user})
 
     with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
