@@ -4,5 +4,6 @@ python-dotenv==1.1.1
 databricks-sql-connector==3.7.3
 databricks-sdk==0.57.0
 psycopg2-binary
-croniter
-SQLAlchemy==2.0.30
+croniterSQLAlchemy==2.0.30
+httpx
+

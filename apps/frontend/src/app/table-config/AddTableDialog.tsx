@@ -6,13 +6,16 @@ import { toast } from "sonner";
 import { createTable, type TableConfig, type APIError } from "../../lib/api";
 
 export interface AddPayload {
+  source_kind: "volume" | "external" | "jdbc";
   source_system: string;
   catalog: string;
   schema_name: string;
   table_name: string;
   source_path: string;
+  file_format: "parquet" | "csv" | "json" | "avro";
   load_type: "full" | "incremental";
   pk_columns: string;
+  ingest_options: string;
 }
 
 export default function AddTableDialog({
@@ -22,13 +25,16 @@ export default function AddTableDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<AddPayload>({
+    source_kind: "volume",
     source_system: "",
     catalog: "",
     schema_name: "",
     table_name: "",
     source_path: "",
+    file_format: "parquet",
     load_type: "full",
     pk_columns: "",
+    ingest_options: "{}",
   });
 
   const valid =
@@ -37,6 +43,7 @@ export default function AddTableDialog({
     form.schema_name &&
     form.table_name &&
     form.source_path &&
+    form.ingest_options &&
     (form.load_type === "incremental" ? form.pk_columns : true);
 
   const [saving, setSaving] = useState(false);
@@ -50,25 +57,24 @@ export default function AddTableDialog({
     try {
       const row = await createTable({
         ...form,
-        pk_columns: form.pk_columns
-          .split(/\s*,\s*/)
-          .filter(Boolean),
-        source_kind: "volume",
+        pk_columns: form.pk_columns.split(/\s*,\s*/).filter(Boolean),
+        ingest_options: JSON.parse(form.ingest_options || "{}"),
         is_enabled: true,
-        file_format: null,
         connection_id: null,
-        ingest_options: {},
       });
       onCreate(row);
       toast.success("Table Config added");
       setForm({
+        source_kind: "volume",
         source_system: "",
         catalog: "",
         schema_name: "",
         table_name: "",
         source_path: "",
+        file_format: "parquet",
         load_type: "full",
         pk_columns: "",
+        ingest_options: "{}",
       });
       setOpen(false);
     } catch (err) {
@@ -122,6 +128,20 @@ export default function AddTableDialog({
               value={form.table_name}
               onChange={(e) => setForm({ ...form, table_name: e.target.value })}
             />
+            <select
+              className="border w-full px-1"
+              value={form.source_kind}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  source_kind: e.target.value as AddPayload["source_kind"],
+                })
+              }
+            >
+              <option value="volume">volume</option>
+              <option value="external">external</option>
+              <option value="jdbc">jdbc</option>
+            </select>
             <input
               className={`border w-full px-1 ${errors.source_path ? "border-red-500" : ""}`}
               placeholder="Source Path"
@@ -129,6 +149,27 @@ export default function AddTableDialog({
               onChange={(e) =>
                 setForm({ ...form, source_path: e.target.value })
               }
+            />
+            <select
+              className="border w-full px-1"
+              value={form.file_format}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  file_format: e.target.value as AddPayload["file_format"],
+                })
+              }
+            >
+              <option value="parquet">parquet</option>
+              <option value="csv">csv</option>
+              <option value="json">json</option>
+              <option value="avro">avro</option>
+            </select>
+            <input
+              className="border w-full px-1"
+              placeholder="{"key":"value"}"
+              value={form.ingest_options}
+              onChange={(e) => setForm({ ...form, ingest_options: e.target.value })}
             />
             <select
               className={`border w-full px-1 ${errors.pk_columns ? "border-red-500" : ""}`}

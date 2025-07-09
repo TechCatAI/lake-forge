@@ -213,6 +213,79 @@ export default function TableConfigPage() {
       },
     },
     {
+      accessorKey: "source_kind",
+      header: "Source Kind",
+      cell: ({ row, getValue }) => (
+        <select
+          className="border rounded px-1 w-28"
+          defaultValue={getValue<string>()}
+          onChange={(e) =>
+            handleEdit(
+              row.original.id,
+              "source_kind",
+              e.target.value as TableConfig["source_kind"],
+            )
+          }
+        >
+          <option value="volume">volume</option>
+          <option value="external">external</option>
+          <option value="jdbc">jdbc</option>
+        </select>
+      ),
+    },
+    {
+      accessorKey: "source_path",
+      header: "Source Path",
+      cell: ({ row, getValue }) => (
+        <EditableCell
+          initialValue={getValue<string>()}
+          onSave={(v) => handleEdit(row.original.id, "source_path", v)}
+          className="text-left"
+        />
+      ),
+    },
+    {
+      accessorKey: "file_format",
+      header: "File Format",
+      cell: ({ row, getValue }) => (
+        <select
+          className="border rounded px-1 w-28"
+          defaultValue={getValue<string>() ?? "parquet"}
+          onChange={(e) =>
+            handleEdit(
+              row.original.id,
+              "file_format",
+              e.target.value as TableConfig["file_format"],
+            )
+          }
+        >
+          <option value="parquet">parquet</option>
+          <option value="csv">csv</option>
+          <option value="json">json</option>
+          <option value="avro">avro</option>
+        </select>
+      ),
+    },
+    {
+      accessorKey: "ingest_options",
+      header: "Ingest Options",
+      cell: ({ row, getValue }) => (
+        <EditableCell
+          initialValue={getValue<Record<string, unknown>>()}
+          onSave={(v) => handleEdit(row.original.id, "ingest_options", v)}
+          format={(v) => JSON.stringify(v ?? {})}
+          parse={(v) => {
+            try {
+              return JSON.parse(v);
+            } catch {
+              return {};
+            }
+          }}
+          className="text-left"
+        />
+      ),
+    },
+    {
       accessorKey: "pk_columns",
       header: "PK Columns",
       cell: ({ row, getValue }) => (
