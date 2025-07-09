@@ -144,5 +144,26 @@
     "output_files": [
       "apps/frontend/src/components/GradientText.tsx"
     ]
+  },
+  {
+    "task_id": "task-014",
+    "agent": "frontend_specialist",
+    "date": "2025-07-09",
+    "summary": "Added row deletion with confirmation dialogs and collapsible sidebar with persisted state, plus backend DELETE endpoints and tests.",
+    "output_files": [
+      "apps/backend/routes/tables.py",
+      "apps/backend/routes/rules.py",
+      "apps/backend/crud.py",
+      "apps/frontend/src/components/Sidebar.tsx",
+      "apps/frontend/src/components/ui/alert-dialog.tsx",
+      "apps/frontend/src/app/table-config/page.tsx",
+      "apps/frontend/src/app/dq-rules/page.tsx",
+      "apps/frontend/src/lib/api.ts",
+      "apps/frontend/src/app/layout.tsx",
+      "apps/frontend/src/app/globals.css",
+      "package-lock.json",
+      "apps/frontend/package.json",
+      "tests/test_api_delete.py"
+    ]
   }
 ]

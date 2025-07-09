@@ -29,3 +29,9 @@ def create_table(cfg: TableConfigIn):
 def update_table(id: int, payload: TableConfigUpdate):
     """Partially update table configuration by ID."""
     return crud.update_table(id, payload)
+
+
+@router.delete("/{id}", status_code=204)
+def delete_table(id: int):
+    crud.delete_table(id)
+    return
