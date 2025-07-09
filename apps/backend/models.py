@@ -1,5 +1,5 @@
 # apps/backend/models.py
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, Field
 from typing import List, Optional, Literal, Any
 from datetime import datetime
 
@@ -113,6 +113,7 @@ class DQRuleIn(DQRuleBase):
 class DQRuleOut(DQRuleBase):
     id: int
     updated_at: Optional[datetime] = None
+    fqtn: str = Field(..., example="sales.raw.customers")
 
 
 class DQRuleUpdate(BaseModel):

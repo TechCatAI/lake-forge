@@ -36,9 +36,10 @@ export interface DQRule {
   rule_sql: string
   severity: 'warn' | 'fail' | 'drop'
   updated_at: string | null
+  fqtn: string
 }
 
-export type DQRuleInput = Omit<DQRule, 'id' | 'updated_at'>
+export type DQRuleInput = Omit<DQRule, 'id' | 'updated_at' | 'fqtn'>
 
 export async function fetchRules(): Promise<DQRule[]> {
   const res = await fetch('/api/rules')

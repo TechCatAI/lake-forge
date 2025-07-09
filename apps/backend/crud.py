@@ -123,8 +123,17 @@ def update_table(id: int, payload: TableConfigUpdate) -> TableConfigOut:
 def list_rules() -> list[DQRuleOut]:
     """List all data quality rules."""
     q = """
-        SELECT id, table_config_id, rule_name, rule_sql, severity, updated_at
-        FROM mdf_app.dq_rule ORDER BY id;
+        SELECT
+            dq.id,
+            dq.table_config_id,
+            dq.rule_name,
+            dq.rule_sql,
+            dq.severity,
+            dq.updated_at,
+            tc.catalog || '.' || tc.schema_name || '.' || tc.table_name AS fqtn
+        FROM mdf_app.dq_rule dq
+        JOIN mdf_app.table_config tc ON tc.id = dq.table_config_id
+        ORDER BY fqtn, rule_name;
     """
     with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(q)
@@ -134,10 +143,22 @@ def list_rules() -> list[DQRuleOut]:
 
 def create_rule(cfg: DQRuleIn) -> DQRuleOut:
     q = """
-        INSERT INTO mdf_app.dq_rule
-            (table_config_id, rule_name, rule_sql, severity, created_by, updated_by)
-        VALUES (%(table_config_id)s, %(rule_name)s, %(rule_sql)s, %(severity)s, %(user)s, %(user)s)
-        RETURNING *;
+        WITH inserted AS (
+            INSERT INTO mdf_app.dq_rule
+                (table_config_id, rule_name, rule_sql, severity, created_by, updated_by)
+            VALUES (%(table_config_id)s, %(rule_name)s, %(rule_sql)s, %(severity)s, %(user)s, %(user)s)
+            RETURNING *
+        )
+        SELECT
+            i.id,
+            i.table_config_id,
+            i.rule_name,
+            i.rule_sql,
+            i.severity,
+            i.updated_at,
+            tc.catalog || '.' || tc.schema_name || '.' || tc.table_name AS fqtn
+        FROM inserted i
+        JOIN mdf_app.table_config tc ON tc.id = i.table_config_id;
     """
     with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(q, {**cfg.dict(), "user": "lake-forge-api"})
@@ -157,5 +178,15 @@ def update_rule(id: int, payload: DQRuleUpdate) -> DQRuleOut:
     with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(stmt, params)
         row = cur.fetchone()
+        if row:
+            cur.execute(
+                """
+                SELECT catalog || '.' || schema_name || '.' || table_name AS fqtn
+                FROM mdf_app.table_config
+                WHERE id = %s;
+                """,
+                (row["table_config_id"],),
+            )
+            row["fqtn"] = cur.fetchone()["fqtn"]
 
     return DQRuleOut(**dict(row))
