@@ -9,6 +9,7 @@ from models import (
     TableConfigUpdate,
     DQRuleIn,
     DQRuleOut,
+    DQRuleUpdate,
 )
 import logging
 
@@ -121,9 +122,41 @@ def update_table(id: int, payload: TableConfigUpdate) -> TableConfigOut:
 
 def list_rules() -> list[DQRuleOut]:
     """List all data quality rules."""
-    raise NotImplementedError
+    q = """
+        SELECT id, table_config_id, rule_name, rule_sql, severity, updated_at
+        FROM dq_rule
+        ORDER BY id;
+    """
+    with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(q)
+        rows = cur.fetchall()
+    return [DQRuleOut(**row) for row in rows]
 
 
 def create_rule(cfg: DQRuleIn) -> DQRuleOut:
-    """Placeholder for rule creation logic."""
-    raise NotImplementedError
+    q = """
+        INSERT INTO dq_rule
+            (table_config_id, rule_name, rule_sql, severity, created_by, updated_by)
+        VALUES (%(table_config_id)s, %(rule_name)s, %(rule_sql)s, %(severity)s, %(user)s, %(user)s)
+        RETURNING *;
+    """
+    with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(q, {**cfg.dict(), "user": "lake-forge-api"})
+        row = cur.fetchone()
+    return DQRuleOut(**dict(row))
+
+
+def update_rule(id: int, payload: DQRuleUpdate) -> DQRuleOut:
+    """Partially update a DQ rule."""
+
+    fields = payload.dict(exclude_none=True)
+    user = fields.pop("updated_by", None) or "system"
+
+    stmt, params = build_update_sql("dq_rule", fields)
+    params.update({"id": id, "updated_by": user})
+
+    with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(stmt, params)
+        row = cur.fetchone()
+
+    return DQRuleOut(**dict(row))

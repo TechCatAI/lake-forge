@@ -29,6 +29,52 @@ export async function fetchTables(): Promise<TableConfig[]> {
   return res.json()
 }
 
+export interface DQRule {
+  id: number
+  table_config_id: number
+  rule_name: string
+  rule_sql: string
+  severity: 'warn' | 'fail' | 'drop'
+  updated_at: string | null
+}
+
+export type DQRuleInput = Omit<DQRule, 'id' | 'updated_at'>
+
+export async function fetchRules(): Promise<DQRule[]> {
+  const res = await fetch('/api/rules')
+  if (!res.ok) {
+    throw (await res.json()) as APIError
+  }
+  return res.json()
+}
+
+export async function updateRule(
+  id: number,
+  payload: Partial<DQRuleInput>,
+): Promise<DQRule> {
+  const res = await fetch(`/api/rules/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) {
+    throw (await res.json()) as APIError
+  }
+  return res.json()
+}
+
+export async function createRule(payload: DQRuleInput): Promise<DQRule> {
+  const res = await fetch('/api/rules', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) {
+    throw (await res.json()) as APIError
+  }
+  return res.json()
+}
+
 export async function updateTable(
   id: number,
   payload: Partial<TableInput>,
