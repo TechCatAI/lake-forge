@@ -17,7 +17,6 @@ SAMPLE_ROW = {
     "rule_name": "rule",
     "rule_sql": "select 1",
     "severity": "warn",
-    "is_enabled": True,
     "updated_at": None,
     "fqtn": "c.s.t",
 }
@@ -44,7 +43,6 @@ def valid_payload():
         "rule_name": "r",
         "rule_sql": "select 1",
         "severity": "warn",
-        "is_enabled": True,
     }
 
 

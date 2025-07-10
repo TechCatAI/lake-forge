@@ -16,7 +16,6 @@ export interface AddPayload {
   load_type: "full" | "incremental";
   pk_columns: string;
   ingest_options: string;
-  quarantine: boolean;
 }
 
 export default function AddTableDialog({
@@ -36,7 +35,6 @@ export default function AddTableDialog({
     load_type: "full",
     pk_columns: "",
     ingest_options: "{}",
-    quarantine: false,
   });
 
   const valid =
@@ -62,7 +60,6 @@ export default function AddTableDialog({
         pk_columns: form.pk_columns.split(/\s*,\s*/).filter(Boolean),
         ingest_options: JSON.parse(form.ingest_options || "{}"),
         is_enabled: true,
-        quarantine: form.quarantine,
         connection_id: null,
       });
       onCreate(row);
@@ -78,7 +75,6 @@ export default function AddTableDialog({
         load_type: "full",
         pk_columns: "",
         ingest_options: "{}",
-        quarantine: false,
       });
       setOpen(false);
     } catch (err) {

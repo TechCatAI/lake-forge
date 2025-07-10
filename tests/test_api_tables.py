@@ -25,7 +25,6 @@ SAMPLE_ROW = {
     "load_type": "full",
     "pk_columns": ["id"],
     "ingest_options": {},
-    "quarantine": False,
 }
 
 
@@ -51,7 +50,6 @@ def valid_payload():
         "load_type": "full",
         "pk_columns": ["id"],
         "ingest_options": {},
-        "quarantine": False,
     }
 
 
