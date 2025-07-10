@@ -205,12 +205,12 @@ export default function GroupsPage() {
 
   return (
     <div className="p-4 overflow-auto">
-      <div className="relative flex items-center mb-2 sticky top-0 bg-background z-10 justify-end">
+      <div className="flex justify-between mb-2 sticky top-0 bg-background z-10">
         <GradientText
           colors={["#40ffaa", "#4079ff", "#40ffaa", "#4079ff", "#40ffaa"]}
           animationSpeed={3}
           showBorder={false}
-          className="text-2xl font-bold font-display absolute left-1/2 -translate-x-1/2"
+          className="text-2xl font-bold font-display"
         >
           Groups
         </GradientText>
