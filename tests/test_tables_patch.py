@@ -22,6 +22,7 @@ SAMPLE_ROW = {
     "source_path": "/path",
     "file_format": "csv",
     "connection_id": 2,
+    "group_id": None,
     "load_type": "full",
     "pk_columns": ["id"],
     "ingest_options": {},

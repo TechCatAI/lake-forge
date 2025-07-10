@@ -174,5 +174,21 @@
     "output_files": [
       "apps/frontend/src/components/Sidebar.tsx"
     ]
+  },
+  {
+    "task_id": "task-019",
+    "agent": "full_stack_specialist",
+    "date": "2025-07-10",
+    "summary": "Added Groups and Schedules management pages with CRUD grids and group dropdown in table config.",
+    "output_files": [
+      "apps/frontend/src/components/Sidebar.tsx",
+      "apps/frontend/src/app/groups/page.tsx",
+      "apps/frontend/src/app/schedules/page.tsx",
+      "apps/frontend/src/app/table-config/page.tsx",
+      "apps/frontend/src/app/table-config/AddTableDialog.tsx",
+      "apps/frontend/src/lib/api.ts",
+      "apps/backend/models.py",
+      "apps/backend/crud.py"
+    ]
   }
 ]

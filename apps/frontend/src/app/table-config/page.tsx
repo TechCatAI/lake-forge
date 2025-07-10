@@ -20,6 +20,8 @@ import {
   deleteTable,
   type TableConfig,
   type APIError,
+  fetchGroups,
+  type Group,
 } from "../../lib/api";
 import {
   AlertDialog,
@@ -37,6 +39,7 @@ export default function TableConfigPage() {
     new Map(),
   );
   const origData = useRef<Map<number, TableConfig>>(new Map());
+  const [groups, setGroups] = useState<Group[]>([]);
   const [dirtyCount, setDirtyCount] = useState(0);
   const [savingAll, setSavingAll] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<{
@@ -47,6 +50,7 @@ export default function TableConfigPage() {
 
   useEffect(() => {
     loadTables();
+    fetchGroups().then(setGroups, () => setGroups([]));
   }, []);
 
   useEffect(() => {
@@ -238,6 +242,30 @@ export default function TableConfigPage() {
           onSave={(v) => handleEdit(row.original.id, "table_name", v)}
           className="text-left"
         />
+      ),
+    },
+    {
+      accessorKey: "group_id",
+      header: "Group",
+      cell: ({ row, getValue }) => (
+        <select
+          className="border rounded px-1"
+          defaultValue={getValue<number | null>() ?? ''}
+          onChange={(e) =>
+            handleEdit(
+              row.original.id,
+              "group_id",
+              e.target.value ? Number(e.target.value) : null,
+            )
+          }
+        >
+          <option value="">None</option>
+          {groups.map((g) => (
+            <option key={g.id} value={g.id}>
+              {g.name}
+            </option>
+          ))}
+        </select>
       ),
     },
     {

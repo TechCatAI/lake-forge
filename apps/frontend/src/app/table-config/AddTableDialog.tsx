@@ -1,9 +1,15 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "../../components/ui/button";
 import Spinner from "../../components/Spinner";
 import { toast } from "sonner";
-import { createTable, type TableConfig, type APIError } from "../../lib/api";
+import {
+  createTable,
+  type TableConfig,
+  type APIError,
+  fetchGroups,
+  type Group,
+} from "../../lib/api";
 
 export interface AddPayload {
   source_kind: "volume" | "external" | "jdbc";
@@ -17,6 +23,7 @@ export interface AddPayload {
   pk_columns: string;
   ingest_options: string;
   quarantine: boolean;
+  group_id: number | null;
 }
 
 export default function AddTableDialog({
@@ -37,7 +44,16 @@ export default function AddTableDialog({
     pk_columns: "",
     ingest_options: "{}",
     quarantine: false,
+    group_id: null,
   });
+
+  const [groups, setGroups] = useState<Group[]>([]);
+
+  useEffect(() => {
+    if (open) {
+      fetchGroups().then(setGroups, () => setGroups([]));
+    }
+  }, [open]);
 
   const valid =
     form.source_system &&
@@ -64,6 +80,7 @@ export default function AddTableDialog({
         is_enabled: true,
         quarantine: form.quarantine,
         connection_id: null,
+        group_id: form.group_id,
       });
       onCreate(row);
       toast.success("Table Config added");
@@ -79,6 +96,7 @@ export default function AddTableDialog({
         pk_columns: "",
         ingest_options: "{}",
         quarantine: false,
+        group_id: null,
       });
       setOpen(false);
     } catch (err) {
@@ -132,6 +150,20 @@ export default function AddTableDialog({
               value={form.table_name}
               onChange={(e) => setForm({ ...form, table_name: e.target.value })}
             />
+            <select
+              className="border w-full px-1"
+              value={form.group_id ?? ''}
+              onChange={(e) =>
+                setForm({ ...form, group_id: e.target.value ? Number(e.target.value) : null })
+              }
+            >
+              <option value="">No Group</option>
+              {groups.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.name}
+                </option>
+              ))}
+            </select>
             <select
               className="border w-full px-1"
               value={form.source_kind}
