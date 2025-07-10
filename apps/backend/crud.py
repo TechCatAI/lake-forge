@@ -1,4 +1,5 @@
 import json
+import datetime as dt
 import psycopg2.extras
 from psycopg2 import sql
 from fastapi import HTTPException
@@ -259,7 +260,9 @@ def list_schedules() -> list[ScheduleOut]:
     with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute('SELECT * FROM mdf_app.schedule ORDER BY id;')
         rows = cur.fetchall()
-    return [ScheduleOut(**row) for row in rows]
+    for r in rows:
+        r['times'] = [t.isoformat(timespec='minutes') for t in r['times']]
+    return [ScheduleOut(**r) for r in rows]
 
 
 def create_schedule(p: ScheduleIn) -> ScheduleOut:
@@ -267,20 +270,26 @@ def create_schedule(p: ScheduleIn) -> ScheduleOut:
         "INSERT INTO mdf_app.schedule (name, description, days, times, is_enabled, created_by, updated_by) "
         "VALUES (%(name)s, %(description)s, %(days)s, %(times)s, %(is_enabled)s, %(user)s, %(user)s) RETURNING *;"
     )
+    data = p.dict()
+    data["times"] = [dt.time.fromisoformat(t) for t in data["times"]]
     with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-        cur.execute(q, {**p.dict(), "user": "lake-forge-api"})
+        cur.execute(q, {**data, "user": "lake-forge-api"})
         row = cur.fetchone()
+    row['times'] = [t.isoformat(timespec='minutes') for t in row['times']]
     return ScheduleOut(**row)
 
 
 def update_schedule(id: int, delta: ScheduleUpdate) -> ScheduleOut:
     fields = delta.dict(exclude_none=True)
     user = fields.pop("updated_by", None) or "system"
+    if "times" in fields:
+        fields["times"] = [dt.time.fromisoformat(t) for t in fields["times"]]
     stmt, params = build_update_sql('mdf_app.schedule', fields)
     params.update({"id": id, "updated_by": user})
     with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(stmt, params)
         row = cur.fetchone()
+    row['times'] = [t.isoformat(timespec='minutes') for t in row['times']]
     return ScheduleOut(**row)
 
 

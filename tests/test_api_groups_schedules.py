@@ -12,8 +12,8 @@ from apps.backend.models import GroupIn, GroupOut, GroupUpdate, ScheduleIn, Sche
 
 client = TestClient(app)
 
-GROUP_ROW = {"id": 1, "name": "g", "description": None, "is_enabled": True}
-SCHED_ROW = {"id": 1, "name": "s", "description": None, "days": [1], "times": ["05:00"], "is_enabled": True}
+GROUP_ROW = {"id": 1, "name": "g", "description": None, "is_enabled": True, "updated_at": None}
+SCHED_ROW = {"id": 1, "name": "s", "description": None, "days": [1], "times": ["05:00"], "is_enabled": True, "updated_at": None}
 
 
 def stub_create_group(p: GroupIn) -> GroupOut:
