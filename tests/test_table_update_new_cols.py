@@ -25,6 +25,7 @@ SAMPLE_ROW = {
     "load_type": "full",
     "pk_columns": ["id"],
     "ingest_options": {},
+    "quarantine": False,
 }
 
 def stub_update_table(id: int, payload: TableConfigUpdate) -> TableConfigOut:
