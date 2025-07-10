@@ -412,12 +412,12 @@ export default function TableConfigPage() {
 
   return (
     <div className="p-4 overflow-auto">
-      <div className="flex justify-between mb-2 sticky top-0 bg-background z-10">
+      <div className="relative flex items-center mb-2 sticky top-0 bg-background z-10 justify-end">
         <GradientText
           colors={["#40ffaa", "#4079ff", "#40ffaa", "#4079ff", "#40ffaa"]}
           animationSpeed={3}
           showBorder={false}
-          className="text-2xl font-bold font-display"
+          className="text-2xl font-bold font-display absolute left-1/2 -translate-x-1/2"
         >
           Table Configuration
         </GradientText>
