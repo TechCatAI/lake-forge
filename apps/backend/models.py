@@ -147,7 +147,6 @@ class GroupIn(GroupBase):
 
 class GroupOut(GroupBase):
     id: int
-    updated_at: Optional[dt.datetime] = None
 
 
 class GroupUpdate(BaseModel):
@@ -185,7 +184,6 @@ class ScheduleIn(ScheduleBase):
 
 class ScheduleOut(ScheduleBase):
     id: int
-    updated_at: Optional[dt.datetime] = None
 
 
 class ScheduleUpdate(BaseModel):
