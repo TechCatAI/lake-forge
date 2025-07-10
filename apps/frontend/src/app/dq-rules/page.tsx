@@ -10,7 +10,7 @@ import {
 } from "@tanstack/react-table";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import { toast } from "sonner";
-import { EditableCell } from "../table-config/EditableCell";
+import { EditableCell, Switch } from "../table-config/EditableCell";
 import Button from "../../components/ui/button";
 import Tooltip from "../../components/ui/tooltip";
 import GradientText from "../../components/GradientText";
@@ -19,9 +19,7 @@ import {
   fetchRules,
   updateRule,
   deleteRule,
-  fetchTables,
   type DQRule,
-  type TableConfig,
   type APIError,
 } from "../../lib/api";
 import {
@@ -69,7 +67,6 @@ function SQLCell({
 
 export default function DQRulesPage() {
   const [data, setData] = useState<DQRule[]>([]);
-  const [tables, setTables] = useState<TableConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [dirtyRows, setDirtyRows] = useState<Map<number, Partial<DQRule>>>(
     new Map(),
@@ -100,9 +97,8 @@ export default function DQRulesPage() {
   async function loadData() {
     try {
       setLoading(true);
-      const [rules, tbls] = await Promise.all([fetchRules(), fetchTables()]);
+      const rules = await fetchRules();
       setData(rules);
-      setTables(tbls);
       origData.current = new Map(rules.map((r) => [r.id, r]));
       setDirtyRows(new Map());
       setDirtyCount(0);
@@ -214,9 +210,17 @@ export default function DQRulesPage() {
     }
   }
 
-  const idToEnabled = new Map(tables.map((t) => [t.id, t.is_enabled]));
-
   const columns: ColumnDef<DQRule>[] = [
+    {
+      accessorKey: "is_enabled",
+      header: "Enabled",
+      cell: ({ row, getValue }) => (
+        <Switch
+          checked={getValue<boolean>()}
+          onChange={(v) => handleEdit(row.original.id, "is_enabled", v)}
+        />
+      ),
+    },
     {
       header: "Table Name",
       accessorKey: "fqtn",
@@ -226,16 +230,6 @@ export default function DQRulesPage() {
           <span className="truncate">{getValue<string>()}</span>
         </Tooltip>
       ),
-    },
-    {
-      accessorKey: "table_config_id",
-      header: "Enabled",
-      cell: ({ getValue }) => {
-        const enabled = idToEnabled.get(getValue<number>());
-        return (
-          <div className="text-center">{enabled ? "✓" : ""}</div>
-        );
-      },
     },
     {
       accessorKey: "rule_name",
