@@ -18,6 +18,7 @@ class TableConfigBase(BaseModel):
     load_type: Literal["full", "incremental"]
     pk_columns: List[str]
     ingest_options: dict[str, Any] = {}
+    quarantine: bool = False
 
     @validator("source_path")
     def _non_blank_path(cls, v: str) -> str:
@@ -70,6 +71,7 @@ class TableConfigUpdate(BaseModel):
     load_type: Optional[Literal["full", "incremental"]] = None
     pk_columns: Optional[List[str] | str] = None
     ingest_options: Optional[dict[str, Any]] = None
+    quarantine: Optional[bool] = None
     updated_by: Optional[str] = None
 
     @validator("pk_columns", pre=True)
@@ -104,6 +106,7 @@ class DQRuleBase(BaseModel):
     rule_name: str
     rule_sql: str
     severity: Literal["warn", "fail", "drop"]
+    is_enabled: bool = False
 
 
 class DQRuleIn(DQRuleBase):
@@ -125,4 +128,5 @@ class DQRuleUpdate(BaseModel):
     rule_name: Optional[str] = None
     rule_sql: Optional[str] = None
     severity: Optional[Literal["warn", "fail", "drop"]] = None
+    is_enabled: Optional[bool] = None
     updated_by: Optional[str] = None

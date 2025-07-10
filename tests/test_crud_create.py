@@ -47,6 +47,7 @@ def test_create_table_allows_empty_pk_for_full(monkeypatch):
                     if hasattr(p['ingest_options'], 'adapted')
                     else p['ingest_options']
                 ),
+                'quarantine': p['quarantine'],
             }
 
     class DummyConn:
