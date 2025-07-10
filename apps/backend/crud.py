@@ -260,7 +260,9 @@ def list_schedules() -> list[ScheduleOut]:
     with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute('SELECT * FROM mdf_app.schedule ORDER BY id;')
         rows = cur.fetchall()
-    return [ScheduleOut(**row) for row in rows]
+    for r in rows:
+        r['times'] = [t.isoformat(timespec='minutes') for t in r['times']]
+    return [ScheduleOut(**r) for r in rows]
 
 
 def create_schedule(p: ScheduleIn) -> ScheduleOut:
@@ -273,6 +275,7 @@ def create_schedule(p: ScheduleIn) -> ScheduleOut:
     with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(q, {**data, "user": "lake-forge-api"})
         row = cur.fetchone()
+    row['times'] = [t.isoformat(timespec='minutes') for t in row['times']]
     return ScheduleOut(**row)
 
 
@@ -286,6 +289,7 @@ def update_schedule(id: int, delta: ScheduleUpdate) -> ScheduleOut:
     with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(stmt, params)
         row = cur.fetchone()
+    row['times'] = [t.isoformat(timespec='minutes') for t in row['times']]
     return ScheduleOut(**row)
 
 
