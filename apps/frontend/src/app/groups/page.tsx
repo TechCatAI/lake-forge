@@ -205,7 +205,7 @@ export default function GroupsPage() {
 
   return (
     <div className="p-4 overflow-auto">
-      <div className="relative mb-2 sticky top-0 bg-background z-10 flex justify-center">
+      <div className="flex justify-between mb-2 sticky top-0 bg-background z-10">
         <GradientText
           colors={["#40ffaa", "#4079ff", "#40ffaa", "#4079ff", "#40ffaa"]}
           animationSpeed={3}
@@ -214,7 +214,7 @@ export default function GroupsPage() {
         >
           Groups
         </GradientText>
-        <div className="absolute right-0 top-0 flex items-center gap-2">
+        <div className="flex items-center gap-2">
           {dirtyCount > 0 && (
             <Button onClick={saveChanges} disabled={savingAll}>
               {savingAll && <span className="h-4 w-4 mr-1 border-2 border-current border-t-transparent rounded-full animate-spin" />}
