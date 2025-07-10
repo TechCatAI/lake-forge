@@ -1,7 +1,7 @@
 # apps/backend/models.py
-from pydantic import BaseModel, validator, Field
+from pydantic import BaseModel, validator, Field, constr
 from typing import List, Optional, Literal, Any
-from datetime import datetime
+import datetime as dt
 
 
 # ---------- TableConfig ----------
@@ -50,7 +50,7 @@ class TableConfigIn(TableConfigBase):  # for POST/PATCH
 
 class TableConfigOut(TableConfigBase):  # for GET
     id: int
-    updated_at: Optional[datetime] = None
+    updated_at: Optional[dt.datetime] = None
 
 
 class TableConfigUpdate(BaseModel):
@@ -115,7 +115,7 @@ class DQRuleIn(DQRuleBase):
 
 class DQRuleOut(DQRuleBase):
     id: int
-    updated_at: Optional[datetime] = None
+    updated_at: Optional[dt.datetime] = None
     fqtn: str = Field(..., example="sales.raw.customers")
 
 
@@ -130,3 +130,66 @@ class DQRuleUpdate(BaseModel):
     severity: Optional[Literal["warn", "fail", "drop"]] = None
     is_enabled: Optional[bool] = None
     updated_by: Optional[str] = None
+
+
+# ---------- Group ----------
+class GroupBase(BaseModel):
+    name: constr(strip_whitespace=True, min_length=1)
+    description: Optional[str] = None
+    is_enabled: bool = True
+
+
+class GroupIn(GroupBase):
+    pass
+
+
+class GroupOut(GroupBase):
+    id: int
+
+
+class GroupUpdate(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    name: Optional[constr(strip_whitespace=True, min_length=1)] = None
+    description: Optional[str] = None
+    is_enabled: Optional[bool] = None
+
+
+# ---------- Schedule ----------
+class ScheduleBase(BaseModel):
+    name: constr(strip_whitespace=True, min_length=1)
+    description: Optional[str] = None
+    days: list[int] = []
+    times: list[str] = []
+    is_enabled: bool = True
+
+    @validator("days", each_item=True)
+    def day_range(cls, d):
+        if d < 0 or d > 6:
+            raise ValueError("day must be 0-6")
+        return d
+
+    @validator("times", each_item=True)
+    def time_format(cls, t):
+        dt.time.fromisoformat(t)
+        return t
+
+
+class ScheduleIn(ScheduleBase):
+    pass
+
+
+class ScheduleOut(ScheduleBase):
+    id: int
+
+
+class ScheduleUpdate(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    name: Optional[constr(strip_whitespace=True, min_length=1)] = None
+    description: Optional[str] = None
+    days: Optional[list[int]] = None
+    times: Optional[list[str]] = None
+    is_enabled: Optional[bool] = None
