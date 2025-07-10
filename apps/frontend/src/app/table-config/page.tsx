@@ -191,13 +191,27 @@ export default function TableConfigPage() {
         />,
     },
     {
-      accessorKey: "quarantine",
-      header: "Quarantine",
+      accessorKey: "group_id",
+      header: "Group",
       cell: ({ row, getValue }) => (
-        <Switch
-          checked={getValue<boolean>()}
-          onChange={(v) => handleEdit(row.original.id, "quarantine", v)}
-        />
+        <select
+          className="border rounded px-1"
+          defaultValue={getValue<number | null>() ?? ''}
+          onChange={(e) =>
+            handleEdit(
+              row.original.id,
+              "group_id",
+              e.target.value ? Number(e.target.value) : null,
+            )
+          }
+        >
+          <option value="">None</option>
+          {groups.map((g) => (
+            <option key={g.id} value={g.id}>
+              {g.name}
+            </option>
+          ))}
+        </select>
       ),
     },
     {
@@ -242,30 +256,6 @@ export default function TableConfigPage() {
           onSave={(v) => handleEdit(row.original.id, "table_name", v)}
           className="text-left"
         />
-      ),
-    },
-    {
-      accessorKey: "group_id",
-      header: "Group",
-      cell: ({ row, getValue }) => (
-        <select
-          className="border rounded px-1"
-          defaultValue={getValue<number | null>() ?? ''}
-          onChange={(e) =>
-            handleEdit(
-              row.original.id,
-              "group_id",
-              e.target.value ? Number(e.target.value) : null,
-            )
-          }
-        >
-          <option value="">None</option>
-          {groups.map((g) => (
-            <option key={g.id} value={g.id}>
-              {g.name}
-            </option>
-          ))}
-        </select>
       ),
     },
     {
@@ -362,6 +352,16 @@ export default function TableConfigPage() {
             }
           }}
           className="text-left"
+        />
+      ),
+    },
+    {
+      accessorKey: "quarantine",
+      header: "Quarantine",
+      cell: ({ row, getValue }) => (
+        <Switch
+          checked={getValue<boolean>()}
+          onChange={(v) => handleEdit(row.original.id, "quarantine", v)}
         />
       ),
     },

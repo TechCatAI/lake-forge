@@ -11,10 +11,10 @@ import { Home, Table, ListChecks, Users, Clock } from 'lucide-react';
 
 const navItems = [
   { name: 'Dashboard', href: '/', icon: Home },
-  { name: 'Table Config', href: '/table-config', icon: Table },
-  { name: 'DQ Rules', href: '/dq-rules', icon: ListChecks },
   { name: 'Groups', href: '/groups', icon: Users },
   { name: 'Schedules', href: '/schedules', icon: Clock },
+  { name: 'Table Config', href: '/table-config', icon: Table },
+  { name: 'DQ Rules', href: '/dq-rules', icon: ListChecks },
 ] as const;
 
 function NavLinks({ pathname, collapsed }: { pathname: string | null; collapsed?: boolean }) {

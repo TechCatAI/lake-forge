@@ -243,6 +243,16 @@ export default function DQRulesPage() {
       ),
     },
     {
+      accessorKey: "rule_sql",
+      header: "SQL",
+      cell: ({ row, getValue }) => (
+        <SQLCell
+          value={getValue<string>()}
+          onSave={(v) => handleEdit(row.original.id, "rule_sql", v)}
+        />
+      ),
+    },
+    {
       accessorKey: "severity",
       header: "Severity",
       cell: ({ row, getValue }) => (
@@ -261,16 +271,6 @@ export default function DQRulesPage() {
           <option value="fail">fail</option>
           <option value="drop">drop</option>
         </select>
-      ),
-    },
-    {
-      accessorKey: "rule_sql",
-      header: "SQL",
-      cell: ({ row, getValue }) => (
-        <SQLCell
-          value={getValue<string>()}
-          onSave={(v) => handleEdit(row.original.id, "rule_sql", v)}
-        />
       ),
     },
     {
