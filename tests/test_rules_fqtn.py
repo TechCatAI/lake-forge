@@ -30,6 +30,7 @@ def test_list_rules_includes_fqtn(monkeypatch):
                     "rule_name": "r",
                     "rule_sql": "select 1",
                     "severity": "warn",
+                    "is_enabled": True,
                     "updated_at": None,
                     "fqtn": "c.s.t",
                 }
