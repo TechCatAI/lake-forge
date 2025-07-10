@@ -10,11 +10,7 @@ import {
 } from "@tanstack/react-table";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import { toast } from "sonner";
-import { EditableCell, Switch } from "../table-config/EditableCell";
-import Button from "../../components/ui/button";
-import Tooltip from "../../components/ui/tooltip";
-import GradientText from "../../components/GradientText";
-import AddRuleDialog from "./AddRuleDialog";
+      const rules = await fetchRules();
 import {
   fetchRules,
   updateRule,
@@ -214,17 +210,9 @@ export default function DQRulesPage() {
     }
   }
 
+  const idToEnabled = new Map(tables.map((t) => [t.id, t.is_enabled]));
+
   const columns: ColumnDef<DQRule>[] = [
-    {
-      accessorKey: "is_enabled",
-      header: "Enabled",
-      cell: ({ row, getValue }) => (
-        <Switch
-          checked={getValue<boolean>()}
-          onChange={(v) => handleEdit(row.original.id, "is_enabled", v)}
-        />
-      ),
-    },
     {
       header: "Table Name",
       accessorKey: "fqtn",
@@ -234,6 +222,16 @@ export default function DQRulesPage() {
           <span className="truncate">{getValue<string>()}</span>
         </Tooltip>
       ),
+    },
+    {
+      accessorKey: "table_config_id",
+      header: "Enabled",
+      cell: ({ getValue }) => {
+        const enabled = idToEnabled.get(getValue<number>());
+        return (
+          <div className="text-center">{enabled ? "✓" : ""}</div>
+        );
+      },
     },
     {
       accessorKey: "rule_name",
