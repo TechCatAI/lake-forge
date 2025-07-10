@@ -16,7 +16,6 @@ export interface TableConfig {
   load_type: 'full' | 'incremental'
   pk_columns: string[]
   ingest_options: Record<string, unknown>
-  quarantine: boolean
   updated_at: string | null
 }
 
@@ -36,7 +35,6 @@ export interface DQRule {
   rule_name: string
   rule_sql: string
   severity: 'warn' | 'fail' | 'drop'
-  is_enabled: boolean
   updated_at: string | null
   fqtn: string
 }

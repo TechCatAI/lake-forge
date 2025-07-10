@@ -74,12 +74,12 @@ def create_table(cfg: TableConfigIn) -> TableConfigOut:
     INSERT INTO mdf_app.table_config
       (source_kind, source_system, catalog, schema_name, table_name,
        is_enabled, source_path, file_format, connection_id,
-       load_type, pk_columns, ingest_options, quarantine,
+       load_type, pk_columns, ingest_options,
        created_by, updated_by)
     VALUES (%(source_kind)s, %(source_system)s, %(catalog)s, %(schema_name)s,
             %(table_name)s, %(is_enabled)s, %(source_path)s, %(file_format)s,
             %(connection_id)s, %(load_type)s, %(pk_columns)s, %(ingest_options)s,
-            %(quarantine)s, %(user)s, %(user)s)
+            %(user)s, %(user)s)
     RETURNING *;
     """
     with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
@@ -129,7 +129,6 @@ def list_rules() -> list[DQRuleOut]:
             dq.rule_name,
             dq.rule_sql,
             dq.severity,
-            dq.is_enabled,
             dq.updated_at,
             tc.catalog || '.' || tc.schema_name || '.' || tc.table_name AS fqtn
         FROM mdf_app.dq_rule dq
@@ -146,8 +145,8 @@ def create_rule(cfg: DQRuleIn) -> DQRuleOut:
     q = """
         WITH inserted AS (
             INSERT INTO mdf_app.dq_rule
-                (table_config_id, rule_name, rule_sql, severity, is_enabled, created_by, updated_by)
-            VALUES (%(table_config_id)s, %(rule_name)s, %(rule_sql)s, %(severity)s, %(is_enabled)s, %(user)s, %(user)s)
+                (table_config_id, rule_name, rule_sql, severity, created_by, updated_by)
+            VALUES (%(table_config_id)s, %(rule_name)s, %(rule_sql)s, %(severity)s, %(user)s, %(user)s)
             RETURNING *
         )
         SELECT
@@ -156,7 +155,6 @@ def create_rule(cfg: DQRuleIn) -> DQRuleOut:
             i.rule_name,
             i.rule_sql,
             i.severity,
-            i.is_enabled,
             i.updated_at,
             tc.catalog || '.' || tc.schema_name || '.' || tc.table_name AS fqtn
         FROM inserted i

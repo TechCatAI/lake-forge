@@ -187,16 +187,6 @@ export default function TableConfigPage() {
         />,
     },
     {
-      accessorKey: "quarantine",
-      header: "Quarantine",
-      cell: ({ row, getValue }) => (
-        <Switch
-          checked={getValue<boolean>()}
-          onChange={(v) => handleEdit(row.original.id, "quarantine", v)}
-        />
-      ),
-    },
-    {
       accessorKey: "source_system",
       header: "Source System",
       cell: ({ row, getValue }) => (

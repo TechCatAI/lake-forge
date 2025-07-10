@@ -16,7 +16,6 @@ export interface AddPayload {
   rule_name: string;
   rule_sql: string;
   severity: "warn" | "fail" | "drop";
-  is_enabled: boolean;
 }
 
 export default function AddRuleDialog({
@@ -31,7 +30,6 @@ export default function AddRuleDialog({
     rule_name: "",
     rule_sql: "",
     severity: "warn",
-    is_enabled: true,
   });
 
   const [saving, setSaving] = useState(false);
@@ -60,7 +58,6 @@ export default function AddRuleDialog({
         rule_name: "",
         rule_sql: "",
         severity: "warn",
-        is_enabled: true,
       });
       setOpen(false);
     } catch (err) {
