@@ -15,6 +15,7 @@ class TableConfigBase(BaseModel):
     source_path: str
     file_format: Optional[Literal["parquet", "csv", "json", "avro"]] = None
     connection_id: Optional[int] = None
+    group_id: Optional[int] = None
     load_type: Literal["full", "incremental"]
     pk_columns: List[str]
     ingest_options: dict[str, Any] = {}
@@ -68,6 +69,7 @@ class TableConfigUpdate(BaseModel):
     source_path: Optional[str] = None
     file_format: Optional[Literal["parquet", "csv", "json", "avro"]] = None
     connection_id: Optional[int] = None
+    group_id: Optional[int] = None
     load_type: Optional[Literal["full", "incremental"]] = None
     pk_columns: Optional[List[str] | str] = None
     ingest_options: Optional[dict[str, Any]] = None

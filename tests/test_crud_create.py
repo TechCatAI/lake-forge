@@ -40,6 +40,7 @@ def test_create_table_allows_empty_pk_for_full(monkeypatch):
                 'source_path': p['source_path'],
                 'file_format': p['file_format'],
                 'connection_id': p['connection_id'],
+                'group_id': p['group_id'],
                 'load_type': p['load_type'],
                 'pk_columns': p['pk_columns'],
                 'ingest_options': (
@@ -72,6 +73,7 @@ def test_create_table_allows_empty_pk_for_full(monkeypatch):
         source_path='/p',
         file_format=None,
         connection_id=None,
+        group_id=None,
         load_type='full',
         pk_columns=[],
         ingest_options={},

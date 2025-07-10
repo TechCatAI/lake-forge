@@ -13,6 +13,7 @@ export interface TableConfig {
   source_path: string
   file_format: string | null
   connection_id: number | null
+  group_id: number | null
   load_type: 'full' | 'incremental'
   pk_columns: string[]
   ingest_options: Record<string, unknown>
@@ -117,4 +118,92 @@ export async function deleteRule(id: number): Promise<void> {
   if (!res.ok) {
     throw (await res.json()) as APIError
   }
+}
+
+export interface Group {
+  id: number
+  name: string
+  description: string | null
+  is_enabled: boolean
+}
+
+export type GroupInput = Omit<Group, 'id'>
+
+export async function fetchGroups(): Promise<Group[]> {
+  const res = await fetch('/api/groups')
+  if (!res.ok) throw (await res.json()) as APIError
+  return res.json()
+}
+
+export async function createGroup(payload: GroupInput): Promise<Group> {
+  const res = await fetch('/api/groups', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) throw (await res.json()) as APIError
+  return res.json()
+}
+
+export async function updateGroup(
+  id: number,
+  delta: Partial<GroupInput>,
+): Promise<Group> {
+  const res = await fetch(`/api/groups/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(delta),
+  })
+  if (!res.ok) throw (await res.json()) as APIError
+  return res.json()
+}
+
+export async function deleteGroup(id: number): Promise<void> {
+  const res = await fetch(`/api/groups/${id}`, { method: 'DELETE' })
+  if (!res.ok) throw (await res.json()) as APIError
+}
+
+export interface Schedule {
+  id: number
+  name: string
+  description: string | null
+  days: number[]
+  times: string[]
+  is_enabled: boolean
+}
+
+export type ScheduleInput = Omit<Schedule, 'id'>
+
+export async function fetchSchedules(): Promise<Schedule[]> {
+  const res = await fetch('/api/schedules')
+  if (!res.ok) throw (await res.json()) as APIError
+  return res.json()
+}
+
+export async function createSchedule(payload: ScheduleInput): Promise<Schedule> {
+  const res = await fetch('/api/schedules', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) throw (await res.json()) as APIError
+  return res.json()
+}
+
+export async function updateSchedule(
+  id: number,
+  delta: Partial<ScheduleInput>,
+): Promise<Schedule> {
+  const res = await fetch(`/api/schedules/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(delta),
+  })
+  if (!res.ok) throw (await res.json()) as APIError
+  return res.json()
+}
+
+export async function deleteSchedule(id: number): Promise<void> {
+  const res = await fetch(`/api/schedules/${id}`, { method: 'DELETE' })
+  if (!res.ok) throw (await res.json()) as APIError
 }
