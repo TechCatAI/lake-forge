@@ -412,7 +412,7 @@ export default function TableConfigPage() {
 
   return (
     <div className="p-4 overflow-auto">
-      <div className="relative mb-2 sticky top-0 bg-background z-10 flex justify-center">
+      <div className="flex justify-between mb-2 sticky top-0 bg-background z-10">
         <GradientText
           colors={["#40ffaa", "#4079ff", "#40ffaa", "#4079ff", "#40ffaa"]}
           animationSpeed={3}
@@ -421,7 +421,7 @@ export default function TableConfigPage() {
         >
           Table Configuration
         </GradientText>
-        <div className="absolute right-0 top-0 flex items-center gap-2">
+        <div className="flex items-center gap-2">
           {dirtyCount > 0 && (
             <Button onClick={saveChanges} disabled={savingAll}>
               {savingAll && (

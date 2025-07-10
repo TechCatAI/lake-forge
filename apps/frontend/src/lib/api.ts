@@ -125,10 +125,9 @@ export interface Group {
   name: string
   description: string | null
   is_enabled: boolean
-  updated_at: string | null
 }
 
-export type GroupInput = Omit<Group, 'id' | 'updated_at'>
+export type GroupInput = Omit<Group, 'id'>
 
 export async function fetchGroups(): Promise<Group[]> {
   const res = await fetch('/api/groups')
@@ -171,10 +170,9 @@ export interface Schedule {
   days: number[]
   times: string[]
   is_enabled: boolean
-  updated_at: string | null
 }
 
-export type ScheduleInput = Omit<Schedule, 'id' | 'updated_at'>
+export type ScheduleInput = Omit<Schedule, 'id'>
 
 export async function fetchSchedules(): Promise<Schedule[]> {
   const res = await fetch('/api/schedules')
