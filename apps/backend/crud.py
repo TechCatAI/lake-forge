@@ -10,6 +10,12 @@ from models import (
     DQRuleIn,
     DQRuleOut,
     DQRuleUpdate,
+    GroupIn,
+    GroupOut,
+    GroupUpdate,
+    ScheduleIn,
+    ScheduleOut,
+    ScheduleUpdate,
 )
 import logging
 
@@ -208,3 +214,78 @@ def delete_rule(id: int) -> None:
         cur.execute("DELETE FROM mdf_app.dq_rule WHERE id = %s", (id,))
         if cur.rowcount == 0:
             raise HTTPException(status_code=404, detail="Rule not found")
+
+
+def list_groups() -> list[GroupOut]:
+    with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute('SELECT * FROM mdf_app."group" ORDER BY id;')
+        rows = cur.fetchall()
+    return [GroupOut(**row) for row in rows]
+
+
+def create_group(payload: GroupIn) -> GroupOut:
+    q = (
+        "INSERT INTO mdf_app.\"group\" (name, description, is_enabled, created_by, updated_by) "
+        "VALUES (%(name)s, %(description)s, %(is_enabled)s, %(user)s, %(user)s) RETURNING *;"
+    )
+    with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(q, {**payload.dict(), "user": "lake-forge-api"})
+        row = cur.fetchone()
+    return GroupOut(**row)
+
+
+def update_group(id: int, delta: GroupUpdate) -> GroupOut:
+    fields = delta.dict(exclude_none=True)
+    user = fields.pop("updated_by", None) or "system"
+    stmt, params = build_update_sql('mdf_app."group"', fields)
+    params.update({"id": id, "updated_by": user})
+    with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(stmt, params)
+        row = cur.fetchone()
+    return GroupOut(**row)
+
+
+def delete_group(id: int) -> None:
+    with get_conn() as c, c.cursor() as cur:
+        cur.execute('SELECT 1 FROM mdf_app.table_config WHERE group_id = %s LIMIT 1', (id,))
+        if cur.fetchone():
+            raise HTTPException(status_code=400, detail='Group still referenced')
+        cur.execute('DELETE FROM mdf_app."group" WHERE id = %s', (id,))
+        if cur.rowcount == 0:
+            raise HTTPException(status_code=404, detail='Group not found')
+
+
+def list_schedules() -> list[ScheduleOut]:
+    with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute('SELECT * FROM mdf_app.schedule ORDER BY id;')
+        rows = cur.fetchall()
+    return [ScheduleOut(**row) for row in rows]
+
+
+def create_schedule(p: ScheduleIn) -> ScheduleOut:
+    q = (
+        "INSERT INTO mdf_app.schedule (name, description, days, times, is_enabled, created_by, updated_by) "
+        "VALUES (%(name)s, %(description)s, %(days)s, %(times)s, %(is_enabled)s, %(user)s, %(user)s) RETURNING *;"
+    )
+    with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(q, {**p.dict(), "user": "lake-forge-api"})
+        row = cur.fetchone()
+    return ScheduleOut(**row)
+
+
+def update_schedule(id: int, delta: ScheduleUpdate) -> ScheduleOut:
+    fields = delta.dict(exclude_none=True)
+    user = fields.pop("updated_by", None) or "system"
+    stmt, params = build_update_sql('mdf_app.schedule', fields)
+    params.update({"id": id, "updated_by": user})
+    with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(stmt, params)
+        row = cur.fetchone()
+    return ScheduleOut(**row)
+
+
+def delete_schedule(id: int) -> None:
+    with get_conn() as c, c.cursor() as cur:
+        cur.execute('DELETE FROM mdf_app.schedule WHERE id = %s', (id,))
+        if cur.rowcount == 0:
+            raise HTTPException(status_code=404, detail='Schedule not found')
