@@ -18,7 +18,9 @@ import {
   fetchRawConfigs,
   updateRawConfig,
   deleteRawConfig,
+  fetchGroups,
   type RawConfig,
+  type Group,
   type APIError,
 } from '../../lib/api'
 import {
@@ -37,6 +39,7 @@ export default function RawConfigPage() {
   const origData = useRef<Map<number, RawConfig>>(new Map())
   const [dirtyCount, setDirtyCount] = useState(0)
   const [savingAll, setSavingAll] = useState(false)
+  const [groups, setGroups] = useState<Group[]>([])
   const [confirmDelete, setConfirmDelete] = useState<{
     id: number
     row: RawConfig
@@ -45,6 +48,9 @@ export default function RawConfigPage() {
 
   useEffect(() => {
     loadData()
+    fetchGroups()
+      .then((gs) => setGroups(gs.filter((g) => g.is_raw)))
+      .catch(() => setGroups([]))
   }, [])
 
   useEffect(() => {
@@ -158,6 +164,30 @@ export default function RawConfigPage() {
       header: 'Enabled',
       cell: ({ row, getValue }) => (
         <Switch checked={getValue<boolean>()} onChange={(v) => handleEdit(row.original.id, 'is_enabled', v)} />
+      ),
+    },
+    {
+      accessorKey: 'group_id',
+      header: 'Group',
+      cell: ({ row, getValue }) => (
+        <select
+          className="border rounded px-1"
+          value={getValue<number | null>() ?? ''}
+          onChange={(e) =>
+            handleEdit(
+              row.original.id,
+              'group_id',
+              e.target.value ? Number(e.target.value) : null,
+            )
+          }
+        >
+          <option value="">None</option>
+          {groups.map((g) => (
+            <option key={g.id} value={g.id}>
+              {g.id} - {g.name}
+            </option>
+          ))}
+        </select>
       ),
     },
     {
@@ -291,7 +321,7 @@ export default function RawConfigPage() {
                   <td
                     key={cell.id}
                     className="border px-2"
-                    ref={idx === 1 ? (el) => { firstCellRefs.current[row.original.id] = el } : undefined}
+                    ref={idx === 2 ? (el) => { firstCellRefs.current[row.original.id] = el } : undefined}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
