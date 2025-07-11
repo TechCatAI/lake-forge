@@ -40,3 +40,22 @@ LEFT   JOIN mdf_app."group" g ON g.id = tc.group_id;
 
 ------
 
+/* ────────────────────────────────────────────────────────────────
+  TABLE ⇢ GROUP (N-to-1)  – each table in ≤ 1 group for now
+  Link every table_config row to *at most one* group for now.
+  If you later allow many-to-many, drop the UNIQUE and add a PK.
+────────────────────────────────────────────────────────────────────*/
+CREATE TABLE mdf_app.table_group (
+    table_config_id INT PRIMARY KEY
+                       REFERENCES mdf_app.table_config(id)
+                       ON DELETE CASCADE,
+    group_id        INT NOT NULL
+                       REFERENCES mdf_app."group"(id)
+                       ON DELETE CASCADE,
+    -- bookkeeping
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
+    created_by      TEXT        NOT NULL DEFAULT current_user
+);
+COMMENT ON TABLE  mdf_app.table_group IS 'Assigns each table_config row to one ingestion group';
+COMMENT ON COLUMN mdf_app.table_group.table_config_id IS 'FK to the metadata about the source table';
+COMMENT ON COLUMN mdf_app.table_group.group_id IS 'FK to mdf_app.group; determines scheduling';

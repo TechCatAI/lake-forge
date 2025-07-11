@@ -1,3 +1,6 @@
+-- LakeForge DDL Schemas - Groups and Schedules
+-- database: lakeforge_db
+-- schema: mdf_app
 /* ────────────────────────────────────────────────────────────────
    1. GROUPS  – logical collection of tables
 ──────────────────────────────────────────────────────────────── */
