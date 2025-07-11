@@ -105,13 +105,15 @@ def list_bronze(db=None) -> list[BronzeConfigOut]:
 
 def create_bronze(cfg: BronzeConfigIn, db=None) -> BronzeConfigOut:
     data = cfg.dict()
+    manual_raw = data.pop("manual_raw", False)
     required = [
-        "raw_config_id",
         "catalog",
         "schema_name",
         "table_name",
         "source_path",
     ]
+    if not manual_raw:
+        required.append("raw_config_id")
     for f in required:
         val = data.get(f)
         if isinstance(val, str) and not val.strip():
@@ -149,6 +151,24 @@ def create_bronze(cfg: BronzeConfigIn, db=None) -> BronzeConfigOut:
     RETURNING *;
     """
     conn = db or get_conn()
+    if manual_raw:
+        raw = create_raw(
+            RawConfigIn(
+                group_id=data.get("group_id"),
+                source_kind="manual",
+                source_system="manual",
+                connection_id=None,
+                source_path=data["source_path"],
+                ingestion_type="manual",
+                schedule_id=None,
+                copy_options={},
+                output_directory=data["source_path"],
+                is_enabled=False,
+            ),
+            db=conn,
+        )
+        data["raw_config_id"] = raw.id
+
     with conn as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(q, {**data, "user": "lake-forge-api"})
         row = cur.fetchone()
