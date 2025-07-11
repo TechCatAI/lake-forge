@@ -5,10 +5,10 @@ import Spinner from "../../components/Spinner";
 import { toast } from "sonner";
 import {
   createRule,
-  fetchTables,
+  fetchBronzeConfigs,
   type APIError,
   type DQRule,
-  type TableConfig,
+  type BronzeConfig,
 } from "../../lib/api";
 
 export interface AddPayload {
@@ -25,7 +25,7 @@ export default function AddRuleDialog({
   onCreate(row: DQRule): void;
 }) {
   const [open, setOpen] = useState(false);
-  const [tables, setTables] = useState<TableConfig[]>([]);
+  const [tables, setTables] = useState<BronzeConfig[]>([]);
   const [form, setForm] = useState<AddPayload>({
     table_config_id: 0,
     rule_name: "",
@@ -39,7 +39,7 @@ export default function AddRuleDialog({
 
   useEffect(() => {
     if (open) {
-      fetchTables().then(setTables, () => setTables([]));
+      fetchBronzeConfigs().then(setTables, () => setTables([]));
     }
   }, [open]);
 
