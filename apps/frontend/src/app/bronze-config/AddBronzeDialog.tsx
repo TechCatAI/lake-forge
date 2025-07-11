@@ -7,7 +7,6 @@ import {
   createBronzeConfig,
   fetchRawConfigs,
   fetchGroups,
-  createRawConfig,
   type BronzeConfig,
   type RawConfig,
   type Group,
@@ -28,6 +27,7 @@ export interface AddPayload {
   ingest_options: string
   quarantine: boolean
   group_id: number | null
+  manual_raw: boolean
 }
 
 export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig): void }) {
@@ -47,6 +47,7 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
     ingest_options: '{}',
     quarantine: false,
     group_id: null,
+    manual_raw: false,
   })
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -76,21 +77,7 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
     setSaving(true)
     setErrors({})
     try {
-      let rawId = form.raw_config_id
-      if (mode === 'manual') {
-        const raw = await createRawConfig({
-          group_id: form.group_id ?? undefined,
-          source_kind: 'manual',
-          source_system: 'manual',
-          source_path: form.source_path,
-          ingestion_type: 'manual',
-          output_directory: form.source_path,
-          is_enabled: false,
-        })
-        rawId = raw.id
-      }
-      const row = await createBronzeConfig({
-        raw_config_id: rawId!,
+      const payload: any = {
         source_kind: form.source_kind,
         catalog: form.catalog,
         schema_name: form.schema_name,
@@ -105,7 +92,12 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
         quarantine: form.quarantine,
         is_enabled: false,
         group_id: form.group_id,
-      })
+        manual_raw: mode === 'manual',
+      }
+      if (mode === 'existing') {
+        payload.raw_config_id = form.raw_config_id
+      }
+      const row = await createBronzeConfig(payload)
       onCreate(row)
       toast.success('Bronze Config added')
       setForm({
@@ -122,6 +114,7 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
         ingest_options: '{}',
         quarantine: false,
         group_id: null,
+        manual_raw: false,
       })
       setMode('existing')
       setOpen(false)

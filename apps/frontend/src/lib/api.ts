@@ -284,7 +284,8 @@ export interface BronzeConfig {
   updated_at: string | null
 }
 
-export type BronzeConfigInput = Omit<BronzeConfig, 'id' | 'updated_at'>
+export type BronzeConfigInput =
+  Omit<BronzeConfig, 'id' | 'updated_at'> & { manual_raw?: boolean }
 
 export async function fetchBronzeConfigs(): Promise<BronzeConfig[]> {
   const res = await fetch('/api/bronze-config')

@@ -82,6 +82,8 @@ class BronzeConfigBase(BaseModel):
 
 
 class BronzeConfigIn(BronzeConfigBase):
+    raw_config_id: Optional[int] = None
+    manual_raw: bool = False
     @validator("pk_columns", pre=True)
     def _parse_pk(cls, v):
         if v is None or v == "":
