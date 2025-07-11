@@ -215,6 +215,7 @@ export async function deleteSchedule(id: number): Promise<void> {
 // ----- Raw Config -----
 export interface RawConfig {
   id: number
+  group_id: number | null
   source_kind: 'sftp' | 'jdbc' | 'api' | 'cloud_storage'
   source_system: string
   source_path: string
