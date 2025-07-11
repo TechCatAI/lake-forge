@@ -7,9 +7,9 @@ from crud import build_update_sql
 
 
 def test_build_update_sql_basic():
-    q, params = build_update_sql("mdf_app.table_config", {"catalog": "c"})
+    q, params = build_update_sql("mdf_app.bronze_config", {"catalog": "c"})
     assert q.as_string(None) == (
-        "UPDATE mdf_app.table_config SET catalog = %(catalog)s, updated_at = now(), updated_by = %(updated_by)s WHERE id = %(id)s RETURNING *;"
+        "UPDATE mdf_app.bronze_config SET catalog = %(catalog)s, updated_at = now(), updated_by = %(updated_by)s WHERE id = %(id)s RETURNING *;"
     )
     assert params == {"catalog": "c"}
 

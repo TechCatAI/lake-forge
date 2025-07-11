@@ -12,7 +12,15 @@ from apps.backend.models import GroupIn, GroupOut, GroupUpdate, ScheduleIn, Sche
 
 client = TestClient(app)
 
-GROUP_ROW = {"id": 1, "name": "g", "description": None, "is_enabled": True, "updated_at": None}
+GROUP_ROW = {
+    "id": 1,
+    "name": "g",
+    "description": None,
+    "is_enabled": True,
+    "is_raw": False,
+    "is_bronze": True,
+    "updated_at": None,
+}
 SCHED_ROW = {"id": 1, "name": "s", "description": None, "days": [1], "times": ["05:00"], "is_enabled": True, "updated_at": None}
 
 
@@ -39,12 +47,15 @@ def test_groups_flow(monkeypatch):
     assert resp.json() == []
 
     monkeypatch.setattr(crud, "create_group", stub_create_group)
-    resp = client.post("/api/groups", json={"name": "g", "description": None, "is_enabled": True})
+    resp = client.post(
+        "/api/groups",
+        json={"name": "g", "description": None, "is_enabled": True, "is_bronze": True, "is_raw": False},
+    )
     assert resp.status_code == 201
     assert resp.json()["id"] == 1
 
     monkeypatch.setattr(crud, "update_group", stub_update_group)
-    resp = client.patch("/api/groups/1", json={"name": "x"})
+    resp = client.patch("/api/groups/1", json={"name": "x", "is_raw": True})
     assert resp.status_code == 200
     assert resp.json()["id"] == 1
 
