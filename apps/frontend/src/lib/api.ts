@@ -125,6 +125,8 @@ export interface Group {
   name: string
   description: string | null
   is_enabled: boolean
+  is_raw: boolean
+  is_bronze: boolean
   updated_at: string | null
 }
 

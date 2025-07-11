@@ -9,11 +9,19 @@ export interface AddPayload {
   name: string;
   description: string;
   is_enabled: boolean;
+  is_raw: boolean;
+  is_bronze: boolean;
 }
 
 export default function AddGroupDialog({ onCreate }: { onCreate(g: Group): void }) {
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState<AddPayload>({ name: "", description: "", is_enabled: true });
+  const [form, setForm] = useState<AddPayload>({
+    name: "",
+    description: "",
+    is_enabled: true,
+    is_raw: false,
+    is_bronze: false,
+  });
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -28,7 +36,13 @@ export default function AddGroupDialog({ onCreate }: { onCreate(g: Group): void 
       const row = await createGroup(form);
       onCreate(row);
       toast.success("Group added");
-      setForm({ name: "", description: "", is_enabled: true });
+      setForm({
+        name: "",
+        description: "",
+        is_enabled: true,
+        is_raw: false,
+        is_bronze: false,
+      });
       setOpen(false);
     } catch (err) {
       const error = err as APIError & { detail?: unknown };
