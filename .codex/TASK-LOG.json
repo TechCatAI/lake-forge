@@ -190,5 +190,27 @@
       "apps/backend/models.py",
       "apps/backend/crud.py"
     ]
+  },
+  {
+    "task_id": "task-028",
+    "agent": "full_stack_specialist",
+    "date": "2025-07-11",
+    "summary": "Replaced Table Config with Raw and Bronze Config pages, added Watermark column, updated sidebar, API hooks, and tests.",
+    "output_files": [
+      "apps/frontend/src/components/Sidebar.tsx",
+      "apps/frontend/src/components/EditableCell.tsx",
+      "apps/frontend/src/app/raw-config/page.tsx",
+      "apps/frontend/src/app/raw-config/AddRawDialog.tsx",
+      "apps/frontend/src/app/bronze-config/page.tsx",
+      "apps/frontend/src/app/bronze-config/AddBronzeDialog.tsx",
+      "apps/frontend/__tests__/raw_bronze.test.tsx",
+      "apps/frontend/package.json",
+      "package-lock.json",
+      "README.md",
+      "apps/frontend/src/lib/api.ts",
+      "apps/frontend/src/app/dq-rules/page.tsx",
+      "apps/frontend/src/app/groups/page.tsx",
+      "apps/frontend/src/app/schedules/page.tsx"
+    ]
   }
 ]

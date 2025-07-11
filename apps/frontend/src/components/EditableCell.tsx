@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useRef, useEffect } from 'react'
-import { cn } from '../../lib/utils'
-import Spinner from '../../components/Spinner'
+import { cn } from '../lib/utils'
+import Spinner from './Spinner'
 
 export interface EditableCellProps<T> {
   initialValue: T

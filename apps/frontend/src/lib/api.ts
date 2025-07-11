@@ -209,3 +209,107 @@ export async function deleteSchedule(id: number): Promise<void> {
   const res = await fetch(`/api/schedules/${id}`, { method: 'DELETE' })
   if (!res.ok) throw (await res.json()) as APIError
 }
+
+// ----- Raw Config -----
+export interface RawConfig {
+  id: number
+  source_kind: 'sftp' | 'jdbc' | 'api' | 'cloud_storage'
+  source_system: string
+  source_path: string
+  ingestion_type: 'databricks' | 'adf'
+  output_directory: string
+  is_enabled: boolean
+  updated_at: string | null
+}
+
+export type RawConfigInput = Omit<RawConfig, 'id' | 'updated_at'> & {
+  group_id?: number | null
+  connection_id?: number | null
+  schedule_id?: number | null
+  copy_options?: Record<string, unknown>
+}
+
+export async function fetchRawConfigs(): Promise<RawConfig[]> {
+  const res = await fetch('/api/raw-config')
+  if (!res.ok) throw (await res.json()) as APIError
+  return res.json()
+}
+
+export async function createRawConfig(payload: RawConfigInput): Promise<RawConfig> {
+  const res = await fetch('/api/raw-config', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) throw (await res.json()) as APIError
+  return res.json()
+}
+
+export async function updateRawConfig(id: number, delta: Partial<RawConfigInput>): Promise<RawConfig> {
+  const res = await fetch(`/api/raw-config/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(delta),
+  })
+  if (!res.ok) throw (await res.json()) as APIError
+  return res.json()
+}
+
+export async function deleteRawConfig(id: number): Promise<void> {
+  const res = await fetch(`/api/raw-config/${id}`, { method: 'DELETE' })
+  if (!res.ok) throw (await res.json()) as APIError
+}
+
+// ----- Bronze Config -----
+export interface BronzeConfig {
+  id: number
+  raw_config_id: number
+  source_kind: 'volume' | 'external' | 'jdbc'
+  catalog: string
+  schema_name: string
+  table_name: string
+  source_path: string
+  file_format: string | null
+  connection_id: number | null
+  load_type: 'full' | 'incremental'
+  pk_columns: string[]
+  watermark_col: string | null
+  ingest_options: Record<string, unknown>
+  quarantine: boolean
+  is_enabled: boolean
+  group_id: number | null
+  updated_at: string | null
+}
+
+export type BronzeConfigInput = Omit<BronzeConfig, 'id' | 'updated_at'>
+
+export async function fetchBronzeConfigs(): Promise<BronzeConfig[]> {
+  const res = await fetch('/api/bronze-config')
+  if (!res.ok) throw (await res.json()) as APIError
+  return res.json()
+}
+
+export async function createBronzeConfig(payload: BronzeConfigInput): Promise<BronzeConfig> {
+  const res = await fetch('/api/bronze-config', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) throw (await res.json()) as APIError
+  return res.json()
+}
+
+export async function updateBronzeConfig(id: number, delta: Partial<BronzeConfigInput>): Promise<BronzeConfig> {
+  const res = await fetch(`/api/bronze-config/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(delta),
+  })
+  if (!res.ok) throw (await res.json()) as APIError
+  return res.json()
+}
+
+export async function deleteBronzeConfig(id: number): Promise<void> {
+  const res = await fetch(`/api/bronze-config/${id}`, { method: 'DELETE' })
+  if (!res.ok) throw (await res.json()) as APIError
+}

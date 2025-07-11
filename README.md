@@ -59,12 +59,12 @@ When deployed to Databricks, the app will use Oauth authentication. Logic for th
 ### Database Connection setup
 
 
-### Table Config Editing
-Changes made in the Table Config grid are now kept locally until you click
+### Bronze Config Editing
+Changes made in the Bronze Config grid are now kept locally until you click
 **Save changes**. Edit any cell with a single click, then use the button in the
 header to persist all pending updates at once.
 
-#### Table Config Columns
+#### Bronze Config Columns
 
 | Column | Type | Allowed Values |
 |--------|------|----------------|
