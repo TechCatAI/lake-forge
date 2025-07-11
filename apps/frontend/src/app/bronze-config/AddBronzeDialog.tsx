@@ -6,10 +6,8 @@ import { toast } from 'sonner'
 import {
   createBronzeConfig,
   fetchRawConfigs,
-  fetchGroups,
   type BronzeConfig,
   type RawConfig,
-  type Group,
   type APIError,
 } from '../../lib/api'
 
@@ -27,12 +25,10 @@ export interface AddPayload {
   ingest_options: string
   quarantine: boolean
   group_id: number | null
-  manual_raw: boolean
 }
 
 export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig): void }) {
   const [open, setOpen] = useState(false)
-  const [mode, setMode] = useState<'existing' | 'manual'>('existing')
   const [form, setForm] = useState<AddPayload>({
     raw_config_id: null,
     source_kind: 'volume',
@@ -47,24 +43,19 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
     ingest_options: '{}',
     quarantine: false,
     group_id: null,
-    manual_raw: false,
   })
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [rawOptions, setRawOptions] = useState<RawConfig[]>([])
-  const [groups, setGroups] = useState<Group[]>([])
 
   useEffect(() => {
     if (open) {
       fetchRawConfigs().then(setRawOptions, () => setRawOptions([]))
-      fetchGroups()
-        .then((gs) => setGroups(gs.filter((g) => g.is_bronze)))
-        .catch(() => setGroups([]))
     }
   }, [open])
 
   const valid =
-    (mode === 'manual' || form.raw_config_id !== null) &&
+    form.raw_config_id !== null &&
     form.catalog &&
     form.schema_name &&
     form.table_name &&
@@ -77,7 +68,8 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
     setSaving(true)
     setErrors({})
     try {
-      const payload: any = {
+      const row = await createBronzeConfig({
+        raw_config_id: form.raw_config_id!,
         source_kind: form.source_kind,
         catalog: form.catalog,
         schema_name: form.schema_name,
@@ -92,12 +84,7 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
         quarantine: form.quarantine,
         is_enabled: false,
         group_id: form.group_id,
-        manual_raw: mode === 'manual',
-      }
-      if (mode === 'existing') {
-        payload.raw_config_id = form.raw_config_id
-      }
-      const row = await createBronzeConfig(payload)
+      })
       onCreate(row)
       toast.success('Bronze Config added')
       setForm({
@@ -114,9 +101,7 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
         ingest_options: '{}',
         quarantine: false,
         group_id: null,
-        manual_raw: false,
       })
-      setMode('existing')
       setOpen(false)
     } catch (err) {
       const error = err as APIError & { detail?: unknown }
@@ -141,61 +126,20 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
           <form className="bg-background p-4 space-y-2 w-80" onSubmit={submit}>
             <h2 className="font-semibold">Add Bronze Config</h2>
-            <div className="flex gap-2">
-              <label className="flex items-center gap-1">
-                <input
-                  type="radio"
-                  name="mode"
-                  value="existing"
-                  checked={mode === 'existing'}
-                  onChange={() => setMode('existing')}
-                />
-                Use Raw Config
-              </label>
-              <label className="flex items-center gap-1">
-                <input
-                  type="radio"
-                  name="mode"
-                  value="manual"
-                  checked={mode === 'manual'}
-                  onChange={() => setMode('manual')}
-                />
-                Manual: Data already landed in Raw
-              </label>
-            </div>
-            {mode === 'existing' && (
-              <select
-                className={`border w-full px-1 ${errors.raw_config_id ? 'border-red-500' : ''}`}
-                value={form.raw_config_id ?? ''}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    raw_config_id: e.target.value ? Number(e.target.value) : null,
-                  })
-                }
-              >
-                <option value="">Select Raw Config</option>
-                {rawOptions.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {r.source_system} · {r.source_path}
-                  </option>
-                ))}
-              </select>
-            )}
             <select
-              className="border w-full px-1"
-              value={form.group_id ?? ''}
+              className={`border w-full px-1 ${errors.raw_config_id ? 'border-red-500' : ''}`}
+              value={form.raw_config_id ?? ''}
               onChange={(e) =>
                 setForm({
                   ...form,
-                  group_id: e.target.value ? Number(e.target.value) : null,
+                  raw_config_id: e.target.value ? Number(e.target.value) : null,
                 })
               }
             >
-              <option value="">Select Group</option>
-              {groups.map((g) => (
-                <option key={g.id} value={g.id}>
-                  {g.id} - {g.name}
+              <option value="">Select Raw Config</option>
+              {rawOptions.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.source_system} · {r.source_path}
                 </option>
               ))}
             </select>
