@@ -162,6 +162,20 @@ export default function GroupsPage() {
       ),
     },
     {
+      accessorKey: "is_raw",
+      header: "Raw",
+      cell: ({ row, getValue }) => (
+        <Switch checked={getValue<boolean>()} onChange={(v) => handleEdit(row.original.id, "is_raw", v)} />
+      ),
+    },
+    {
+      accessorKey: "is_bronze",
+      header: "Bronze",
+      cell: ({ row, getValue }) => (
+        <Switch checked={getValue<boolean>()} onChange={(v) => handleEdit(row.original.id, "is_bronze", v)} />
+      ),
+    },
+    {
       accessorKey: "name",
       header: "Name",
       cell: ({ row, getValue }) => (
@@ -249,7 +263,7 @@ export default function GroupsPage() {
                   <td
                     key={cell.id}
                     className="border px-2"
-                    ref={idx === 1 ? (el) => { firstCellRefs.current[row.original.id] = el; } : undefined}
+                    ref={idx === 3 ? (el) => { firstCellRefs.current[row.original.id] = el; } : undefined}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
