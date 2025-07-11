@@ -103,7 +103,15 @@ def bronze_payload():
         "ingest_options": {},
         "quarantine": False,
         "is_enabled": False,
+        "manual_raw": False,
     }
+
+
+def bronze_manual_payload():
+    data = bronze_payload()
+    data.pop("raw_config_id")
+    data["manual_raw"] = True
+    return data
 
 
 def test_raw_flow(monkeypatch):
@@ -152,6 +160,19 @@ def test_bronze_flow(monkeypatch):
     resp = client.delete("/api/bronze-config/1")
     assert resp.status_code == 204
     assert called["id"] == 1
+
+
+def test_bronze_manual(monkeypatch):
+    captured = {}
+
+    def create_stub(p: BronzeConfigIn):
+        captured["payload"] = p.dict()
+        return BronzeConfigOut(**BRONZE_ROW)
+
+    monkeypatch.setattr(crud, "create_bronze", create_stub)
+    resp = client.post("/api/bronze-config", json=bronze_manual_payload())
+    assert resp.status_code == 201
+    assert captured["payload"]["manual_raw"] is True
 
 
 def test_delete_raw_conflict(monkeypatch):
