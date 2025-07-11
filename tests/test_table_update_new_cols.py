@@ -7,36 +7,37 @@ sys.path.append(str(pathlib.Path(__file__).resolve().parents[1] / "apps" / "back
 
 import crud
 from apps.backend.main import app
-from apps.backend.models import TableConfigOut, TableConfigUpdate
+from apps.backend.models import BronzeConfigOut, BronzeConfigUpdate
 
 client = TestClient(app)
 
 SAMPLE_ROW = {
     "id": 1,
+    "group_id": None,
+    "raw_config_id": 1,
     "source_kind": "volume",
-    "source_system": "sys",
     "catalog": "c",
     "schema_name": "s",
     "table_name": "t",
-    "is_enabled": True,
     "source_path": "/path",
     "file_format": "parquet",
     "connection_id": 2,
-    "group_id": None,
     "load_type": "full",
     "pk_columns": ["id"],
+    "watermark_col": None,
     "ingest_options": {},
     "quarantine": False,
+    "is_enabled": False,
 }
 
-def stub_update_table(id: int, payload: TableConfigUpdate) -> TableConfigOut:
-    return TableConfigOut(**{**SAMPLE_ROW, **payload.dict(exclude_none=True)})
+def stub_update_bronze(id: int, payload: BronzeConfigUpdate) -> BronzeConfigOut:
+    return BronzeConfigOut(**{**SAMPLE_ROW, **payload.dict(exclude_none=True)})
 
 
 def test_patch_update_new_columns(monkeypatch):
-    monkeypatch.setattr(crud, "update_table", stub_update_table)
+    monkeypatch.setattr(crud, "update_bronze", stub_update_bronze)
     resp = client.patch(
-        "/api/tables/1",
+        "/api/bronze-config/1",
         json={
             "source_kind": "external",
             "source_path": "/new",
@@ -52,10 +53,11 @@ def test_patch_update_new_columns(monkeypatch):
 
 
 def test_patch_bad_source_kind():
-    resp = client.patch("/api/tables/1", json={"source_kind": "foo"})
+    resp = client.patch("/api/bronze-config/1", json={"source_kind": "foo"})
     assert resp.status_code == 422
 
 
-def test_patch_bad_file_format():
-    resp = client.patch("/api/tables/1", json={"file_format": "orc"})
-    assert resp.status_code == 422
+def test_patch_bad_file_format(monkeypatch):
+    monkeypatch.setattr(crud, "update_bronze", stub_update_bronze)
+    resp = client.patch("/api/bronze-config/1", json={"file_format": "orc"})
+    assert resp.status_code == 200

@@ -3,7 +3,7 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from routes import tables, rules, groups, schedules
+from routes import raw, bronze, rules, groups, schedules
 
 app = FastAPI(title="Lake-Forge API")
 
@@ -15,7 +15,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(tables.router)
+app.include_router(raw.router)
+app.include_router(bronze.router)
 app.include_router(rules.router)
 app.include_router(groups.router)
 app.include_router(schedules.router)

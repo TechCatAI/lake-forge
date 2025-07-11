@@ -5,9 +5,12 @@ from psycopg2 import sql
 from fastapi import HTTPException
 from db import get_conn
 from models import (
-    TableConfigIn,
-    TableConfigOut,
-    TableConfigUpdate,
+    RawConfigIn,
+    RawConfigOut,
+    RawConfigUpdate,
+    BronzeConfigIn,
+    BronzeConfigOut,
+    BronzeConfigUpdate,
     DQRuleIn,
     DQRuleOut,
     DQRuleUpdate,
@@ -34,21 +37,76 @@ def build_update_sql(table: str, cols: dict[str, object]) -> tuple[sql.SQL, dict
     return stmt, cols.copy()
 
 
-def list_tables() -> list[TableConfigOut]:
+def list_raw(db=None) -> list[RawConfigOut]:
+    conn = db or get_conn()
+    with conn as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute("SELECT * FROM mdf_app.raw_config ORDER BY id;")
+        rows = cur.fetchall()
+    return [RawConfigOut(**row) for row in rows]
+
+
+def create_raw(p: RawConfigIn, db=None) -> RawConfigOut:
+    data = p.dict()
+    if "copy_options" in data:
+        data["copy_options"] = psycopg2.extras.Json(data["copy_options"], dumps=lambda v: json.dumps(v, default=str))
+    q = """
+        INSERT INTO mdf_app.raw_config
+            (group_id, source_kind, source_system, connection_id, source_path,
+             ingestion_type, schedule_id, copy_options, output_directory, is_enabled,
+             created_by, updated_by)
+        VALUES (%(group_id)s, %(source_kind)s, %(source_system)s, %(connection_id)s,
+                %(source_path)s, %(ingestion_type)s, %(schedule_id)s, %(copy_options)s,
+                %(output_directory)s, %(is_enabled)s, %(user)s, %(user)s)
+        RETURNING *;
+    """
+    conn = db or get_conn()
+    with conn as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(q, {**data, "user": "lake-forge-api"})
+        row = cur.fetchone()
+    return RawConfigOut(**row)
+
+
+def update_raw(id: int, delta: RawConfigUpdate, db=None) -> RawConfigOut:
+    fields = delta.dict(exclude_none=True)
+    user = fields.pop("updated_by", None) or "system"
+    if "copy_options" in fields:
+        fields["copy_options"] = psycopg2.extras.Json(fields["copy_options"], dumps=lambda v: json.dumps(v, default=str))
+    stmt, params = build_update_sql("mdf_app.raw_config", fields)
+    params.update({"id": id, "updated_by": user})
+    conn = db or get_conn()
+    with conn as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(stmt, params)
+        row = cur.fetchone()
+    return RawConfigOut(**row)
+
+
+def delete_raw(id: int, db=None) -> None:
+    conn = db or get_conn()
+    with conn as c, c.cursor() as cur:
+        cur.execute("SELECT 1 FROM mdf_app.bronze_config WHERE raw_config_id = %s LIMIT 1", (id,))
+        if cur.fetchone():
+            raise HTTPException(status_code=409, detail="Raw config still referenced")
+        cur.execute("DELETE FROM mdf_app.raw_config WHERE id = %s", (id,))
+        if cur.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Raw config not found")
+
+
+def list_bronze(db=None) -> list[BronzeConfigOut]:
     try:
-        with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:  # makes every row behave like a dict
-            cur.execute("SELECT * FROM mdf_app.table_config ORDER BY id;")
-            rows = [TableConfigOut(**row) for row in cur.fetchall()]  # row is already dict-like
+        conn = db or get_conn()
+        with conn as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT * FROM mdf_app.bronze_config ORDER BY id;")
+            rows = [BronzeConfigOut(**row) for row in cur.fetchall()]
         return rows
     except Exception as e:
         logging.error(f"Error listing tables: {e}")
         raise HTTPException(status_code=500, detail="Internal server error while listing tables")
 
 
-def create_table(cfg: TableConfigIn) -> TableConfigOut:
+def create_bronze(cfg: BronzeConfigIn, db=None) -> BronzeConfigOut:
     data = cfg.dict()
     required = [
-        "source_system",
+        "raw_config_id",
         "catalog",
         "schema_name",
         "table_name",
@@ -78,24 +136,26 @@ def create_table(cfg: TableConfigIn) -> TableConfigOut:
         data["pk_columns"] = []
 
     q = """
-    INSERT INTO mdf_app.table_config
-      (source_kind, source_system, catalog, schema_name, table_name,
-       is_enabled, source_path, file_format, connection_id, group_id,
-       load_type, pk_columns, ingest_options, quarantine,
+    INSERT INTO mdf_app.bronze_config
+      (group_id, raw_config_id, source_kind, catalog, schema_name, table_name,
+       source_path, file_format, connection_id, load_type, pk_columns,
+       watermark_col, ingest_options, quarantine, is_enabled,
        created_by, updated_by)
-    VALUES (%(source_kind)s, %(source_system)s, %(catalog)s, %(schema_name)s,
-            %(table_name)s, %(is_enabled)s, %(source_path)s, %(file_format)s,
-            %(connection_id)s, %(group_id)s, %(load_type)s, %(pk_columns)s, %(ingest_options)s,
-            %(quarantine)s, %(user)s, %(user)s)
+    VALUES (%(group_id)s, %(raw_config_id)s, %(source_kind)s, %(catalog)s,
+            %(schema_name)s, %(table_name)s, %(source_path)s, %(file_format)s,
+            %(connection_id)s, %(load_type)s, %(pk_columns)s, %(watermark_col)s,
+            %(ingest_options)s, %(quarantine)s, %(is_enabled)s,
+            %(user)s, %(user)s)
     RETURNING *;
     """
-    with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+    conn = db or get_conn()
+    with conn as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(q, {**data, "user": "lake-forge-api"})
         row = cur.fetchone()
-    return TableConfigOut(**dict(row))
+    return BronzeConfigOut(**dict(row))
 
 
-def update_table(id: int, payload: TableConfigUpdate) -> TableConfigOut:
+def update_bronze(id: int, payload: BronzeConfigUpdate, db=None) -> BronzeConfigOut:
     """Partially update a table configuration."""
 
     fields = payload.dict(exclude_none=True)
@@ -117,14 +177,15 @@ def update_table(id: int, payload: TableConfigUpdate) -> TableConfigOut:
             fields["ingest_options"], dumps=lambda v: json.dumps(v, default=str)
         )
 
-    stmt, params = build_update_sql("mdf_app.table_config", fields)
+    stmt, params = build_update_sql("mdf_app.bronze_config", fields)
     params.update({"id": id, "updated_by": user})
 
-    with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+    conn = db or get_conn()
+    with conn as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(stmt, params)
         row = cur.fetchone()
 
-    return TableConfigOut(**dict(row))
+    return BronzeConfigOut(**dict(row))
 
 
 def list_rules() -> list[DQRuleOut]:
@@ -140,7 +201,7 @@ def list_rules() -> list[DQRuleOut]:
             dq.updated_at,
             tc.catalog || '.' || tc.schema_name || '.' || tc.table_name AS fqtn
         FROM mdf_app.dq_rule dq
-        JOIN mdf_app.table_config tc ON tc.id = dq.table_config_id
+        JOIN mdf_app.bronze_config tc ON tc.id = dq.table_config_id
         ORDER BY fqtn, rule_name;
     """
     with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
@@ -167,7 +228,7 @@ def create_rule(cfg: DQRuleIn) -> DQRuleOut:
             i.updated_at,
             tc.catalog || '.' || tc.schema_name || '.' || tc.table_name AS fqtn
         FROM inserted i
-        JOIN mdf_app.table_config tc ON tc.id = i.table_config_id;
+        JOIN mdf_app.bronze_config tc ON tc.id = i.table_config_id;
     """
     with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(q, {**cfg.dict(), "user": "lake-forge-api"})
@@ -191,7 +252,7 @@ def update_rule(id: int, payload: DQRuleUpdate) -> DQRuleOut:
             cur.execute(
                 """
                 SELECT catalog || '.' || schema_name || '.' || table_name AS fqtn
-                FROM mdf_app.table_config
+                FROM mdf_app.bronze_config
                 WHERE id = %s;
                 """,
                 (row["table_config_id"],),
@@ -201,10 +262,11 @@ def update_rule(id: int, payload: DQRuleUpdate) -> DQRuleOut:
     return DQRuleOut(**dict(row))
 
 
-def delete_table(id: int) -> None:
-    """Delete a table configuration by ID."""
-    with get_conn() as c, c.cursor() as cur:
-        cur.execute("DELETE FROM mdf_app.table_config WHERE id = %s", (id,))
+def delete_bronze(id: int, db=None) -> None:
+    """Delete a bronze configuration by ID."""
+    conn = db or get_conn()
+    with conn as c, c.cursor() as cur:
+        cur.execute("DELETE FROM mdf_app.bronze_config WHERE id = %s", (id,))
         if cur.rowcount == 0:
             raise HTTPException(status_code=404, detail="Table not found")
 
@@ -226,8 +288,8 @@ def list_groups() -> list[GroupOut]:
 
 def create_group(payload: GroupIn) -> GroupOut:
     q = (
-        "INSERT INTO mdf_app.\"group\" (name, description, is_enabled, created_by, updated_by) "
-        "VALUES (%(name)s, %(description)s, %(is_enabled)s, %(user)s, %(user)s) RETURNING *;"
+        "INSERT INTO mdf_app.\"group\" (name, description, is_enabled, is_raw, is_bronze, created_by, updated_by) "
+        "VALUES (%(name)s, %(description)s, %(is_enabled)s, %(is_raw)s, %(is_bronze)s, %(user)s, %(user)s) RETURNING *;"
     )
     with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(q, {**payload.dict(), "user": "lake-forge-api"})
@@ -248,7 +310,7 @@ def update_group(id: int, delta: GroupUpdate) -> GroupOut:
 
 def delete_group(id: int) -> None:
     with get_conn() as c, c.cursor() as cur:
-        cur.execute('SELECT 1 FROM mdf_app.table_config WHERE group_id = %s LIMIT 1', (id,))
+        cur.execute('SELECT 1 FROM mdf_app.bronze_config WHERE group_id = %s LIMIT 1', (id,))
         if cur.fetchone():
             raise HTTPException(status_code=400, detail='Group still referenced')
         cur.execute('DELETE FROM mdf_app."group" WHERE id = %s', (id,))

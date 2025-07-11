@@ -11,12 +11,12 @@ from apps.backend.main import app
 client = TestClient(app)
 
 
-def test_delete_table(monkeypatch):
+def test_delete_bronze(monkeypatch):
     called = {}
     def stub(id: int):
         called['id'] = id
-    monkeypatch.setattr(crud, 'delete_table', stub)
-    resp = client.delete('/api/tables/1')
+    monkeypatch.setattr(crud, 'delete_bronze', stub)
+    resp = client.delete('/api/bronze-config/1')
     assert resp.status_code == 204
     assert called['id'] == 1
 
