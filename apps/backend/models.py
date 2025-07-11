@@ -7,11 +7,11 @@ import datetime as dt
 # ---------- RawConfig ----------
 class RawConfigBase(BaseModel):
     group_id: Optional[int] = None
-    source_kind: Literal["sftp", "jdbc", "api", "cloud_storage"]
+    source_kind: Literal["sftp", "jdbc", "api", "cloud_storage", "manual"]
     source_system: str
     connection_id: Optional[int] = None
     source_path: str
-    ingestion_type: Literal["databricks", "adf"]
+    ingestion_type: Literal["databricks", "adf", "manual"]
     schedule_id: Optional[int] = None
     copy_options: dict = {}
     output_directory: str
@@ -38,11 +38,11 @@ class RawConfigUpdate(BaseModel):
         extra = "forbid"
 
     group_id: Optional[int] = None
-    source_kind: Optional[Literal["sftp", "jdbc", "api", "cloud_storage"]] = None
+    source_kind: Optional[Literal["sftp", "jdbc", "api", "cloud_storage", "manual"]] = None
     source_system: Optional[str] = None
     connection_id: Optional[int] = None
     source_path: Optional[str] = None
-    ingestion_type: Optional[Literal["databricks", "adf"]] = None
+    ingestion_type: Optional[Literal["databricks", "adf", "manual"]] = None
     schedule_id: Optional[int] = None
     copy_options: Optional[dict] = None
     output_directory: Optional[str] = None

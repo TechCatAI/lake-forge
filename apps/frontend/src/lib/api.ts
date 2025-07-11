@@ -216,10 +216,10 @@ export async function deleteSchedule(id: number): Promise<void> {
 export interface RawConfig {
   id: number
   group_id: number | null
-  source_kind: 'sftp' | 'jdbc' | 'api' | 'cloud_storage'
+  source_kind: 'sftp' | 'jdbc' | 'api' | 'cloud_storage' | 'manual'
   source_system: string
   source_path: string
-  ingestion_type: 'databricks' | 'adf'
+  ingestion_type: 'databricks' | 'adf' | 'manual'
   output_directory: string
   is_enabled: boolean
   updated_at: string | null
