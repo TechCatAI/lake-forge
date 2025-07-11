@@ -9,6 +9,8 @@ CREATE TABLE mdf_app."group" (
     name         TEXT UNIQUE NOT NULL,
     description  TEXT,
     is_enabled   BOOLEAN      NOT NULL DEFAULT TRUE,
+	is_raw       BOOLEAN NOT NULL DEFAULT FALSE,
+	is_bronze    BOOLEAN NOT NULL DEFAULT FALSE,
     created_at   TIMESTAMPTZ  NOT NULL DEFAULT current_timestamp,
     created_by   TEXT         NOT NULL DEFAULT current_user,
     updated_at   TIMESTAMPTZ  NOT NULL DEFAULT current_timestamp,
@@ -16,6 +18,9 @@ CREATE TABLE mdf_app."group" (
 );
 
 CREATE INDEX ix_group_enabled ON mdf_app."group"(is_enabled);
+COMMENT ON COLUMN mdf_app."group".is_raw    IS 'If TRUE this group triggers raw ingestion jobs';
+COMMENT ON COLUMN mdf_app."group".is_bronze IS 'If TRUE this group triggers bronze ingestion jobs';
+
 
 /* ────────────────────────────────────────────────────────────────
    2. SCHEDULES  – when to trigger a group

@@ -35,7 +35,7 @@ COMMENT ON TABLE  mdf_app.batch_run IS 'One record per logical pipeline trigger 
 CREATE TABLE mdf_app.table_run (
     id              UUID PRIMARY KEY,
     batch_id        UUID REFERENCES mdf_app.batch_run(id) ON DELETE CASCADE,
-    table_config_id INT  REFERENCES mdf_app.table_config(id),
+    table_config_id INT  REFERENCES mdf_app.bronze_config(id),
     started_at      TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     finished_at     TIMESTAMPTZ,
     status          mdf_app.run_status NOT NULL DEFAULT 'running',

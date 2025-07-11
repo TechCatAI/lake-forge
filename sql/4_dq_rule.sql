@@ -6,7 +6,7 @@ CREATE TABLE mdf_app.dq_rule (
     id               SERIAL PRIMARY KEY,
     is_enabled       BOOLEAN DEFAULT false,
     table_config_id  INT NOT NULL
-                         REFERENCES mdf_app.table_config(id)
+                         REFERENCES mdf_app.bronze_config(id)
                          ON DELETE CASCADE,
     rule_name        TEXT        NOT NULL,
     rule_sql         TEXT        NOT NULL,
