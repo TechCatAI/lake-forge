@@ -212,5 +212,14 @@
       "apps/frontend/src/app/groups/page.tsx",
       "apps/frontend/src/app/schedules/page.tsx"
     ]
+  },
+  {
+    "task_id": "task-029",
+    "agent": "frontend_specialist",
+    "date": "2025-07-12",
+    "summary": "Fixed lint error in Add Bronze dialog by typing payload with BronzeConfigInput and casting before API call.",
+    "output_files": [
+      "apps/frontend/src/app/bronze-config/AddBronzeDialog.tsx"
+    ]
   }
 ]
