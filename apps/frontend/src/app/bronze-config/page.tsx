@@ -14,7 +14,6 @@ import { EditableCell, Switch } from '../../components/EditableCell'
 import Button from '../../components/ui/button'
 import GradientText from '../../components/GradientText'
 import AddBronzeDialog from './AddBronzeDialog'
-import Tooltip from '../../components/ui/tooltip'
 import {
   fetchBronzeConfigs,
   updateBronzeConfig,
@@ -174,31 +173,26 @@ export default function BronzeConfigPage() {
     {
       accessorKey: 'group_id',
       header: 'Group',
-      cell: ({ row, getValue }) => {
-        const val = getValue<number | null>() ?? null;
-        return (
-          <Tooltip content={val !== null ? String(val) : ''}>
-            <select
-              className="border rounded px-1"
-              value={val ?? ''}
-              onChange={(e) =>
-                handleEdit(
-                  row.original.id,
-                  'group_id',
-                  e.target.value ? Number(e.target.value) : null,
-                )
-              }
-            >
-              <option value="">None</option>
-              {groups.map((g) => (
-                <option key={g.id} value={g.id} title={String(g.id)}>
-                  {g.name}
-                </option>
-              ))}
-            </select>
-          </Tooltip>
-        );
-      },
+      cell: ({ row, getValue }) => (
+        <select
+          className="border rounded px-1"
+          value={getValue<number | null>() ?? ''}
+          onChange={(e) =>
+            handleEdit(
+              row.original.id,
+              'group_id',
+              e.target.value ? Number(e.target.value) : null,
+            )
+          }
+        >
+          <option value="">None</option>
+          {groups.map((g) => (
+            <option key={g.id} value={g.id}>
+              {g.id} - {g.name}
+            </option>
+          ))}
+        </select>
+      ),
     },
     {
       accessorKey: 'raw_config_id',
