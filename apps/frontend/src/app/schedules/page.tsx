@@ -186,26 +186,29 @@ export default function SchedulesPage() {
     {
       accessorKey: "days",
       header: "Days",
-      cell: ({ row, getValue }) => (
-        <select
-          multiple
-          className="border rounded px-1"
-          value={getValue<number[]>().map(String)}
-          onChange={(e) =>
-            handleEdit(
-              row.original.id,
-              "days",
-              Array.from(e.target.selectedOptions).map((o) => Number(o.value)),
-            )
-          }
-        >
-          {DAY_OPTIONS.map((d) => (
-            <option key={d.value} value={d.value}>
-              {d.label}
-            </option>
-          ))}
-        </select>
-      ),
+      cell: ({ row, getValue }) => {
+        const selected = getValue<number[]>();
+        function toggleDay(d: number) {
+          const days = selected.includes(d)
+            ? selected.filter((x) => x !== d)
+            : [...selected, d];
+          handleEdit(row.original.id, "days", days);
+        }
+        return (
+          <div className="flex flex-wrap gap-1">
+            {DAY_OPTIONS.map((d) => (
+              <label key={d.value} className="flex items-center gap-1 text-xs">
+                <input
+                  type="checkbox"
+                  checked={selected.includes(d.value)}
+                  onChange={() => toggleDay(d.value)}
+                />
+                {d.label}
+              </label>
+            ))}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "times",
