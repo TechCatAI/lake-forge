@@ -50,7 +50,7 @@ export default function RawConfigPage() {
   useEffect(() => {
     loadData()
     fetchGroups()
-      .then((gs) => setGroups(gs.filter((g) => g.is_raw)))
+      .then((gs) => setGroups(gs))
       .catch(() => setGroups([]))
   }, [])
 

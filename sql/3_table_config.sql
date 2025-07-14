@@ -2,12 +2,12 @@
 -- database: lakeforge_db
 -- schema: mdf_app
 -- raw_config: external source → raw landing
-CREATE TYPE mdf_app.source_kind_raw  AS ENUM ('sftp','jdbc','api','cloud_storage');
-CREATE TYPE mdf_app.ingestion_type   AS ENUM ('databricks','adf');
+CREATE TYPE mdf_app.source_kind_raw  AS ENUM ('sftp','jdbc','api','cloud_storage', 'manual');
+CREATE TYPE mdf_app.ingestion_type   AS ENUM ('databricks','adf', 'manual');
 
 CREATE TABLE mdf_app.raw_config (
     id              SERIAL PRIMARY KEY,
-    group_id        INT           REFERENCES mdf_app."group"(id),      -- optional; falls back to dataset’s default group
+    group_id        INT    REFERENCES mdf_app."group"(id),      -- optional; falls back to dataset’s default group
     source_kind     mdf_app.source_kind_raw NOT NULL,
     source_system   TEXT NOT NULL,             -- human-readable description. Base url of source system or api
     connection_id   INT  REFERENCES mdf_app.connection(id),
@@ -30,7 +30,7 @@ COMMENT ON TABLE mdf_app.raw_config IS 'Config for pulling external data into ra
 CREATE TABLE mdf_app.bronze_config (
     id              SERIAL PRIMARY KEY,
 	-- TABLE ⇢ GROUP (N-to-1)  – each table in ≤ 1 group for now ------------
-	group_id INT REFERENCES mdf_app."group"(id),
+	group_id        INT REFERENCES mdf_app."group"(id),
 	raw_config_id   INT NOT NULL UNIQUE REFERENCES mdf_app.raw_config(id) ON DELETE CASCADE,
     -- what & where ---------------------------------------------------------
     source_kind     TEXT NOT NULL   CHECK (source_kind IN ('volume','external','jdbc')),
@@ -71,12 +71,8 @@ LEFT   JOIN mdf_app."group" g ON g.id = tc.group_id;
   If you later allow many-to-many, drop the UNIQUE and add a PK.
 ────────────────────────────────────────────────────────────────────*/
 CREATE TABLE mdf_app.table_group (
-    table_config_id INT PRIMARY KEY
-                       REFERENCES mdf_app.bronze_config(id)
-                       ON DELETE CASCADE,
-    group_id        INT NOT NULL
-                       REFERENCES mdf_app."group"(id)
-                       ON DELETE CASCADE,
+    table_config_id INT PRIMARY KEY REFERENCES mdf_app.bronze_config(id) ON DELETE CASCADE,
+    group_id        INT NOT NULL REFERENCES mdf_app."group"(id) ON DELETE CASCADE,
     -- bookkeeping
     created_at      TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     created_by      TEXT        NOT NULL DEFAULT current_user

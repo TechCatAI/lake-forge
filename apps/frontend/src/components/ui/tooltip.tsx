@@ -12,7 +12,7 @@ export default function Tooltip({ children, content, className }: { children: Re
     >
       {children}
       {open && (
-        <span className="absolute left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-1 py-0.5 text-xs text-white z-50 top-full mt-1">
+        <span className="absolute left-full top-1/2 -translate-y-1/2 ml-1 whitespace-nowrap rounded bg-black px-1 py-0.5 text-xs text-white z-50">
           {content}
         </span>
       )}

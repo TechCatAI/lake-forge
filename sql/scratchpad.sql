@@ -12,7 +12,7 @@ SELECT * FROM mdf_app.table_group;
 SELECT * FROM mdf_app.raw_config;
 
 SELECT * FROM mdf_app.bronze_config;
-
+	UPDATE mdf_app.raw_config SET group_id = 1;
 SELECT * FROM mdf_app.dq_rule;
 
 -- SANITY CHECK logging tables
