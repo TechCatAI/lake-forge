@@ -22,17 +22,14 @@ client = TestClient(app)
 RAW_ROW = {
     "id": 1,
     "group_id": None,
-    "source_system_id": 1,
+    "source_kind": "sftp",
+    "source_system": "sys",
     "connection_id": None,
     "source_path": "/src",
     "ingestion_type": "databricks",
     "schedule_id": None,
     "copy_options": {},
     "output_directory": "/out",
-    "watermark_col": None,
-    "watermark": None,
-    "watermark_increment_sec": None,
-    "watermark_initial": None,
     "is_enabled": True,
     "updated_at": None,
 }
@@ -49,12 +46,8 @@ BRONZE_ROW = {
     "file_format": None,
     "connection_id": None,
     "load_type": "full",
-    "is_stream": False,
     "pk_columns": ["id"],
-    "partition_cols": [],
-    "zorder_cols": [],
     "watermark_col": None,
-    "scd_type": 0,
     "ingest_options": {},
     "quarantine": False,
     "is_enabled": False,
@@ -81,17 +74,14 @@ def stub_update_bronze(id: int, delta: BronzeConfigUpdate) -> BronzeConfigOut:
 def raw_payload():
     return {
         "group_id": None,
-        "source_system_id": 1,
+        "source_kind": "sftp",
+        "source_system": "sys",
         "connection_id": None,
         "source_path": "/src",
         "ingestion_type": "databricks",
         "schedule_id": None,
         "copy_options": {},
         "output_directory": "/out",
-        "watermark_col": None,
-        "watermark": None,
-        "watermark_increment_sec": None,
-        "watermark_initial": None,
         "is_enabled": True,
     }
 
@@ -108,12 +98,8 @@ def bronze_payload():
         "file_format": None,
         "connection_id": None,
         "load_type": "full",
-        "is_stream": False,
         "pk_columns": ["id"],
-        "partition_cols": [],
-        "zorder_cols": [],
         "watermark_col": None,
-        "scd_type": 0,
         "ingest_options": {},
         "quarantine": False,
         "is_enabled": False,
@@ -132,7 +118,7 @@ def test_raw_flow(monkeypatch):
     assert resp.json()["id"] == 1
 
     monkeypatch.setattr(crud, "update_raw", stub_update_raw)
-    resp = client.patch("/api/raw-config/1", json={"source_system_id": 2})
+    resp = client.patch("/api/raw-config/1", json={"source_system": "x"})
     assert resp.status_code == 200
 
     called = {}

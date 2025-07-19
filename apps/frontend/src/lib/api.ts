@@ -216,14 +216,11 @@ export async function deleteSchedule(id: number): Promise<void> {
 export interface RawConfig {
   id: number
   group_id: number | null
-  source_system_id: number | null
+  source_kind: 'sftp' | 'jdbc' | 'api' | 'cloud_storage'
+  source_system: string
   source_path: string
-  ingestion_type: 'databricks' | 'adf' | 'manual'
+  ingestion_type: 'databricks' | 'adf'
   output_directory: string
-  watermark_col: string | null
-  watermark: string | null
-  watermark_increment_sec: number | null
-  watermark_initial: string | null
   is_enabled: boolean
   updated_at: string | null
 }
@@ -277,13 +274,9 @@ export interface BronzeConfig {
   source_path: string
   file_format: string | null
   connection_id: number | null
-  load_type: 'full' | 'incremental' | 'append' | 'mergedelete'
-  is_stream: boolean
+  load_type: 'full' | 'incremental'
   pk_columns: string[]
-  partition_cols: string[] | null
-  zorder_cols: string[] | null
   watermark_col: string | null
-  scd_type: number | null
   ingest_options: Record<string, unknown>
   quarantine: boolean
   is_enabled: boolean
@@ -321,48 +314,5 @@ export async function updateBronzeConfig(id: number, delta: Partial<BronzeConfig
 
 export async function deleteBronzeConfig(id: number): Promise<void> {
   const res = await fetch(`/api/bronze-config/${id}`, { method: 'DELETE' })
-  if (!res.ok) throw (await res.json()) as APIError
-}
-
-// ----- Source System -----
-export interface SourceSystem {
-  id: number
-  name: string
-  server: string
-  description: string | null
-  type: 'adls' | 'databricks' | 'sql' | 'restapi'
-  created_at: string | null
-}
-
-export type SourceSystemInput = Omit<SourceSystem, 'id' | 'created_at'>
-
-export async function fetchSourceSystems(): Promise<SourceSystem[]> {
-  const res = await fetch('/api/source-systems')
-  if (!res.ok) throw (await res.json()) as APIError
-  return res.json()
-}
-
-export async function createSourceSystem(payload: SourceSystemInput): Promise<SourceSystem> {
-  const res = await fetch('/api/source-systems', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  })
-  if (!res.ok) throw (await res.json()) as APIError
-  return res.json()
-}
-
-export async function updateSourceSystem(id: number, delta: Partial<SourceSystemInput>): Promise<SourceSystem> {
-  const res = await fetch(`/api/source-systems/${id}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(delta),
-  })
-  if (!res.ok) throw (await res.json()) as APIError
-  return res.json()
-}
-
-export async function deleteSourceSystem(id: number): Promise<void> {
-  const res = await fetch(`/api/source-systems/${id}`, { method: 'DELETE' })
   if (!res.ok) throw (await res.json()) as APIError
 }

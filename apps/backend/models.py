@@ -7,17 +7,14 @@ import datetime as dt
 # ---------- RawConfig ----------
 class RawConfigBase(BaseModel):
     group_id: Optional[int] = None
-    source_system_id: Optional[int] = None
+    source_kind: Literal["sftp", "jdbc", "api", "cloud_storage"]
+    source_system: str
     connection_id: Optional[int] = None
     source_path: str
-    ingestion_type: Literal["databricks", "adf", "manual"]
+    ingestion_type: Literal["databricks", "adf"]
     schedule_id: Optional[int] = None
     copy_options: dict = {}
     output_directory: str
-    watermark_col: Optional[str] = None
-    watermark: Optional[dt.datetime] = None
-    watermark_increment_sec: Optional[int] = None
-    watermark_initial: Optional[dt.datetime] = None
     is_enabled: bool = True
 
     @validator("source_path")
@@ -41,17 +38,14 @@ class RawConfigUpdate(BaseModel):
         extra = "forbid"
 
     group_id: Optional[int] = None
-    source_system_id: Optional[int] = None
+    source_kind: Optional[Literal["sftp", "jdbc", "api", "cloud_storage"]] = None
+    source_system: Optional[str] = None
     connection_id: Optional[int] = None
     source_path: Optional[str] = None
-    ingestion_type: Optional[Literal["databricks", "adf", "manual"]] = None
+    ingestion_type: Optional[Literal["databricks", "adf"]] = None
     schedule_id: Optional[int] = None
     copy_options: Optional[dict] = None
     output_directory: Optional[str] = None
-    watermark_col: Optional[str] = None
-    watermark: Optional[dt.datetime] = None
-    watermark_increment_sec: Optional[int] = None
-    watermark_initial: Optional[dt.datetime] = None
     is_enabled: Optional[bool] = None
     updated_by: Optional[str] = None
 
@@ -73,16 +67,12 @@ class BronzeConfigBase(BaseModel):
     source_path: str
     file_format: Optional[str] = None
     connection_id: Optional[int] = None
-    load_type: Literal["full", "incremental", "append", "mergedelete"]
-    is_stream: bool = False
+    load_type: Literal["full", "incremental"]
     pk_columns: List[str]
-    partition_cols: Optional[List[str]] = None
-    zorder_cols: Optional[List[str]] = None
     watermark_col: Optional[str] = None
-    scd_type: Optional[int] = 0
     ingest_options: dict = {}
     quarantine: bool = False
-    is_enabled: bool = True
+    is_enabled: bool = False
 
     @validator("source_path")
     def _non_blank_path(cls, v: str) -> str:
@@ -92,8 +82,8 @@ class BronzeConfigBase(BaseModel):
 
 
 class BronzeConfigIn(BronzeConfigBase):
-    @validator("pk_columns", "partition_cols", "zorder_cols", pre=True)
-    def _parse_list(cls, v):
+    @validator("pk_columns", pre=True)
+    def _parse_pk(cls, v):
         if v is None or v == "":
             return []
         if isinstance(v, str):
@@ -102,7 +92,7 @@ class BronzeConfigIn(BronzeConfigBase):
             return list(v.values())
         if isinstance(v, list):
             return v
-        raise ValueError("value must be a comma string or list")
+        raise ValueError("pk_columns must be a comma string or list")
 
     @validator("pk_columns")
     def _require_pk_if_incremental(cls, v, values):
@@ -130,20 +120,16 @@ class BronzeConfigUpdate(BaseModel):
     source_path: Optional[str] = None
     file_format: Optional[str] = None
     connection_id: Optional[int] = None
-    load_type: Optional[Literal["full", "incremental", "append", "mergedelete"]] = None
-    is_stream: Optional[bool] = None
+    load_type: Optional[Literal["full", "incremental"]] = None
     pk_columns: Optional[List[str] | str] = None
-    partition_cols: Optional[List[str] | str] = None
-    zorder_cols: Optional[List[str] | str] = None
     watermark_col: Optional[str] = None
-    scd_type: Optional[int] = None
     ingest_options: Optional[dict] = None
     quarantine: Optional[bool] = None
     is_enabled: Optional[bool] = None
     updated_by: Optional[str] = None
 
-    @validator("pk_columns", "partition_cols", "zorder_cols", pre=True)
-    def _parse_list_u(cls, v):
+    @validator("pk_columns", pre=True)
+    def _parse_pk(cls, v):
         if v is None or v == "":
             return []
         if isinstance(v, str):
@@ -152,7 +138,7 @@ class BronzeConfigUpdate(BaseModel):
             return list(v.values())
         if isinstance(v, list):
             return v
-        raise ValueError("value must be a comma string or list")
+        raise ValueError("pk_columns must be a comma string or list")
 
     @validator("pk_columns")
     def _require_pk_if_incremental(cls, v, values):
@@ -267,31 +253,3 @@ class ScheduleUpdate(BaseModel):
     days: Optional[list[int]] = None
     times: Optional[list[str]] = None
     is_enabled: Optional[bool] = None
-
-
-# ---------- SourceSystem ----------
-class SourceSystemBase(BaseModel):
-    name: constr(strip_whitespace=True, min_length=1)
-    server: str
-    description: Optional[str] = None
-    type: Literal["adls", "databricks", "sql", "restapi"]
-
-
-class SourceSystemIn(SourceSystemBase):
-    pass
-
-
-class SourceSystemOut(SourceSystemBase):
-    id: int
-    created_at: Optional[dt.datetime] = None
-
-
-class SourceSystemUpdate(BaseModel):
-    class Config:
-        extra = "forbid"
-
-    name: Optional[constr(strip_whitespace=True, min_length=1)] = None
-    server: Optional[str] = None
-    description: Optional[str] = None
-    type: Optional[Literal["adls", "databricks", "sql", "restapi"]] = None
-    updated_by: Optional[str] = None
