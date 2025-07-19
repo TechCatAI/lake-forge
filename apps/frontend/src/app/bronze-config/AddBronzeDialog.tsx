@@ -6,8 +6,10 @@ import { toast } from 'sonner'
 import {
   createBronzeConfig,
   fetchRawConfigs,
+  fetchSourceSystems,
   type BronzeConfig,
   type RawConfig,
+  type SourceSystem,
   type APIError,
 } from '../../lib/api'
 
@@ -55,10 +57,12 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [rawOptions, setRawOptions] = useState<RawConfig[]>([])
+  const [sources, setSources] = useState<SourceSystem[]>([])
 
   useEffect(() => {
     if (open) {
       fetchRawConfigs().then(setRawOptions, () => setRawOptions([]))
+      fetchSourceSystems().then(setSources, () => setSources([]))
     }
   }, [open])
 
@@ -153,11 +157,14 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
               }
             >
               <option value="">Select Raw Config</option>
-              {rawOptions.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.source_system} · {r.source_path}
-                </option>
-              ))}
+              {rawOptions.map((r) => {
+                const name = sources.find((s) => s.id === r.source_system_id)?.name
+                return (
+                  <option key={r.id} value={r.id}>
+                    {name ?? r.source_system_id} · {r.source_path}
+                  </option>
+                )
+              })}
             </select>
             <select
               className="border w-full px-1"
