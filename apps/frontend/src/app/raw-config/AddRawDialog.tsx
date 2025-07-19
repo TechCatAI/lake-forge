@@ -1,15 +1,14 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Button from '../../components/ui/button'
 import Spinner from '../../components/Spinner'
 import { toast } from 'sonner'
-import { createRawConfig, type RawConfig, type APIError } from '../../lib/api'
+import { createRawConfig, fetchSourceSystems, type RawConfig, type APIError, type SourceSystem } from '../../lib/api'
 
 export interface AddPayload {
-  source_kind: 'sftp' | 'jdbc' | 'api' | 'cloud_storage'
-  source_system: string
+  source_system_id: number | null
   source_path: string
-  ingestion_type: 'databricks' | 'adf'
+  ingestion_type: 'databricks' | 'adf' | 'manual'
   output_directory: string
   is_enabled: boolean
 }
@@ -17,8 +16,7 @@ export interface AddPayload {
 export default function AddRawDialog({ onCreate }: { onCreate(r: RawConfig): void }) {
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState<AddPayload>({
-    source_kind: 'sftp',
-    source_system: '',
+    source_system_id: null,
     source_path: '',
     ingestion_type: 'databricks',
     output_directory: '',
@@ -27,8 +25,14 @@ export default function AddRawDialog({ onCreate }: { onCreate(r: RawConfig): voi
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
+  const [sources, setSources] = useState<SourceSystem[]>([])
+
+  useEffect(() => {
+    if (open) fetchSourceSystems().then(setSources, () => setSources([]))
+  }, [open])
+
   const valid =
-    form.source_system.trim().length > 0 &&
+    form.source_system_id !== null &&
     form.source_path.trim().length > 0 &&
     form.output_directory.trim().length > 0
 
@@ -48,8 +52,7 @@ export default function AddRawDialog({ onCreate }: { onCreate(r: RawConfig): voi
       onCreate(row)
       toast.success('Raw Config added')
       setForm({
-        source_kind: 'sftp',
-        source_system: '',
+        source_system_id: null,
         source_path: '',
         ingestion_type: 'databricks',
         output_directory: '',
@@ -80,23 +83,19 @@ export default function AddRawDialog({ onCreate }: { onCreate(r: RawConfig): voi
           <form className="bg-background p-4 space-y-2 w-80" onSubmit={submit}>
             <h2 className="font-semibold">Add Raw Config</h2>
             <select
-              className="border w-full px-1"
-              value={form.source_kind}
+              className={`border w-full px-1 ${errors.source_system_id ? 'border-red-500' : ''}`}
+              value={form.source_system_id ?? ''}
               onChange={(e) =>
-                setForm({ ...form, source_kind: e.target.value as AddPayload['source_kind'] })
+                setForm({ ...form, source_system_id: e.target.value ? Number(e.target.value) : null })
               }
             >
-              <option value="sftp">sftp</option>
-              <option value="jdbc">jdbc</option>
-              <option value="api">api</option>
-              <option value="cloud_storage">cloud_storage</option>
+              <option value="">Select Source System</option>
+              {sources.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
             </select>
-            <input
-              className={`border w-full px-1 ${errors.source_system ? 'border-red-500' : ''}`}
-              placeholder="Source System"
-              value={form.source_system}
-              onChange={(e) => setForm({ ...form, source_system: e.target.value })}
-            />
             <input
               className={`border w-full px-1 ${errors.source_path ? 'border-red-500' : ''}`}
               placeholder="Source Path"
@@ -112,6 +111,7 @@ export default function AddRawDialog({ onCreate }: { onCreate(r: RawConfig): voi
             >
               <option value="databricks">databricks</option>
               <option value="adf">adf</option>
+              <option value="manual">manual</option>
             </select>
             <input
               className={`border w-full px-1 ${errors.output_directory ? 'border-red-500' : ''}`}
