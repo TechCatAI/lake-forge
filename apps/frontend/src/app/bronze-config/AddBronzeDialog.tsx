@@ -19,9 +19,13 @@ export interface AddPayload {
   table_name: string
   source_path: string
   file_format: 'parquet' | 'csv' | 'json' | 'avro'
-  load_type: 'full' | 'incremental'
+  load_type: 'full' | 'incremental' | 'append' | 'mergedelete'
+  is_stream: boolean
   pk_columns: string
+  partition_cols: string
+  zorder_cols: string
   watermark_col: string
+  scd_type: number | null
   ingest_options: string
   quarantine: boolean
   group_id: number | null
@@ -38,8 +42,12 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
     source_path: '',
     file_format: 'parquet',
     load_type: 'full',
+    is_stream: false,
     pk_columns: '',
+    partition_cols: '',
+    zorder_cols: '',
     watermark_col: '',
+    scd_type: null,
     ingest_options: '{}',
     quarantine: false,
     group_id: null,
@@ -78,9 +86,13 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
         file_format: form.file_format,
         connection_id: null,
         load_type: form.load_type,
+        is_stream: form.is_stream,
         pk_columns: form.pk_columns.split(/\s*,\s*/).filter(Boolean),
+        partition_cols: form.partition_cols ? form.partition_cols.split(/\s*,\s*/).filter(Boolean) : [],
+        zorder_cols: form.zorder_cols ? form.zorder_cols.split(/\s*,\s*/).filter(Boolean) : [],
         watermark_col: form.watermark_col || null,
-        ingest_options: JSON.parse(form.ingest_options || '{}'),
+        scd_type: form.scd_type,
+        ingest_options: JSON.parse(form.ingest_options || '{}') as Record<string, unknown>,
         quarantine: form.quarantine,
         is_enabled: false,
         group_id: form.group_id,
@@ -96,8 +108,12 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
         source_path: '',
         file_format: 'parquet',
         load_type: 'full',
+        is_stream: false,
         pk_columns: '',
+        partition_cols: '',
+        zorder_cols: '',
         watermark_col: '',
+        scd_type: null,
         ingest_options: '{}',
         quarantine: false,
         group_id: null,

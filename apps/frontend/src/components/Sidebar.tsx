@@ -16,6 +16,7 @@ const navItems = [
   { name: 'Raw Config', href: '/raw-config', icon: Upload },
   { name: 'Bronze Config', href: '/bronze-config', icon: Layers },
   { name: 'DQ Rules', href: '/dq-rules', icon: ListChecks },
+  { name: 'Source Systems', href: '/source-system', icon: Upload },
 ] as const;
 
 function NavLinks({ pathname, collapsed }: { pathname: string | null; collapsed?: boolean }) {
