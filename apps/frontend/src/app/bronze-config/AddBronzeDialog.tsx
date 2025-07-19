@@ -217,11 +217,13 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
               className="border w-full px-1"
               value={form.load_type}
               onChange={(e) =>
-                setForm({ ...form, load_type: e.target.value as 'full' | 'incremental' })
+                setForm({ ...form, load_type: e.target.value as AddPayload['load_type'] })
               }
             >
               <option value="full">full</option>
               <option value="incremental">incremental</option>
+              <option value="append">append</option>
+              <option value="mergedelete">mergedelete</option>
             </select>
             <input
               className={`border w-full px-1 ${errors.pk_columns ? 'border-red-500' : ''}`}

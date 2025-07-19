@@ -57,7 +57,7 @@ export default function BronzeConfigPage() {
     loadData()
     fetchRawConfigs().then(setRawOptions, () => setRawOptions([]))
     fetchGroups()
-      .then((gs) => setGroups(gs.filter((g) => g.is_bronze)))
+      .then((gs) => setGroups(gs))
       .catch(() => setGroups([]))
     fetchSourceSystems().then(setSources, () => setSources([]))
   }, [])
@@ -313,6 +313,8 @@ export default function BronzeConfigPage() {
           >
             <option value="full">full</option>
             <option value="incremental">incremental</option>
+            <option value="append">append</option>
+            <option value="mergedelete">mergedelete</option>
           </select>
         )
       },
@@ -365,6 +367,63 @@ export default function BronzeConfigPage() {
       header: 'Quarantine',
       cell: ({ row, getValue }) => (
         <Switch checked={getValue<boolean>()} onChange={(v) => handleEdit(row.original.id, 'quarantine', v)} />
+      ),
+    },
+    {
+      accessorKey: 'is_stream',
+      header: 'Streaming',
+      cell: ({ row, getValue }) => (
+        <Switch checked={getValue<boolean>()} onChange={(v) => handleEdit(row.original.id, 'is_stream', v)} />
+      ),
+    },
+    {
+      accessorKey: 'partition_cols',
+      header: 'Partition Cols',
+      cell: ({ row, getValue }) => (
+        <EditableCell
+          initialValue={getValue<string[] | null>() ?? []}
+          onSave={(v) => handleEdit(row.original.id, 'partition_cols', Array.isArray(v) && v.length ? v : [])}
+          parse={(v) => v.split(',').map((s) => s.trim()).filter(Boolean)}
+          format={(v) => (Array.isArray(v) ? v.join(', ') : '')}
+          className="text-left"
+        />
+      ),
+    },
+    {
+      accessorKey: 'zorder_cols',
+      header: 'Z-Order Cols',
+      cell: ({ row, getValue }) => (
+        <EditableCell
+          initialValue={getValue<string[] | null>() ?? []}
+          onSave={(v) => handleEdit(row.original.id, 'zorder_cols', Array.isArray(v) && v.length ? v : [])}
+          parse={(v) => v.split(',').map((s) => s.trim()).filter(Boolean)}
+          format={(v) => (Array.isArray(v) ? v.join(', ') : '')}
+          className="text-left"
+        />
+      ),
+    },
+    {
+      accessorKey: 'scd_type',
+      header: 'SCD Type',
+      cell: ({ row, getValue }) => (
+        <select
+          className="border rounded px-1"
+          value={getValue<number | null>() ?? ''}
+          onChange={(e) =>
+            handleEdit(
+              row.original.id,
+              'scd_type',
+              e.target.value ? Number(e.target.value) : null,
+            )
+          }
+        >
+          <option value="">None</option>
+          {[0, 1, 2, 3, 6].map((n) => (
+            <option key={n} value={n}>
+              {n}
+            </option>
+          ))}
+        </select>
       ),
     },
     {
