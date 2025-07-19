@@ -21,9 +21,11 @@ import {
   deleteBronzeConfig,
   fetchRawConfigs,
   fetchGroups,
+  fetchSourceSystems,
   type BronzeConfig,
   type RawConfig,
   type Group,
+  type SourceSystem,
   type APIError,
 } from '../../lib/api'
 import {
@@ -43,6 +45,7 @@ export default function BronzeConfigPage() {
   const [dirtyCount, setDirtyCount] = useState(0)
   const [savingAll, setSavingAll] = useState(false)
   const [groups, setGroups] = useState<Group[]>([])
+  const [sources, setSources] = useState<SourceSystem[]>([])
   const [confirmDelete, setConfirmDelete] = useState<{
     id: number
     row: BronzeConfig
@@ -56,6 +59,7 @@ export default function BronzeConfigPage() {
     fetchGroups()
       .then((gs) => setGroups(gs.filter((g) => g.is_bronze)))
       .catch(() => setGroups([]))
+    fetchSourceSystems().then(setSources, () => setSources([]))
   }, [])
 
   useEffect(() => {
@@ -209,11 +213,14 @@ export default function BronzeConfigPage() {
           defaultValue={getValue<number>()}
           onChange={(e) => handleEdit(row.original.id, 'raw_config_id', Number(e.target.value))}
         >
-          {rawOptions.map((r) => (
-            <option key={r.id} value={r.id}>
-              {r.source_system} · {r.source_path}
-            </option>
-          ))}
+          {rawOptions.map((r) => {
+            const name = sources.find((s) => s.id === r.source_system_id)?.name
+            return (
+              <option key={r.id} value={r.id}>
+                {name ?? r.source_system_id} · {r.source_path}
+              </option>
+            )
+          })}
         </select>
       ),
     },
