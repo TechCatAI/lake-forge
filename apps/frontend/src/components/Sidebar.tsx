@@ -11,12 +11,12 @@ import { Home, Upload, Layers, ListChecks, Users, Clock } from 'lucide-react';
 
 const navItems = [
   { name: 'Dashboard', href: '/', icon: Home },
+  { name: 'Source Systems', href: '/source-system', icon: Upload },
   { name: 'Groups', href: '/groups', icon: Users },
   { name: 'Schedules', href: '/schedules', icon: Clock },
   { name: 'Raw Config', href: '/raw-config', icon: Upload },
   { name: 'Bronze Config', href: '/bronze-config', icon: Layers },
   { name: 'DQ Rules', href: '/dq-rules', icon: ListChecks },
-  { name: 'Source Systems', href: '/source-system', icon: Upload },
 ] as const;
 
 function NavLinks({ pathname, collapsed }: { pathname: string | null; collapsed?: boolean }) {

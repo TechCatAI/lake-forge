@@ -60,6 +60,16 @@ SELECT * FROM vw_bronze_extended; -- view that will be called by RawToBronze (cl
 -- DROP TABLE mdf_app.connection;
 -- DROP TABLE mdf_app.zone;
 
+-- scratch updates. make sure to add to bootstrap file
+-- ALTER TABLE mdf_app.connection ADD COLUMN updated_at   TIMESTAMPTZ NOT NULL DEFAULT current_timestamp; ----
+-- ALTER TABLE mdf_app.connection ADD COLUMN updated_by   TEXT        NOT NULL DEFAULT current_user; -----
+-- ALTER TABLE mdf_app.source_system ADD COLUMN updated_at   TIMESTAMPTZ NOT NULL DEFAULT current_timestamp; ----
+-- ALTER TABLE mdf_app.source_system ADD COLUMN updated_by   TEXT        NOT NULL DEFAULT current_user; -----
+-- ALTER TABLE mdf_app.group ADD COLUMN created_at   TIMESTAMPTZ NOT NULL DEFAULT current_timestamp; ----
+-- ALTER TABLE mdf_app.group ADD COLUMN created_by   TEXT        NOT NULL DEFAULT current_user; -----
+-- ALTER TABLE mdf_app.group ADD COLUMN updated_at   TIMESTAMPTZ NOT NULL DEFAULT current_timestamp; ----
+-- ALTER TABLE mdf_app.group ADD COLUMN updated_by   TEXT        NOT NULL DEFAULT current_user; -----
+
 
 
 

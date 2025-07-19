@@ -36,7 +36,9 @@ CREATE TABLE IF NOT EXISTS connection (
     secret_scope  TEXT,
     secret_key    TEXT,
     created_at    TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
-    created_by    TEXT        NOT NULL DEFAULT current_user
+    created_by    TEXT        NOT NULL DEFAULT current_user,
+	updated_at    TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
+    updated_by    TEXT        NOT NULL DEFAULT current_user
 );
 
 -----------------------------------------------------------------------
@@ -49,7 +51,9 @@ CREATE TABLE IF NOT EXISTS source_system (
     description TEXT,
     type        TEXT NOT NULL CHECK (type IN ('adls','databricks','sql','restapi')),
     created_at  TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
-    created_by  TEXT        NOT NULL DEFAULT current_user
+    created_by  TEXT        NOT NULL DEFAULT current_user,
+	updated_at  TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
+    updated_by  TEXT        NOT NULL DEFAULT current_user
 );
 
 -----------------------------------------------------------------------
@@ -79,8 +83,8 @@ CREATE TABLE IF NOT EXISTS schedule (
     created_by   TEXT        NOT NULL DEFAULT current_user,
     updated_at   TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     updated_by   TEXT        NOT NULL DEFAULT current_user,
-    CONSTRAINT chk_days_range  CHECK (days <@ '{0,1,2,3,4,5,6}'::SMALLINT[]),
-    CONSTRAINT chk_times_not_empty CHECK (array_length(times,1) > 0)
+    CONSTRAINT   chk_days_range  CHECK (days <@ '{0,1,2,3,4,5,6}'::SMALLINT[]),
+    CONSTRAINT   chk_times_not_empty CHECK (array_length(times,1) > 0)
 );
 
 CREATE TABLE IF NOT EXISTS "group" (
@@ -90,7 +94,11 @@ CREATE TABLE IF NOT EXISTS "group" (
 	is_enabled  BOOLEAN      NOT NULL DEFAULT TRUE,
     is_raw      BOOLEAN NOT NULL DEFAULT FALSE,
     is_bronze   BOOLEAN NOT NULL DEFAULT FALSE,
-    schedule_id INT REFERENCES schedule(id)
+    schedule_id INT REFERENCES schedule(id),
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
+    created_by  TEXT        NOT NULL DEFAULT current_user,
+	updated_at  TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
+    updated_by  TEXT        NOT NULL DEFAULT current_user
 );
 
 CREATE TABLE mdf_app.group_schedule (
@@ -114,7 +122,7 @@ CREATE TABLE IF NOT EXISTS raw_config (
     ingestion_type  TEXT NOT NULL CHECK (ingestion_type IN ('databricks','adf','manual')),
     schedule_id     INT REFERENCES schedule(id),
 
-    copy_options    JSONB NOT NULL DEFAULT '{}'::jsonb,
+    copy_options     JSONB NOT NULL DEFAULT '{}'::jsonb,
     output_directory TEXT NOT NULL,
 
     -- watermark fields
@@ -289,15 +297,34 @@ COMMENT ON TABLE watermark IS 'Stores last successfully processed watermark per 
   5.  HELPER VIEW  (bronze + raw + source_system)
 ======================================================================*/
 CREATE OR REPLACE VIEW vw_bronze_extended AS
-SELECT b.*,
-       wm.last_value AS bronze_last_wm_val,
-       r.output_directory,
-       ss.name  AS source_name,
-       ss.type  AS source_type
+SELECT b.raw_config_id,
+	   b.id AS bronze_config_id,
+	   r.group_id,
+	   g.name AS group_name,
+	   ss.name  AS raw_source_name,
+       ss.type  AS raw_source_type,
+	   b.source_kind,
+	   r.output_directory AS source_path,
+	   b.file_format,
+	   b.ingest_options,
+	   b.load_type,
+	   b.catalog,
+	   b.schema_name,
+	   b.table_name,
+	   b.pk_columns,
+	   b.watermark_col,
+	   b.is_stream,
+	   b.quarantine,
+	   b.partition_cols,
+	   b.zorder_cols,
+	   b.scd_type,
+       wm.last_value AS bronze_last_wm_val
 FROM   bronze_config        b
 LEFT   JOIN raw_config      r  ON r.id = b.raw_config_id
 LEFT   JOIN source_system   ss ON ss.id = r.source_system_id
-LEFT   JOIN watermark 		wm ON wm.bronze_cfg_id = b.id;
+LEFT   JOIN "group"         g  ON g.id = r.group_id
+LEFT   JOIN watermark 		wm ON wm.bronze_cfg_id = b.id
+WHERE b.is_enabled = True;
 
 /*======================================================================
   6.  GRANTS / INDEXES  (add as needed)
