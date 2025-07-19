@@ -20,9 +20,6 @@ from models import (
     ScheduleIn,
     ScheduleOut,
     ScheduleUpdate,
-    SourceSystemIn,
-    SourceSystemOut,
-    SourceSystemUpdate,
 )
 import logging
 
@@ -54,15 +51,12 @@ def create_raw(p: RawConfigIn, db=None) -> RawConfigOut:
         data["copy_options"] = psycopg2.extras.Json(data["copy_options"], dumps=lambda v: json.dumps(v, default=str))
     q = """
         INSERT INTO mdf_app.raw_config
-            (group_id, source_system_id, connection_id, source_path,
-             ingestion_type, schedule_id, copy_options, output_directory,
-             watermark_col, watermark, watermark_increment_sec, watermark_initial,
-             is_enabled, created_by, updated_by)
-        VALUES (%(group_id)s, %(source_system_id)s, %(connection_id)s,
+            (group_id, source_kind, source_system, connection_id, source_path,
+             ingestion_type, schedule_id, copy_options, output_directory, is_enabled,
+             created_by, updated_by)
+        VALUES (%(group_id)s, %(source_kind)s, %(source_system)s, %(connection_id)s,
                 %(source_path)s, %(ingestion_type)s, %(schedule_id)s, %(copy_options)s,
-                %(output_directory)s, %(watermark_col)s, %(watermark)s,
-                %(watermark_increment_sec)s, %(watermark_initial)s,
-                %(is_enabled)s, %(user)s, %(user)s)
+                %(output_directory)s, %(is_enabled)s, %(user)s, %(user)s)
         RETURNING *;
     """
     conn = db or get_conn()
@@ -122,16 +116,14 @@ def create_bronze(cfg: BronzeConfigIn, db=None) -> BronzeConfigOut:
         val = data.get(f)
         if isinstance(val, str) and not val.strip():
             raise ValueError(f"{f} is required")
-    for field in ["pk_columns", "partition_cols", "zorder_cols"]:
-        cols = data.get(field)
-        if cols in (None, ""):
-            cols = []
-        if isinstance(cols, dict):
-            cols = list(cols.values())
-        if isinstance(cols, str):
-            cols = [cols]
-        data[field] = list(cols)
-    pk_columns = data["pk_columns"]
+    pk_columns = data.get("pk_columns")
+    if pk_columns in (None, ""):
+        pk_columns = []
+    if isinstance(pk_columns, dict):
+        pk_columns = list(pk_columns.values())
+    if isinstance(pk_columns, str):
+        pk_columns = [pk_columns]
+    data["pk_columns"] = list(pk_columns)
 
     if data.get("load_type") == "incremental" and not pk_columns:
         raise ValueError("pk_columns is required for incremental load")
@@ -146,13 +138,12 @@ def create_bronze(cfg: BronzeConfigIn, db=None) -> BronzeConfigOut:
     q = """
     INSERT INTO mdf_app.bronze_config
       (group_id, raw_config_id, source_kind, catalog, schema_name, table_name,
-       source_path, file_format, connection_id, load_type, is_stream, pk_columns,
-       partition_cols, zorder_cols, watermark_col, scd_type, ingest_options,
-       quarantine, is_enabled, created_by, updated_by)
+       source_path, file_format, connection_id, load_type, pk_columns,
+       watermark_col, ingest_options, quarantine, is_enabled,
+       created_by, updated_by)
     VALUES (%(group_id)s, %(raw_config_id)s, %(source_kind)s, %(catalog)s,
             %(schema_name)s, %(table_name)s, %(source_path)s, %(file_format)s,
-            %(connection_id)s, %(load_type)s, %(is_stream)s, %(pk_columns)s,
-            %(partition_cols)s, %(zorder_cols)s, %(watermark_col)s, %(scd_type)s,
+            %(connection_id)s, %(load_type)s, %(pk_columns)s, %(watermark_col)s,
             %(ingest_options)s, %(quarantine)s, %(is_enabled)s,
             %(user)s, %(user)s)
     RETURNING *;
@@ -170,11 +161,10 @@ def update_bronze(id: int, payload: BronzeConfigUpdate, db=None) -> BronzeConfig
     fields = payload.dict(exclude_none=True)
     user = fields.pop("updated_by", None) or "system"
 
-    allowed_lists = {"pk_columns", "partition_cols", "zorder_cols", "ingest_options"}
     invalid = [
         c
         for c, v in fields.items()
-        if c not in allowed_lists and isinstance(v, (list, dict))
+        if c not in {"pk_columns", "ingest_options"} and isinstance(v, (list, dict))
     ]
     if invalid:
         raise HTTPException(
@@ -186,9 +176,6 @@ def update_bronze(id: int, payload: BronzeConfigUpdate, db=None) -> BronzeConfig
         fields["ingest_options"] = psycopg2.extras.Json(
             fields["ingest_options"], dumps=lambda v: json.dumps(v, default=str)
         )
-    for f in ["pk_columns", "partition_cols", "zorder_cols"]:
-        if f in fields and isinstance(fields[f], str):
-            fields[f] = [part.strip() for part in fields[f].split(",") if part.strip()]
 
     stmt, params = build_update_sql("mdf_app.bronze_config", fields)
     params.update({"id": id, "updated_by": user})
@@ -373,43 +360,3 @@ def delete_schedule(id: int) -> None:
         cur.execute('DELETE FROM mdf_app.schedule WHERE id = %s', (id,))
         if cur.rowcount == 0:
             raise HTTPException(status_code=404, detail='Schedule not found')
-
-
-def list_source_systems() -> list[SourceSystemOut]:
-    with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-        cur.execute('SELECT * FROM mdf_app.source_system ORDER BY id;')
-        rows = cur.fetchall()
-    return [SourceSystemOut(**row) for row in rows]
-
-
-def create_source_system(p: SourceSystemIn) -> SourceSystemOut:
-    q = (
-        'INSERT INTO mdf_app.source_system (name, server, description, type, created_by, updated_by) '
-        'VALUES (%(name)s, %(server)s, %(description)s, %(type)s, %(user)s, %(user)s) '
-        'RETURNING *;'
-    )
-    with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-        cur.execute(q, {**p.dict(), 'user': 'lake-forge-api'})
-        row = cur.fetchone()
-    return SourceSystemOut(**row)
-
-
-def update_source_system(id: int, delta: SourceSystemUpdate) -> SourceSystemOut:
-    fields = delta.dict(exclude_none=True)
-    user = fields.pop('updated_by', None) or 'system'
-    stmt, params = build_update_sql('mdf_app.source_system', fields)
-    params.update({'id': id, 'updated_by': user})
-    with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-        cur.execute(stmt, params)
-        row = cur.fetchone()
-    return SourceSystemOut(**row)
-
-
-def delete_source_system(id: int) -> None:
-    with get_conn() as c, c.cursor() as cur:
-        cur.execute('SELECT 1 FROM mdf_app.raw_config WHERE source_system_id = %s LIMIT 1', (id,))
-        if cur.fetchone():
-            raise HTTPException(status_code=409, detail='Source system still referenced')
-        cur.execute('DELETE FROM mdf_app.source_system WHERE id = %s', (id,))
-        if cur.rowcount == 0:
-            raise HTTPException(status_code=404, detail='Source system not found')

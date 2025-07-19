@@ -20,10 +20,8 @@ import {
   updateRawConfig,
   deleteRawConfig,
   fetchGroups,
-  fetchSourceSystems,
   type RawConfig,
   type Group,
-  type SourceSystem,
   type APIError,
 } from '../../lib/api'
 import {
@@ -43,7 +41,6 @@ export default function RawConfigPage() {
   const [dirtyCount, setDirtyCount] = useState(0)
   const [savingAll, setSavingAll] = useState(false)
   const [groups, setGroups] = useState<Group[]>([])
-  const [sources, setSources] = useState<SourceSystem[]>([])
   const [confirmDelete, setConfirmDelete] = useState<{
     id: number
     row: RawConfig
@@ -55,7 +52,6 @@ export default function RawConfigPage() {
     fetchGroups()
       .then((gs) => setGroups(gs))
       .catch(() => setGroups([]))
-    fetchSourceSystems().then(setSources, () => setSources([]))
   }, [])
 
   useEffect(() => {
@@ -201,27 +197,30 @@ export default function RawConfigPage() {
       },
     },
     {
-      accessorKey: 'source_system_id',
-      header: 'Source System',
+      accessorKey: 'source_kind',
+      header: 'Source Kind',
       cell: ({ row, getValue }) => (
         <select
-          className="border rounded px-1"
-          value={getValue<number | null>() ?? ''}
-          onChange={(e) =>
-            handleEdit(
-              row.original.id,
-              'source_system_id',
-              e.target.value ? Number(e.target.value) : null,
-            )
-          }
+          className="border rounded px-1 w-28"
+          defaultValue={getValue<string>()}
+          onChange={(e) => handleEdit(row.original.id, 'source_kind', e.target.value as RawConfig['source_kind'])}
         >
-          <option value="">None</option>
-          {sources.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.name}
-            </option>
-          ))}
+          <option value="sftp">sftp</option>
+          <option value="jdbc">jdbc</option>
+          <option value="api">api</option>
+          <option value="cloud_storage">cloud_storage</option>
         </select>
+      ),
+    },
+    {
+      accessorKey: 'source_system',
+      header: 'Source System',
+      cell: ({ row, getValue }) => (
+        <EditableCell
+          initialValue={getValue<string>()}
+          onSave={(v) => handleEdit(row.original.id, 'source_system', v)}
+          className="text-left"
+        />
       ),
     },
     {
