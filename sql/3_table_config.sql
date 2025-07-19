@@ -42,7 +42,7 @@ CREATE TABLE mdf_app.bronze_config (
     file_format     TEXT,                        -- e.g., parquet, csv (for volume)
     connection_id   INT REFERENCES mdf_app.connection(id),  -- jdbc only
     -- ingestion behaviour --------------------------------------------------
-    load_type       TEXT NOT NULL   CHECK (load_type IN ('full','incremental')),
+    load_type       TEXT NOT NULL   CHECK (load_type IN ('full','incremental', 'append', 'mergedelete')),
     pk_columns      TEXT[]        NOT NULL,      -- ARRAY['id','date']
 	watermark_col   TEXT,                     -- NEW: explicit watermark
     ingest_options  JSONB         NOT NULL DEFAULT '{}'::jsonb,

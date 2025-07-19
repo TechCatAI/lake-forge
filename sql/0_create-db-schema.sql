@@ -1,11 +1,20 @@
--- run these by hand, one time, in a Lakebase SQL worksheet
--- As of 2025-07-05: We don't have a create or replace option yet, and no way to switch context
+-- Run these by hand, one time, in the Lakebase Databricks SQL Editor
 CREATE DATABASE lakeforge_db;
 
 CREATE SCHEMA mdf_app;
 COMMENT ON SCHEMA mdf_app IS 'Schema for Lake-Forge tables (table_config, dq_rule, …)';
 
-
 -- DROP database and schema
 -- DROP DATABASE lakeforge_db;
 -- DROP SCHEMA mdf_app;
+
+-- CREATING ROLE AND GRANTING ACCESS TO ADMIN
+CREATE ROLE dbx_admin LOGIN PASSWORD 'xxxxxx';
+GRANT ALL PRIVILEGES ON DATABASE lakeforge_db TO dbx_admin;
+GRANT USAGE ON SCHEMA mdf_app TO dbx_admin;
+ALTER DEFAULT PRIVILEGES IN SCHEMA mdf_app GRANT ALL PRIVILEGES ON TABLES TO dbx_admin;
+ALTER DEFAULT PRIVILEGES IN SCHEMA mdf_app GRANT ALL PRIVILEGES ON SEQUENCES TO dbx_admin;
+ALTER DEFAULT PRIVILEGES IN SCHEMA mdf_app GRANT ALL PRIVILEGES ON FUNCTIONS TO dbx_admin;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA mdf_app TO dbx_admin;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA mdf_app TO dbx_admin;
+GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA mdf_app TO dbx_admin;

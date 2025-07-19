@@ -8,6 +8,7 @@
 CREATE TYPE mdf_app.run_status AS ENUM ('running','success','warning','failed','skipped');
 CREATE TYPE mdf_app.trigger_type AS ENUM ('manual','schedule','adf','api');
 CREATE TYPE mdf_app.dq_status AS ENUM ('pass','warn','fail','drop');
+CREATE TYPE mdf_app.stage AS ENUM ('raw_to_bronze','bronze_to_silver','silver_to_gold');
 
 /*────────────────────────────────────────────────────────────────────
   1.  batch_run  – one row per orchestration trigger
@@ -38,6 +39,7 @@ CREATE TABLE mdf_app.table_run (
     table_config_id INT  REFERENCES mdf_app.bronze_config(id),
     started_at      TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     finished_at     TIMESTAMPTZ,
+	stage           mdf_app.stage,
     status          mdf_app.run_status NOT NULL DEFAULT 'running',
     row_ct_in       BIGINT,
     row_ct_out      BIGINT,
@@ -71,3 +73,11 @@ SELECT *
 FROM   mdf_app.batch_run
 ORDER BY started_at DESC
 LIMIT 100;
+
+-- /*────────────────────────────────────────────────────────────────────
+--   4.  Optional helper view (dev ergonomics)
+-- ────────────────────────────────────────────────────────────────────*/
+-- CREATE OR REPLACE VIEW mdf_app.vw_get_config_info AS
+-- SELECT *
+-- FROM   mdf_app.batch_run
+-- ORDER BY started_at DESC;

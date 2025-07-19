@@ -12,7 +12,7 @@ targets:
   dev:
     default: true
     workspace:
-      host: https://adb-1654813071808666.6.azuredatabricks.net   
+      host: https://adb-1676947424761045.5.azuredatabricks.net  
 
 sync:
   exclude:
