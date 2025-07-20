@@ -226,7 +226,7 @@ def list_rules() -> list[DQRuleOut]:
     q = """
         SELECT
             dq.id,
-            dq.bronze_config_id,
+            dq.bronze_config_id AS table_config_id,
             dq.rule_name,
             dq.rule_sql,
             dq.severity,
@@ -253,7 +253,7 @@ def create_rule(cfg: DQRuleIn) -> DQRuleOut:
         )
         SELECT
             i.id,
-            i.bronze_config_id,
+            i.bronze_config_id AS table_config_id,
             i.rule_name,
             i.rule_sql,
             i.severity,
@@ -263,8 +263,10 @@ def create_rule(cfg: DQRuleIn) -> DQRuleOut:
         FROM inserted i
         JOIN mdf_app.bronze_config tc ON tc.id = i.bronze_config_id;
     """
+    params = cfg.dict()
+    params = {"bronze_config_id": params.pop("table_config_id"), **params}
     with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-        cur.execute(q, {**cfg.dict(), "user": "lake-forge-api"})
+        cur.execute(q, {**params, "user": "lake-forge-api"})
         row = cur.fetchone()
     return DQRuleOut(**dict(row))
 
@@ -274,6 +276,9 @@ def update_rule(id: int, payload: DQRuleUpdate) -> DQRuleOut:
 
     fields = payload.dict(exclude_none=True)
     user = fields.pop("updated_by", None) or "system"
+
+    if "table_config_id" in fields:
+        fields["bronze_config_id"] = fields.pop("table_config_id")
 
     stmt, params = build_update_sql("mdf_app.dq_rule", fields)
     params.update({"id": id, "updated_by": user})
@@ -291,6 +296,9 @@ def update_rule(id: int, payload: DQRuleUpdate) -> DQRuleOut:
                 (row["bronze_config_id"],),
             )
             row["fqtn"] = cur.fetchone()["fqtn"]
+
+        if row and "bronze_config_id" in row:
+            row["table_config_id"] = row.pop("bronze_config_id")
 
     return DQRuleOut(**dict(row))
 
