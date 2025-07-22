@@ -23,4 +23,4 @@ GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA mdf_app TO dbx_admin;
 GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA mdf_app TO dbx_admin;
 
 -- Quality‑of‑life: make the schema the default for dbx_admin
--- ALTER ROLE dbx_admin SET search_path = mdf_app, public;
+ALTER ROLE dbx_admin SET search_path = mdf_app, public;

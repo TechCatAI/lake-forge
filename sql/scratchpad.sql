@@ -19,6 +19,7 @@ SELECT * FROM bronze_config;
 	UPDATE raw_config SET group_id = 1;
 SELECT * FROM dq_rule;
 SELECT * FROM watermark;
+SELECT * FROM table_schema_cache;
 -- SELECT * FROM mdf_app.table_group;
 
 --------------------------
@@ -43,16 +44,20 @@ SELECT * FROM vw_bronze_extended; -- view that will be called by RawToBronze (cl
 
 -- RESET DROP TABLES to rebuild
 -- DROP VIEW mdf_app.vw_bronze_extended;
--- DROP TABLE mdf_app.dq_run;
--- DROP TABLE mdf_app.step_run;
--- DROP TABLE mdf_app.table_run;
--- DROP TABLE mdf_app.zone_run;
--- DROP TABLE mdf_app.batch_run;
+-- logging --
+DROP TABLE mdf_app.dq_run;
+DROP TABLE mdf_app.step_run;
+DROP TABLE mdf_app.table_run;
+DROP TABLE mdf_app.zone_run;
+DROP TABLE mdf_app.batch_run;
+-- table config --
+-- DROP TABLE mdf_app.table_schema_cache;
 -- DROP TABLE mdf_app.watermark;
 -- DROP TABLE mdf_app.dq_rule;
 -- DROP TABLE mdf_app.table_group;
 -- DROP TABLE mdf_app.bronze_config;
 -- DROP TABLE mdf_app.raw_config;
+-- core config --
 -- DROP TABLE mdf_app.schedule;
 -- DROP TABLE mdf_app.group;
 -- DROP TABLE mdf_app.group_schedule;

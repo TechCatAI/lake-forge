@@ -140,7 +140,7 @@ CREATE TABLE IF NOT EXISTS raw_config (
 CREATE INDEX IF NOT EXISTS ix_raw_group  ON raw_config(group_id);
 
 -----------------------------------------------------------------------
--- 3.2  BRONZE CONFIG  (replaces old table_config)
+-- 3.2  BRONZE CONFIG  
 -----------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS bronze_config (
     id              SERIAL PRIMARY KEY,
@@ -202,6 +202,30 @@ CREATE TABLE IF NOT EXISTS dq_rule (
 );
 CREATE INDEX idx_dq_rule_table ON dq_rule(bronze_config_id);
 
+-----------------------------------------------------------------------
+-- 3.4  Watermark side table
+-----------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS watermark (
+    bronze_cfg_id  INT PRIMARY KEY REFERENCES bronze_config(id) ON DELETE CASCADE,
+    last_value     TIMESTAMPTZ NOT NULL,
+    updated_at     TIMESTAMPTZ NOT NULL DEFAULT current_timestamp
+);
+
+COMMENT ON TABLE watermark IS 'Stores last successfully processed watermark per bronze table';
+
+-----------------------------------------------------------------------
+-- 3.5  DDL Schema side table
+-----------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS table_schema_cache (
+    table_config_id INT      NOT NULL,
+    zone_id         SMALLINT NOT NULL REFERENCES mdf_app.zone(id),
+    ddl             TEXT     NOT NULL,
+    updated_at     TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
+    PRIMARY KEY (table_config_id, zone_id)
+);
+
+COMMENT ON TABLE table_schema_cache IS 'Stores last successfully processed schema per table, across all data layer zones';
+
 /*======================================================================
   4.  LOGGING TABLES  (batch / zone / table / step / dq)
 ======================================================================*/
@@ -209,14 +233,14 @@ CREATE INDEX idx_dq_rule_table ON dq_rule(bronze_config_id);
 -- 4.1  batch_run (extended)
 -----------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS batch_run (
-    id            SERIAL PRIMARY KEY,
+    id            UUID PRIMARY KEY,
     schedule_id   INT REFERENCES schedule(id) ON DELETE SET NULL,
     group_id      INT REFERENCES "group"(id) NOT NULL,
     started_at    TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     finished_at   TIMESTAMPTZ,
 	status        run_status NOT NULL DEFAULT 'running',
     trigger_type  TEXT NOT NULL CHECK (trigger_type IN ('manual','schedule','adf','api')),
-	batch_load_type TEXT NOT NULL CHECK (batch_load_type IN ('full', 'manual', 'integration', 'failed')),
+	batch_load_type TEXT NOT NULL DEFAULT 'manual' CHECK (batch_load_type IN ('full', 'manual', 'integration', 'failed')),
 	schedule_pipeline_id TEXT,
     group_pipeline_id    TEXT,
     message       TEXT
@@ -228,8 +252,8 @@ COMMENT ON TABLE batch_run IS 'One record per pipeline trigger (group + schedule
 -- 4.2  zone_run
 -----------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS zone_run (
-    id          SERIAL PRIMARY KEY,
-    batch_id    INT NOT NULL REFERENCES batch_run(id) ON DELETE CASCADE,
+    id          UUID PRIMARY KEY,
+    batch_id    UUID NOT NULL REFERENCES batch_run(id) ON DELETE CASCADE,
     zone_id     SMALLINT NOT NULL REFERENCES zone(id),
 	zone        TEXT,
     started_at  TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
@@ -242,8 +266,8 @@ CREATE TABLE IF NOT EXISTS zone_run (
 -- 4.3  table_run  (points to bronze_config)
 -----------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS table_run (
-    id              SERIAL PRIMARY KEY,
-    batch_id        INT NOT NULL REFERENCES batch_run(id) ON DELETE CASCADE,
+    id              UUID PRIMARY KEY,
+    batch_id        UUID NOT NULL REFERENCES batch_run(id) ON DELETE CASCADE,
     bronze_config_id INT NOT NULL REFERENCES bronze_config(id),
     started_at      TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     finished_at     TIMESTAMPTZ,
@@ -255,11 +279,11 @@ CREATE TABLE IF NOT EXISTS table_run (
 );
 
 -----------------------------------------------------------------------
--- 4.4  step_run   (NEW)
+-- 4.4  step_run 
 -----------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS step_run (
-    id          SERIAL PRIMARY KEY,
-    table_run_id INT NOT NULL REFERENCES table_run(id) ON DELETE CASCADE,
+    id          UUID PRIMARY KEY,
+    table_run_id UUID NOT NULL REFERENCES table_run(id) ON DELETE CASCADE,
     notebook    TEXT NOT NULL,
     step        TEXT NOT NULL,
     started_at  TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
@@ -271,8 +295,8 @@ CREATE TABLE IF NOT EXISTS step_run (
 -- 4.5  dq_run
 -----------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS dq_run (
-    id            SERIAL PRIMARY KEY,
-    table_run_id  INT NOT NULL REFERENCES table_run(id) ON DELETE CASCADE,
+    id            UUID PRIMARY KEY,
+    table_run_id  UUID NOT NULL REFERENCES table_run(id) ON DELETE CASCADE,
     dq_rule_id    INT  NOT NULL REFERENCES dq_rule(id),
     run_at        TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     status        TEXT NOT NULL CHECK (status IN ('pass','warn','fail','drop')),
@@ -282,16 +306,6 @@ CREATE TABLE IF NOT EXISTS dq_run (
     message       TEXT
 );
 
------------------------------------------------------------------------
--- 4.6  Watermark side table
------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS watermark (
-    bronze_cfg_id  INT PRIMARY KEY REFERENCES bronze_config(id) ON DELETE CASCADE,
-    last_value     TIMESTAMPTZ NOT NULL,
-    updated_at     TIMESTAMPTZ NOT NULL DEFAULT current_timestamp
-);
-
-COMMENT ON TABLE watermark IS 'Stores last successfully processed watermark per bronze table';
 
 /*======================================================================
   5.  HELPER VIEW  (bronze + raw + source_system)
@@ -318,12 +332,14 @@ SELECT b.raw_config_id,
 	   b.partition_cols,
 	   b.zorder_cols,
 	   b.scd_type,
-       wm.last_value AS bronze_last_wm_val
+       wm.last_value AS bronze_last_wm_val,
+	   tsc.ddl AS ddl_schema
 FROM   bronze_config        b
 LEFT   JOIN raw_config      r  ON r.id = b.raw_config_id
 LEFT   JOIN source_system   ss ON ss.id = r.source_system_id
 LEFT   JOIN "group"         g  ON g.id = r.group_id
 LEFT   JOIN watermark 		wm ON wm.bronze_cfg_id = b.id
+LEFT   JOIN table_schema_cache tsc ON tsc.table_config_id = b.id AND tsc.zone_id = 2
 WHERE b.is_enabled = True;
 
 /*======================================================================

@@ -84,3 +84,5 @@ header to persist all pending updates at once.
 - Databricks App:	    The container runs in a locked-down serverless subnet. Until you attach a Lakebase resource to the App, outbound TCP packets to the Lakebase private IP are dropped/reset by the App firewall.
   - Even after you attach the resource, if you still try to connect with a PAT or an expired OAuth token (you generated it at module-import time), Lakebase drops the TLS session. Both cases surface to psycopg2 as server closed the connection unexpectedly.
 - There was an issue with adding new dependencies to the requirements files, regarding a "-" in the requirements.txt file. This occurs in dbx cli 0.252.0 or lower.  - Upgrading databricks cli version to 0.258.0 resolves this issue.
+
+# LIQUIBASE
