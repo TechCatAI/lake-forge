@@ -10,6 +10,7 @@ export interface AddPayload {
   source_path: string
   ingestion_type: 'databricks' | 'adf' | 'manual'
   output_directory: string
+  file_format: 'parquet' | 'csv' | 'json' | 'avro'
   is_enabled: boolean
 }
 
@@ -20,6 +21,7 @@ export default function AddRawDialog({ onCreate }: { onCreate(r: RawConfig): voi
     source_path: '',
     ingestion_type: 'databricks',
     output_directory: '',
+    file_format: 'parquet',
     is_enabled: true,
   })
   const [saving, setSaving] = useState(false)
@@ -60,6 +62,7 @@ export default function AddRawDialog({ onCreate }: { onCreate(r: RawConfig): voi
         source_path: '',
         ingestion_type: 'databricks',
         output_directory: '',
+        file_format: 'parquet',
         is_enabled: true,
       })
       setOpen(false)
@@ -123,6 +126,18 @@ export default function AddRawDialog({ onCreate }: { onCreate(r: RawConfig): voi
               value={form.output_directory}
               onChange={(e) => setForm({ ...form, output_directory: e.target.value })}
             />
+            <select
+              className="border w-full px-1"
+              value={form.file_format}
+              onChange={(e) =>
+                setForm({ ...form, file_format: e.target.value as AddPayload['file_format'] })
+              }
+            >
+              <option value="parquet">parquet</option>
+              <option value="csv">csv</option>
+              <option value="json">json</option>
+              <option value="avro">avro</option>
+            </select>
             <div className="flex items-center gap-2">
               <input
                 id="raw-enabled"

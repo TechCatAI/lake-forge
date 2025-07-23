@@ -14,6 +14,7 @@ class RawConfigBase(BaseModel):
     schedule_id: Optional[int] = None
     copy_options: dict = {}
     output_directory: str
+    file_format: Optional[str] = None
     watermark_col: Optional[str] = None
     watermark: Optional[dt.datetime] = None
     watermark_increment_sec: Optional[int] = None
@@ -48,6 +49,7 @@ class RawConfigUpdate(BaseModel):
     schedule_id: Optional[int] = None
     copy_options: Optional[dict] = None
     output_directory: Optional[str] = None
+    file_format: Optional[str] = None
     watermark_col: Optional[str] = None
     watermark: Optional[dt.datetime] = None
     watermark_increment_sec: Optional[int] = None

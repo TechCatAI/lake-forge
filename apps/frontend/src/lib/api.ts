@@ -220,6 +220,7 @@ export interface RawConfig {
   source_path: string
   ingestion_type: 'databricks' | 'adf' | 'manual'
   output_directory: string
+  file_format: string | null
   watermark_col: string | null
   watermark: string | null
   watermark_increment_sec: number | null

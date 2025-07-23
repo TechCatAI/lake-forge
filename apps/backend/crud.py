@@ -76,11 +76,12 @@ def create_raw(p: RawConfigIn, db=None) -> RawConfigOut:
         INSERT INTO mdf_app.raw_config
             (group_id, source_system_id, connection_id, source_path,
              ingestion_type, schedule_id, copy_options, output_directory,
-             watermark_col, watermark, watermark_increment_sec, watermark_initial,
-             is_enabled, created_by, updated_by)
+             file_format, watermark_col, watermark, watermark_increment_sec,
+             watermark_initial, is_enabled, created_by, updated_by)
         VALUES (%(group_id)s, %(source_system_id)s, %(connection_id)s,
-                %(source_path)s, %(ingestion_type)s, %(schedule_id)s, %(copy_options)s,
-                %(output_directory)s, %(watermark_col)s, %(watermark)s,
+                %(source_path)s, %(ingestion_type)s, %(schedule_id)s,
+                %(copy_options)s, %(output_directory)s, %(file_format)s,
+                %(watermark_col)s, %(watermark)s,
                 %(watermark_increment_sec)s, %(watermark_initial)s,
                 %(is_enabled)s, %(user)s, %(user)s)
         RETURNING *;

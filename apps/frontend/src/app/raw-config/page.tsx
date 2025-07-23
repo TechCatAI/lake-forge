@@ -261,6 +261,24 @@ export default function RawConfigPage() {
       ),
     },
     {
+      accessorKey: 'file_format',
+      header: 'File Format',
+      cell: ({ row, getValue }) => (
+        <select
+          className="border rounded px-1 w-28"
+          defaultValue={getValue<string | null>() ?? 'parquet'}
+          onChange={(e) =>
+            handleEdit(row.original.id, 'file_format', e.target.value as RawConfig['file_format'])
+          }
+        >
+          <option value="parquet">parquet</option>
+          <option value="csv">csv</option>
+          <option value="json">json</option>
+          <option value="avro">avro</option>
+        </select>
+      ),
+    },
+    {
       accessorKey: 'updated_at',
       header: 'Updated At',
       cell: ({ getValue }) => {
