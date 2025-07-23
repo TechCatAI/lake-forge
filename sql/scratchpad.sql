@@ -18,7 +18,7 @@ SELECT * FROM raw_config;
 SELECT * FROM bronze_config;
 	UPDATE raw_config SET group_id = 1;
 SELECT * FROM dq_rule;
-SELECT * FROM watermark;
+SELECT * FROM watermark_cache;
 SELECT * FROM table_schema_cache;
 -- SELECT * FROM mdf_app.table_group;
 
@@ -36,6 +36,7 @@ SELECT * FROM dq_run;
 ----------------------------
 --- UTILITY HELPER VIEWS ---
 ----------------------------
+SELECT * FROM vw_raw_extended;
 SELECT * FROM vw_bronze_extended; -- view that will be called by RawToBronze (classic and DLT)
 
 -- SELECT * FROM mdf_app.vw_table_with_group; -- This view called by DLT loop for table configs.
@@ -43,16 +44,17 @@ SELECT * FROM vw_bronze_extended; -- view that will be called by RawToBronze (cl
 
 
 -- RESET DROP TABLES to rebuild
+-- DROP VIEW mdf_app.vw_raw_extended;
 -- DROP VIEW mdf_app.vw_bronze_extended;
 -- logging --
-DROP TABLE mdf_app.dq_run;
-DROP TABLE mdf_app.step_run;
-DROP TABLE mdf_app.table_run;
-DROP TABLE mdf_app.zone_run;
-DROP TABLE mdf_app.batch_run;
+-- DROP TABLE mdf_app.dq_run;
+-- DROP TABLE mdf_app.step_run;
+-- DROP TABLE mdf_app.table_run;
+-- DROP TABLE mdf_app.zone_run;
+-- DROP TABLE mdf_app.batch_run;
 -- table config --
 -- DROP TABLE mdf_app.table_schema_cache;
--- DROP TABLE mdf_app.watermark;
+-- DROP TABLE mdf_app.watermark_cache;
 -- DROP TABLE mdf_app.dq_rule;
 -- DROP TABLE mdf_app.table_group;
 -- DROP TABLE mdf_app.bronze_config;

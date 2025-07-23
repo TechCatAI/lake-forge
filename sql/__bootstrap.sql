@@ -124,6 +124,7 @@ CREATE TABLE IF NOT EXISTS raw_config (
 
     copy_options     JSONB NOT NULL DEFAULT '{}'::jsonb,
     output_directory TEXT NOT NULL,
+	file_format      TEXT,
 
     -- watermark fields
     watermark_col           TEXT,
@@ -203,22 +204,24 @@ CREATE TABLE IF NOT EXISTS dq_rule (
 CREATE INDEX idx_dq_rule_table ON dq_rule(bronze_config_id);
 
 -----------------------------------------------------------------------
--- 3.4  Watermark side table
+-- 3.4  Watermark Cache side table
 -----------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS watermark (
-    bronze_cfg_id  INT PRIMARY KEY REFERENCES bronze_config(id) ON DELETE CASCADE,
-    last_value     TIMESTAMPTZ NOT NULL,
-    updated_at     TIMESTAMPTZ NOT NULL DEFAULT current_timestamp
+CREATE TABLE IF NOT EXISTS watermark_cache (
+    zone_id          SMALLINT NOT NULL REFERENCES zone(id),
+    table_config_id  INT      NOT NULL,
+    last_value       TIMESTAMPTZ,
+    updated_at       TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
+    PRIMARY KEY (zone_id, table_config_id)
 );
 
-COMMENT ON TABLE watermark IS 'Stores last successfully processed watermark per bronze table';
+COMMENT ON TABLE watermark_cache IS 'Stores last successfully processed watermark per table, across all data layer zones';
 
 -----------------------------------------------------------------------
 -- 3.5  DDL Schema side table
 -----------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS table_schema_cache (
     table_config_id INT      NOT NULL,
-    zone_id         SMALLINT NOT NULL REFERENCES mdf_app.zone(id),
+    zone_id         SMALLINT NOT NULL REFERENCES zone(id),
     ddl             TEXT     NOT NULL,
     updated_at     TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     PRIMARY KEY (table_config_id, zone_id)
@@ -306,6 +309,38 @@ CREATE TABLE IF NOT EXISTS dq_run (
     message       TEXT
 );
 
+/*======================================================================
+  5. HELPER VIEW:  raw               (zone_id = 1 → RAW)
+======================================================================*/
+CREATE OR REPLACE VIEW vw_raw_extended AS
+SELECT
+       rc.id                  AS raw_config_id,
+       rc.group_id,
+       g.name                 AS group_name,
+
+       rc.source_system_id,
+       ss.name                AS source_name,
+       ss.type                AS source_type,          -- adls / sql / restapi
+
+       rc.connection_id,
+       rc.source_path,
+       rc.output_directory,
+	   rc.file_format,
+
+       rc.ingestion_type,                             -- databricks / adf / manual
+       rc.copy_options        AS ingest_options,      -- JSONB
+
+       rc.watermark_col,
+       rc.watermark_increment_sec,
+       rc.watermark_initial,
+       wc.last_value          AS raw_last_wm_val,     -- last successful watermark
+
+       rc.is_enabled
+FROM   raw_config        rc
+LEFT   JOIN source_system ss   ON ss.id = rc.source_system_id
+LEFT   JOIN "group"      g     ON g.id  = rc.group_id
+LEFT   JOIN watermark_cache wc ON wc.table_config_id = rc.id AND wc.zone_id = 1    -- RAW
+WHERE  rc.is_enabled = True;
 
 /*======================================================================
   5.  HELPER VIEW  (bronze + raw + source_system)
@@ -338,7 +373,7 @@ FROM   bronze_config        b
 LEFT   JOIN raw_config      r  ON r.id = b.raw_config_id
 LEFT   JOIN source_system   ss ON ss.id = r.source_system_id
 LEFT   JOIN "group"         g  ON g.id = r.group_id
-LEFT   JOIN watermark 		wm ON wm.bronze_cfg_id = b.id
+LEFT   JOIN watermark_cache wm ON wm.table_config_id = b.id AND wm.zone_id = 2
 LEFT   JOIN table_schema_cache tsc ON tsc.table_config_id = b.id AND tsc.zone_id = 2
 WHERE b.is_enabled = True;
 
