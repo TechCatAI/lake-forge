@@ -127,6 +127,7 @@ export interface Group {
   is_enabled: boolean
   is_raw: boolean
   is_bronze: boolean
+  schedule_id: number | null
   updated_at: string | null
 }
 

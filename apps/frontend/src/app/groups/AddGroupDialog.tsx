@@ -1,9 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "../../components/ui/button";
 import Spinner from "../../components/Spinner";
 import { toast } from "sonner";
-import { createGroup, type Group, type APIError } from "../../lib/api";
+import { createGroup, fetchSchedules, type Group, type Schedule, type APIError } from "../../lib/api";
 
 export interface AddPayload {
   name: string;
@@ -11,6 +11,7 @@ export interface AddPayload {
   is_enabled: boolean;
   is_raw: boolean;
   is_bronze: boolean;
+  schedule_id: number | null;
 }
 
 export default function AddGroupDialog({ onCreate }: { onCreate(g: Group): void }) {
@@ -21,9 +22,15 @@ export default function AddGroupDialog({ onCreate }: { onCreate(g: Group): void 
     is_enabled: true,
     is_raw: false,
     is_bronze: false,
+    schedule_id: null,
   });
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
+
+  useEffect(() => {
+    if (open) fetchSchedules().then(setSchedules, () => setSchedules([]));
+  }, [open]);
 
   const valid = form.name.trim().length > 0;
 
@@ -42,6 +49,7 @@ export default function AddGroupDialog({ onCreate }: { onCreate(g: Group): void 
         is_enabled: true,
         is_raw: false,
         is_bronze: false,
+        schedule_id: null,
       });
       setOpen(false);
     } catch (err) {
@@ -79,6 +87,23 @@ export default function AddGroupDialog({ onCreate }: { onCreate(g: Group): void 
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
             />
+            <select
+              className="border w-full px-1"
+              value={form.schedule_id ?? ''}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  schedule_id: e.target.value ? Number(e.target.value) : null,
+                })
+              }
+            >
+              <option value="">No schedule</option>
+              {schedules.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.id} - {s.name}
+                </option>
+              ))}
+            </select>
             <div className="flex items-center gap-2">
               <input
                 id="grp-enabled"

@@ -330,8 +330,8 @@ def list_groups() -> list[GroupOut]:
 
 def create_group(payload: GroupIn) -> GroupOut:
     q = (
-        "INSERT INTO mdf_app.\"group\" (name, description, is_enabled, is_raw, is_bronze) "
-        "VALUES (%(name)s, %(description)s, %(is_enabled)s, %(is_raw)s, %(is_bronze)s) RETURNING *;"
+        "INSERT INTO mdf_app.\"group\" (name, description, is_enabled, is_raw, is_bronze, schedule_id) "
+        "VALUES (%(name)s, %(description)s, %(is_enabled)s, %(is_raw)s, %(is_bronze)s, %(schedule_id)s) RETURNING *;"
     )
     with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(q, payload.dict())

@@ -19,6 +19,7 @@ GROUP_ROW = {
     "is_enabled": True,
     "is_raw": False,
     "is_bronze": True,
+    "schedule_id": None,
     "updated_at": None,
 }
 SCHED_ROW = {"id": 1, "name": "s", "description": None, "days": [1], "times": ["05:00"], "is_enabled": True, "updated_at": None}
@@ -49,7 +50,14 @@ def test_groups_flow(monkeypatch):
     monkeypatch.setattr(crud, "create_group", stub_create_group)
     resp = client.post(
         "/api/groups",
-        json={"name": "g", "description": None, "is_enabled": True, "is_bronze": True, "is_raw": False},
+        json={
+            "name": "g",
+            "description": None,
+            "is_enabled": True,
+            "is_bronze": True,
+            "is_raw": False,
+            "schedule_id": None,
+        },
     )
     assert resp.status_code == 201
     assert resp.json()["id"] == 1
