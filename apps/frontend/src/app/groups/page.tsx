@@ -18,7 +18,9 @@ import {
   fetchGroups,
   updateGroup,
   deleteGroup,
+  fetchSchedules,
   type Group,
+  type Schedule,
   type APIError,
 } from "../../lib/api";
 import {
@@ -31,6 +33,7 @@ import {
 export default function GroupsPage() {
   const [data, setData] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
   const firstCellRefs = useRef<Record<number, HTMLTableCellElement | null>>({});
   const [lastAdded, setLastAdded] = useState<number | null>(null);
   const [dirtyRows, setDirtyRows] = useState<Map<number, Partial<Group>>>(new Map());
@@ -58,8 +61,9 @@ export default function GroupsPage() {
   async function loadData() {
     try {
       setLoading(true);
-      const rows = await fetchGroups();
+      const [rows, scheds] = await Promise.all([fetchGroups(), fetchSchedules()]);
       setData(rows);
+      setSchedules(scheds);
       origData.current = new Map(rows.map((r) => [r.id, r]));
       setDirtyRows(new Map());
       setDirtyCount(0);
@@ -195,6 +199,30 @@ export default function GroupsPage() {
           onSave={(v) => handleEdit(row.original.id, "description", v)}
           className="text-left"
         />
+      ),
+    },
+    {
+      accessorKey: "schedule_id",
+      header: "Schedule",
+      cell: ({ row, getValue }) => (
+        <select
+          className="border rounded px-1"
+          defaultValue={getValue<number | null>() ?? ""}
+          onChange={(e) =>
+            handleEdit(
+              row.original.id,
+              "schedule_id",
+              e.target.value ? Number(e.target.value) : null,
+            )
+          }
+        >
+          <option value="">No schedule</option>
+          {schedules.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.id} - {s.name}
+            </option>
+          ))}
+        </select>
       ),
     },
     {

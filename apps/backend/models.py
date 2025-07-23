@@ -209,6 +209,7 @@ class GroupBase(BaseModel):
     is_enabled: bool = True
     is_raw: bool = False
     is_bronze: bool = False
+    schedule_id: Optional[int] = None
 
 
 class GroupIn(GroupBase):
@@ -229,6 +230,7 @@ class GroupUpdate(BaseModel):
     is_enabled: Optional[bool] = None
     is_raw: Optional[bool] = None
     is_bronze: Optional[bool] = None
+    schedule_id: Optional[int] = None
 
 
 # ---------- Schedule ----------
