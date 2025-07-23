@@ -15,3 +15,13 @@ env:
     value: "adb-1676947424761045.5.azuredatabricks.net"
   - name: DATABRICKS_WAREHOUSE_HTTP_PATH
     value: "/sql/1.0/warehouses/faef7eb318ed732c"
+  - name: PGAPPNAME
+    value: "lake-forge"
+  - name: "PGDATABASE"
+    value: "lakeforge_db"
+  - name: PG_SCHEMA
+    value: "mdf_app"
+  - name: PGUSER
+    value: "28c28471-5fe4-4e7f-843a-6783fa8e23bd"
+  - name: PGHOST
+    value: "instance-8e27a125-1642-417d-9699-f90070161ce6.database.azuredatabricks.net"
