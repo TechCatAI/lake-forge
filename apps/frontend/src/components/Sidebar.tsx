@@ -28,11 +28,10 @@ function NavLinks({ pathname, collapsed }: { pathname: string | null; collapsed?
             <Link
               href={item.href}
               className={cn(
-                'flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent/20',
-                pathname === item.href && 'bg-accent/30 text-accent',
-                collapsed && 'justify-center px-2'
+                'flex items-center gap-2 rounded px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800',
+                pathname === item.href && 'font-semibold text-primary',
+                collapsed && 'justify-center'
               )}
-              title={item.name}
             >
               <item.icon className="h-5 w-5 shrink-0" />
               {!collapsed && <span>{item.name}</span>}
@@ -75,7 +74,7 @@ export default function Sidebar() {
       </Sheet>
       <aside
         className={cn(
-          'hidden md:flex md:flex-col fixed left-0 top-0 h-screen border-r border-zinc-700 bg-zinc-900 text-gray-200 transition-all',
+          'hidden md:flex md:flex-col fixed left-0 top-0 h-screen border-r bg-background transition-all',
           collapsed ? 'w-16' : 'w-60'
         )}
       >
