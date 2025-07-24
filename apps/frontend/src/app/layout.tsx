@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "../styles/globals.css";
+import "./globals.css";
 import Sidebar from "../components/Sidebar";
 import { Toaster } from "sonner";
 
@@ -17,7 +17,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased flex">
         <Sidebar />
-        <main className="flex-1" style={{ marginLeft: 'var(--sidebar-width)' }}>
+        <main className="flex-1 ml-[var(--sidebar-width)]">
           {children}
         </main>
         <Toaster theme="dark" richColors />
