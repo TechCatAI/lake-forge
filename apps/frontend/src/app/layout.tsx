@@ -14,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body className="antialiased flex">
         <Sidebar />
         <main className="flex-1 ml-[var(--sidebar-width)]">
