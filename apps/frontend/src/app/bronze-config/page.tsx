@@ -469,12 +469,12 @@ export default function BronzeConfigPage() {
           <AddBronzeDialog onCreate={addRow} />
         </div>
       </div>
-      <table className="min-w-full text-sm border-collapse rounded-lg overflow-hidden border border-zinc-700">
+      <table className="min-w-full text-sm border-collapse">
         <thead className="sticky top-10 bg-background">
           {table.getHeaderGroups().map((hg) => (
             <tr key={hg.id}>
               {hg.headers.map((header) => (
-                <th key={header.id} className="px-3 py-2 bg-zinc-800 text-left text-gray-300">
+                <th key={header.id} className="border px-2 text-left">
                   {flexRender(header.column.columnDef.header, header.getContext())}
                 </th>
               ))}
@@ -488,18 +488,18 @@ export default function BronzeConfigPage() {
                 layout
                 exit={{ opacity: 0 }}
                 key={row.id}
-                className="group even:bg-zinc-800 hover:bg-zinc-700 transition-colors"
+                className="group even:bg-zinc-900/40 hover:bg-zinc-700 transition-colors"
               >
                 {row.getVisibleCells().map((cell, idx) => (
                   <td
                     key={cell.id}
-                    className="px-3 py-2 border-t border-zinc-700"
+                    className="border px-2"
                     ref={idx === 2 ? (el) => { firstCellRefs.current[row.original.id] = el } : undefined}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
-                <td className="px-3 py-2 border-t border-zinc-700 text-right w-8">
+                <td className="border px-2 text-right w-8">
                   <Trash
                     className="h-4 w-4 opacity-0 group-hover:opacity-100 text-red-500 cursor-pointer"
                     onClick={() => setConfirmDelete({ id: row.original.id, row: row.original, index: row.index })}
