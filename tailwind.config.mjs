@@ -12,6 +12,7 @@ export default {
           pink: '#FF3C6E',
           surface: '#0F0F0F',
         },
+        accent: '#7c3aed',
       },
       fontFamily: {
         sans: ['var(--font-body)', 'sans-serif'],
