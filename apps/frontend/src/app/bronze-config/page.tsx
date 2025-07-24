@@ -1,10 +1,8 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import { Trash } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
 import {
   ColumnDef,
-  flexRender,
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
@@ -15,6 +13,7 @@ import Button from '../../components/ui/button'
 import GradientText from '../../components/GradientText'
 import AddBronzeDialog from './AddBronzeDialog'
 import Tooltip from '../../components/ui/tooltip'
+import DataTable from '../../components/DataTable'
 import {
   fetchBronzeConfigs,
   updateBronzeConfig,
@@ -469,47 +468,24 @@ export default function BronzeConfigPage() {
           <AddBronzeDialog onCreate={addRow} />
         </div>
       </div>
-      <table className="min-w-full text-sm border-collapse">
-        <thead className="sticky top-10 bg-background">
-          {table.getHeaderGroups().map((hg) => (
-            <tr key={hg.id}>
-              {hg.headers.map((header) => (
-                <th key={header.id} className="border px-2 text-left">
-                  {flexRender(header.column.columnDef.header, header.getContext())}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          <AnimatePresence initial={false}>
-            {table.getRowModel().rows.map((row) => (
-              <motion.tr
-                layout
-                exit={{ opacity: 0 }}
-                key={row.id}
-                className="group even:bg-zinc-900/40 hover:bg-zinc-700 transition-colors"
-              >
-                {row.getVisibleCells().map((cell, idx) => (
-                  <td
-                    key={cell.id}
-                    className="border px-2"
-                    ref={idx === 2 ? (el) => { firstCellRefs.current[row.original.id] = el } : undefined}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-                <td className="border px-2 text-right w-8">
-                  <Trash
-                    className="h-4 w-4 opacity-0 group-hover:opacity-100 text-red-500 cursor-pointer"
-                    onClick={() => setConfirmDelete({ id: row.original.id, row: row.original, index: row.index })}
-                  />
-                </td>
-              </motion.tr>
-            ))}
-          </AnimatePresence>
-        </tbody>
-      </table>
+      <DataTable
+        table={table}
+        cellRef={(row, idx) =>
+          idx === 2
+            ? (el) => {
+                firstCellRefs.current[row.original.id] = el;
+              }
+            : undefined
+        }
+        renderRowActions={(row) => (
+          <Trash
+            className="h-4 w-4 opacity-0 group-hover:opacity-100 text-red-500 cursor-pointer"
+            onClick={() =>
+              setConfirmDelete({ id: row.original.id, row: row.original, index: row.index })
+            }
+          />
+        )}
+      />
       <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
         {confirmDelete && (
           <>
