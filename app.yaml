@@ -21,7 +21,9 @@ env:
     value: "lakeforge_db"
   - name: PG_SCHEMA
     value: "mdf_app"
+  # - name: PGUSER
+  #   value: "28c28471-5fe4-4e7f-843a-6783fa8e23bd"
   - name: PGUSER
-    value: "28c28471-5fe4-4e7f-843a-6783fa8e23bd"
+    value: "patrick@techcat.ai"
   - name: PGHOST
     value: "instance-8e27a125-1642-417d-9699-f90070161ce6.database.azuredatabricks.net"
