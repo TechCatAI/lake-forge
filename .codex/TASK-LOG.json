@@ -212,20 +212,5 @@
       "apps/frontend/src/app/groups/page.tsx",
       "apps/frontend/src/app/schedules/page.tsx"
     ]
-  },
-  {
-    "task_id": "task-016",
-    "agent": "frontend_specialist",
-    "date": "2025-07-24",
-    "summary": "Refactored all pages to use new reusable DataTable component built with TanStack Table and updated imports.",
-    "output_files": [
-      "apps/frontend/src/components/DataTable.tsx",
-      "apps/frontend/src/app/bronze-config/page.tsx",
-      "apps/frontend/src/app/dq-rules/page.tsx",
-      "apps/frontend/src/app/groups/page.tsx",
-      "apps/frontend/src/app/raw-config/page.tsx",
-      "apps/frontend/src/app/schedules/page.tsx",
-      "apps/frontend/src/app/source-system/page.tsx"
-    ]
   }
 ]
