@@ -41,6 +41,7 @@ def ws() -> WorkspaceClient:
             token=pat,
             auth_type="pat",
         )
+        global DB_USER
         DB_USER = os.getenv("PGUSER_LOCAL")
     else:
         raise RuntimeError(
