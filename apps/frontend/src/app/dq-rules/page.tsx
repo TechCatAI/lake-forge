@@ -300,7 +300,7 @@ export default function DQRulesPage() {
 
   return (
     <div className="p-4 overflow-auto">
-      <div className="relative mb-2 sticky top-0 bg-background z-10 flex justify-center">
+      <div className="mb-2 sticky top-0 bg-background z-10 flex justify-center">
         <GradientText
           colors={["#40ffaa", "#4079ff", "#40ffaa", "#4079ff", "#40ffaa"]}
           animationSpeed={3}

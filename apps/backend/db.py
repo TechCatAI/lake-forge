@@ -41,6 +41,7 @@ def ws() -> WorkspaceClient:
             token=pat,
             auth_type="pat",
         )
+        DB_USER = os.getenv("PGUSER_LOCAL")
     else:
         raise RuntimeError(
             "No OAuth client vars (CLIENT_ID/SECRET) and no PAT found. "
