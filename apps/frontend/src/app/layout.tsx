@@ -19,6 +19,7 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "LakeForge",
   description: "Metadata driven data lake management",
+  icons: {icon: "/favicon.ico"},
 };
 
 export default function RootLayout({
