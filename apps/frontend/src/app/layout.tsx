@@ -27,8 +27,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`dark ${inter.variable} ${poppins.variable}`}>
-      <body className="antialiased flex">
+    <html lang="en" className={`dark ${inter.variable} ${poppins.variable}`}> 
+      <body className="antialiased flex bg-background text-foreground">
         <Sidebar />
         <main className="flex-1 ml-[var(--sidebar-width)]">
           {children}
