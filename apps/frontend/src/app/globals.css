@@ -1,6 +1,12 @@
 @import "tailwindcss";
 /* @custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *)); */
-@import "tw-animate-css";
+/* @import "tw-animate-css"; */
+
+@theme {
+  --font-display: "Satoshi", "sans-serif";
+  --font-script: "Great Vibes", cursive;
+  /* ... map shadcn/ui CSS variables to Tailwind's @theme */
+} 
 
 
 :root {
@@ -39,7 +45,7 @@
 }
 
 .dark {
-    color-scheme: dark;
+  color-scheme: dark;
   --background: oklch(0.141 0.005 285.823);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.21 0.006 285.885);

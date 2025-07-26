@@ -7,14 +7,14 @@ import Button from './ui/button';
 import ScrollArea from './ui/scroll-area';
 import MenuIcon from './icons/menu';
 import { cn } from '../lib/utils';
-import { Home, Upload, Layers, ListChecks, Users, Clock } from 'lucide-react';
+import { Home, Database, Component, CalendarDays, Bolt, Layers, ListChecks } from 'lucide-react';
 
 const navItems = [
   { name: 'Dashboard', href: '/', icon: Home },
-  { name: 'Source Systems', href: '/source-system', icon: Upload },
-  { name: 'Groups', href: '/groups', icon: Users },
-  { name: 'Schedules', href: '/schedules', icon: Clock },
-  { name: 'Raw Config', href: '/raw-config', icon: Upload },
+  { name: 'Source Systems', href: '/source-system', icon: Database },
+  { name: 'Groups', href: '/groups', icon: Component },
+  { name: 'Schedules', href: '/schedules', icon: CalendarDays },
+  { name: 'Raw Config', href: '/raw-config', icon: Bolt },
   { name: 'Bronze Config', href: '/bronze-config', icon: Layers },
   { name: 'DQ Rules', href: '/dq-rules', icon: ListChecks },
 ] as const;
