@@ -6,10 +6,6 @@ const baseConfig = {
   theme: {
     extend: {
       colors: {
-        surface: 'oklch(var(--background)/<alpha-value>)',
-        border: 'oklch(var(--border)/<alpha-value>)',
-        primary: 'oklch(var(--primary)/<alpha-value>)',
-        muted: 'oklch(var(--muted)/<alpha-value>)',
         blueprint: {
           blue: '#2E66FF',
           magenta: '#C300FF',

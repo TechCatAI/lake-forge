@@ -3,7 +3,7 @@ import { columns, BatchRuns } from "./columns"
 import { DataTable } from "./data-table"
 // import DataTable from '../../components/DataTable'
 
-const batch: BatchRuns[] = [
+export const batch: BatchRuns[] = [
   {
     id: "728ed52f",
     schedule_id: 123,
