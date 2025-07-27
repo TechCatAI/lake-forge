@@ -20,7 +20,6 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   TooltipRoot,
-  Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
