@@ -20,7 +20,7 @@ export default function DataTable<T>({
 }: DataTableProps<T>) {
   return (
     <table className="min-w-full text-sm border-collapse">
-      <thead className="sticky top-10 bg-background">
+      <thead className="sticky top-10 bg-foreground">
         {table.getHeaderGroups().map((hg) => (
           <tr key={hg.id}>
             {hg.headers.map((header) => (
