@@ -10,7 +10,7 @@ import LoadingSpinner from "../../components/LoadingSpinner";
 import { toast } from "sonner";
 import { EditableCell, Switch } from "../../components/EditableCell";
 import Button from "../../components/ui/button";
-import Tooltip from "../../components/ui/tooltip";
+import { Tooltip } from "../../components/ui/tooltip";
 import GradientText from "../../components/GradientText";
 import AddRuleDialog from "./AddRuleDialog";
 import DataTable from "../../components/DataTable";

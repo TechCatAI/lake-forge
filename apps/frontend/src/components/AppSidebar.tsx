@@ -1,3 +1,4 @@
+import Link from 'next/link'; 
 import { Home, LayoutDashboard, Database, Component, CalendarDays, Bolt, Layers, ListChecks, User} from 'lucide-react';
 import {
   Sidebar,
@@ -37,7 +38,10 @@ export function AppSidebar() {
          <SidebarMenu>
           <SidebarMenuItem>
            <SidebarMenuButton asChild>
-           <a href='/'> <Home />  <span>LakeForge</span> </a>
+           <Link href="/">        {/* internal link */}
+            <Home />
+            <span>LakeForge</span>
+          </Link>
            </SidebarMenuButton>
           </SidebarMenuItem>
          </SidebarMenu>

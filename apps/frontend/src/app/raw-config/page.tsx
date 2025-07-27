@@ -12,7 +12,7 @@ import { EditableCell, Switch } from '../../components/EditableCell'
 import Button from '../../components/ui/button'
 import GradientText from '../../components/GradientText'
 import AddRawDialog from './AddRawDialog'
-import Tooltip from '../../components/ui/tooltip'
+import { Tooltip } from '../../components/ui/tooltip'
 import DataTable from '../../components/DataTable'
 import {
   fetchRawConfigs,
