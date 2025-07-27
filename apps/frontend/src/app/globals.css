@@ -92,6 +92,29 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* table modernisation */
+@layer components {
+  .after-fade-bottom::after {
+    @apply pointer-events-none absolute inset-x-0 bottom-0 h-8 content-[''];
+    background: linear-gradient(to bottom, oklch(var(--background)/0) 0%, oklch(var(--background)/1) 100%);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .shadow-left-edge {
+    @apply relative;
+  }
+  .shadow-left-edge::before {
+    @apply pointer-events-none absolute inset-y-0 left-0 w-4 content-[''] transition-opacity;
+    box-shadow: inset 8px 0 8px -8px oklch(var(--border)/1);
+    opacity: 1;
+  }
+
+  tr[data-row-editing='true'] {
+    @apply ring-2 ring-[color:oklch(var(--primary)/0.4)];
+  }
+}
+
 
 
 
