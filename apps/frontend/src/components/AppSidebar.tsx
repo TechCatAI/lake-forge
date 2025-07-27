@@ -1,4 +1,4 @@
-import { Home, LayoutDashboard, Database, Component, CalendarDays, Bolt, Layers, ListChecks, User, ChevronDown} from 'lucide-react';
+import { Home, LayoutDashboard, Database, Component, CalendarDays, Bolt, Layers, ListChecks, User} from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
