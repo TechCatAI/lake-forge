@@ -4,9 +4,7 @@ import { Trash } from "lucide-react";
 import {
   ColumnDef,
   getCoreRowModel,
-  getSortedRowModel,
   useReactTable,
-  type SortingState,
 } from "@tanstack/react-table";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import { toast } from "sonner";
@@ -74,7 +72,6 @@ export default function DQRulesPage() {
   const origData = useRef<Map<number, DQRule>>(new Map());
   const [dirtyCount, setDirtyCount] = useState(0);
   const [savingAll, setSavingAll] = useState(false);
-  const [sorting, setSorting] = useState<SortingState>([]);
   const firstCellRefs = useRef<Record<number, HTMLTableCellElement | null>>({});
   const [lastAdded, setLastAdded] = useState<number | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<{
@@ -296,10 +293,7 @@ export default function DQRulesPage() {
   const table = useReactTable({
     data,
     columns,
-    state: { sorting },
-    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
   });
 
   if (loading) return <LoadingSpinner />;

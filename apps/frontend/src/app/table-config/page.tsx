@@ -6,9 +6,7 @@ import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
-  getSortedRowModel,
   useReactTable,
-  type SortingState,
 } from "@tanstack/react-table";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import { toast } from "sonner";
@@ -44,7 +42,6 @@ export default function TableConfigPage() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [dirtyCount, setDirtyCount] = useState(0);
   const [savingAll, setSavingAll] = useState(false);
-  const [sorting, setSorting] = useState<SortingState>([]);
   const [confirmDelete, setConfirmDelete] = useState<{
     id: number;
     row: TableConfig;
@@ -408,10 +405,7 @@ export default function TableConfigPage() {
   const table = useReactTable({
     data,
     columns,
-    state: { sorting },
-    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
   });
 
   if (loading) return <LoadingSpinner />;

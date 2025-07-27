@@ -4,9 +4,7 @@ import { Trash } from 'lucide-react'
 import {
   ColumnDef,
   getCoreRowModel,
-  getSortedRowModel,
   useReactTable,
-  type SortingState,
 } from '@tanstack/react-table'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import { toast } from 'sonner'
@@ -45,7 +43,6 @@ export default function BronzeConfigPage() {
   const origData = useRef<Map<number, BronzeConfig>>(new Map())
   const [dirtyCount, setDirtyCount] = useState(0)
   const [savingAll, setSavingAll] = useState(false)
-  const [sorting, setSorting] = useState<SortingState>([])
   const [groups, setGroups] = useState<Group[]>([])
   const [sources, setSources] = useState<SourceSystem[]>([])
   const [confirmDelete, setConfirmDelete] = useState<{
@@ -444,14 +441,7 @@ export default function BronzeConfigPage() {
     },
   ]
 
-  const table = useReactTable({
-    data,
-    columns,
-    state: { sorting },
-    onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-  })
+  const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel() })
 
   if (loading) return <LoadingSpinner />
 
