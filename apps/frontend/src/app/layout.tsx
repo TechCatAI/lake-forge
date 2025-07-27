@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+ import type { Metadata } from "next";
 import "./globals.css";
-import Sidebar from "../components/Sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { AppSidebar } from "@/components/AppSidebar"
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
@@ -9,19 +10,18 @@ export const metadata: Metadata = {
   icons: {icon: "/favicon.ico"},
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children,}: Readonly<{ children: React.ReactNode;}>) {
   return (
     <html lang="en" className='dark'>
       <body className="antialiased flex bg-background text-foreground">
-        <Sidebar />
-        <main className="flex-1 ml-[var(--sidebar-width)]">
+      <SidebarProvider>
+        <AppSidebar />
+        <main className="flex-1">
+          <SidebarTrigger />
           {children}
         </main>
         <Toaster theme="dark" richColors />
+      </SidebarProvider>
       </body>
     </html>
   );

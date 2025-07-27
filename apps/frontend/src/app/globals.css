@@ -1,4 +1,7 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
 /* @custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *)); */
 /* @import "tw-animate-css"; */
 
@@ -7,7 +10,6 @@
   --font-script: "Great Vibes", cursive;
   /* ... map shadcn/ui CSS variables to Tailwind's @theme */
 } 
-
 
 :root {
   --radius: 0.65rem;
@@ -78,4 +80,19 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.541 0.281 293.009);
 }
+
+@theme inline {
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+
+
+
 

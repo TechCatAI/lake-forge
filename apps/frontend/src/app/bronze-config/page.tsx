@@ -12,7 +12,7 @@ import { EditableCell, Switch } from '../../components/EditableCell'
 import Button from '../../components/ui/button'
 import GradientText from '../../components/GradientText'
 import AddBronzeDialog from './AddBronzeDialog'
-import Tooltip from '../../components/ui/tooltip'
+import { Tooltip } from '../../components/ui/tooltip'
 import DataTable from '../../components/DataTable'
 import {
   fetchBronzeConfigs,
