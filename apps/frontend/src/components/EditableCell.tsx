@@ -23,7 +23,6 @@ function EditableCellInner<T>({
   const [editing, setEditing] = useState(false)
   const [value, setValue] = useState(format(initialValue))
   const inputRef = useRef<HTMLInputElement>(null)
-  const elRef = useRef<HTMLInputElement | HTMLDivElement>(null)
 
   useEffect(() => {
     setValue(format(initialValue))
@@ -33,16 +32,6 @@ function EditableCellInner<T>({
     if (editing) {
       inputRef.current?.focus()
       inputRef.current?.select()
-    }
-  }, [editing])
-
-  useEffect(() => {
-    const tr = elRef.current?.closest('tr') as HTMLTableRowElement | null
-    if (!tr) return
-    if (editing) {
-      tr.setAttribute('data-row-editing', 'true')
-    } else {
-      tr.removeAttribute('data-row-editing')
     }
   }, [editing])
 
@@ -92,10 +81,7 @@ function EditableCellInner<T>({
 
   return editing ? (
     <input
-      ref={(el) => {
-        inputRef.current = el
-        elRef.current = el
-      }}
+      ref={inputRef}
       className={cn('w-full border px-1', className)}
       value={value}
       onChange={(e) => setValue(e.target.value)}
@@ -105,7 +91,6 @@ function EditableCellInner<T>({
     />
   ) : (
     <div
-      ref={elRef as React.RefObject<HTMLDivElement>}
       className={cn('w-full px-1 py-1 cursor-text outline-none', className)}
       tabIndex={0}
       onClick={() => startEditing()}
@@ -121,27 +106,19 @@ export const EditableCell = React.memo(
   (a, b) => a.initialValue === b.initialValue && a.saving === b.saving,
 ) as typeof EditableCellInner
 
-export function Switch({
-  checked,
-  onChange,
-}: {
-  checked: boolean
-  onChange(v: boolean): void
-}) {
+export function Switch({ checked, onChange }: { checked: boolean; onChange(v: boolean): void }) {
   return (
     <button
-      role="switch"
-      aria-checked={checked}
-      onClick={() => onChange(!checked)}
       className={cn(
-        "relative h-6 w-11 rounded-full transition-colors duration-250 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring switch-base",
-        checked ? "bg-primary" : "bg-muted"
+        'w-10 h-5 rounded-full flex items-center px-0.5',
+        checked ? 'bg-green-500' : 'bg-gray-300'
       )}
+      onClick={() => onChange(!checked)}
     >
       <span
         className={cn(
-          "absolute top-[2px] left-[2px] h-5 w-5 rounded-full bg-foreground shadow-md transition-transform duration-250",
-          checked && "translate-x-[20px]"
+          'h-4 w-4 bg-white rounded-full transition-transform',
+          checked ? 'translate-x-5' : 'translate-x-0'
         )}
       />
     </button>
