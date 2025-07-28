@@ -21,6 +21,7 @@ export default function DataTable<T extends RowData>({
   cellRef,
   renderRowActions,
 }: DataTableProps<T>) {
+  /* helper: detect sorted‑row‑model plugin */
   function hasSortedRowModel(
     tbl: Table<T>
   ): tbl is Table<T> & { getSortedRowModel: () => RowModel<T> } {
@@ -29,71 +30,118 @@ export default function DataTable<T extends RowData>({
         .getSortedRowModel === "function"
     );
   }
+
   return (
-    <table className="min-w-full text-sm border-collapse">
-      <thead className="sticky top-10 bg-foreground">
-        {table.getHeaderGroups().map((hg) => (
-          <tr key={hg.id}>
-            {hg.headers.map((header) => {
-              if (header.isPlaceholder) return null;
-              const sorted = header.column.getIsSorted() as false | 'asc' | 'desc';
-              const Icon =
-                sorted === 'asc'
-                  ? ChevronsUp
-                  : sorted === 'desc'
+    /* ─── CARD WRAPPER ──────────────────────────────────────────────── */
+    <div className="w-full overflow-x-auto p-5
+                    rounded-[var(--radius)]
+                    bg-[color:var(--card)]
+                    ring-1 ring-[color:var(--border)/25]
+                    shadow-md shadow-[color:var(--border)/15]
+                    backdrop-blur-sm">
+      {/* ─── DATA TABLE ─────────────────────────────────────────────── */}
+        <table className="w-full min-w-max table-auto text-sm border-collapse
+                          border border-[color:var(--border)/60]
+                          rounded-[calc(var(--radius)-2px)] overflow-hidden
+                          bg-[color-mix(in_lab,var(--background),white_7%)]">
+        <thead>
+          {table.getHeaderGroups().map((hg) => (
+            <tr
+              key={hg.id}
+              className="bg-[color:var(--primary)]
+                          divide-x divide-[color:var(--border)/30]
+                          text-[color:var(--primary-foreground)]
+                          uppercase tracking-wider
+                          font-semibold          
+                          text-sm leading-tight  
+                          [&>th]:py-1"           
+            >
+              {hg.headers.map((header) => {
+                if (header.isPlaceholder) return null;
+                const sorted =
+                  header.column.getIsSorted() as false | "asc" | "desc";
+                const Icon =
+                  sorted === "asc"
+                    ? ChevronsUp
+                    : sorted === "desc"
                     ? ChevronsDown
                     : ChevronsUpDown;
-              return (
-                <th key={header.id} className="border px-2 text-left">
-                  <button
-                    className="flex items-center gap-1 select-none"
-                    onClick={header.column.getToggleSortingHandler()}
+                return (
+                  <th
+                    key={header.id}
+                    className="px-3 py-2 text-center
+                               whitespace-nowrap w-max 
+                               first:rounded-tl-[calc(var(--radius)-3px)]
+                               last:rounded-tr-[calc(var(--radius)-3px)]"
                   >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                    <Icon className="h-3 w-3" />
-                  </button>
-                </th>
-              );
-            })}
-            {renderRowActions && <th className="border px-2" />}
-          </tr>
-        ))}
-      </thead>
-      <tbody>
-        <AnimatePresence initial={false}>
-          {(() => {
-            const rows = hasSortedRowModel(table)
-              ? (table as Table<T> & { getSortedRowModel: () => RowModel<T>; }).getSortedRowModel().rows   // available when you added the sorted-row-model
-              : (table as Table<T>).getCoreRowModel().rows;    // always available
-            return rows
-          })().map((row: Row<T>) => (
-            <motion.tr
-              layout
-              exit={{ opacity: 0 }}
-              key={row.id}
-              className="group even:bg-zinc-900/40 hover:bg-zinc-700 transition-colors"
-            >
-              {row.getVisibleCells().map((cell, idx) => (
-                <td
-                  key={cell.id}
-                  className={cn(
-                    "border px-2",
-                    stickyFirstCol && idx === 0 && "sticky left-0 bg-surface"
-                  )}
-                  ref={cellRef ? cellRef(row, idx) : undefined}
-                >
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
+                    <button
+                      className="inline-flex items-center gap-1 select-none"
+                      onClick={header.column.getToggleSortingHandler()}
+                    >
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                      <Icon className="h-3 w-3" />
+                    </button>
+                  </th>
+                );
+              })}
               {renderRowActions && (
-                <td className="border px-2 text-right w-8">
-                  {renderRowActions(row)}
-                </td>
+                <th className="font-medium px-6 py-4 text-center" />
               )}
-            </motion.tr>
+            </tr>
           ))}
-        </AnimatePresence>
-      </tbody>
-    </table>
+        </thead>
+
+        <tbody className="divide-y divide-[color:var(--border)/25] dark:divide-[color:var(--border)/35]">
+          <AnimatePresence initial={false}>
+            {(() => {
+              const rows = hasSortedRowModel(table)
+                ? (table as Table<T> & {getSortedRowModel: () => RowModel<T>;
+                    }
+                  ).getSortedRowModel().rows // available when you added the sorted-row-model
+                : (table as Table<T>).getCoreRowModel().rows;    // always available
+              return rows;
+            })().map((row: Row<T>) => (
+              <motion.tr
+                layout
+                exit={{ opacity: 0 }}
+                key={row.id}
+                className="group transition-colors
+                           divide-x divide-[color:var(--border)/25] dark:divide-[color:var(--border)/35]
+                           hover:bg-[color:var(--primary)/8]
+                           odd:bg-[color-mix(in_lab,var(--background),white_10%)]
+                           even:bg-[color-mix(in_lab,var(--background),white_14%)]"
+              >
+                {row.getVisibleCells().map((cell, idx) => (
+                  <td
+                    key={cell.id}
+                    className={cn(
+                      "px-6 py-4 text-left",
+                      stickyFirstCol &&
+                        idx === 0 &&
+                        "sticky left-0 bg-[color:var(--card)]"
+                    )}
+                    ref={cellRef ? cellRef(row, idx) : undefined}
+                  >
+                    {flexRender(
+                      cell.column.columnDef.cell,
+                      cell.getContext()
+                    )}
+                  </td>
+                ))}
+
+                {renderRowActions && (
+                  <td className="px-6 py-4 text-right w-8">
+                    {renderRowActions(row)}
+                  </td>
+                )}
+              </motion.tr>
+            ))}
+          </AnimatePresence>
+        </tbody>
+      </table>
+    </div>
   );
 }
