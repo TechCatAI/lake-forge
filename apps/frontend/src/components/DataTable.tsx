@@ -62,10 +62,10 @@ export default function DataTable<T extends RowData>({
       <tbody>
         <AnimatePresence initial={false}>
           {(() => {
-            const rowModel = hasSortedRowModel(table)
-              ? table.getSortedRowModel()
-              : table.getRowModel()
-            return rowModel.rows
+            const rows = hasSortedRowModel(table)
+              ? (table as Table<T> & { getSortedRowModel: () => RowModel<T>; }).getSortedRowModel().rows   // available when you added the sorted-row-model
+              : (table as Table<T>).getCoreRowModel().rows;    // always available
+            return rows
           })().map((row: Row<T>) => (
             <motion.tr
               layout
