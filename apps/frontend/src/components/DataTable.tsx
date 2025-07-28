@@ -1,9 +1,11 @@
-import { flexRender, Row, Table, RowModel } from "@tanstack/react-table";
+"use client";
+
+import { flexRender, Row, Table, RowModel, type RowData } from "@tanstack/react-table";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronsUp, ChevronsDown, ChevronsUpDown } from "lucide-react";
 import { cn } from "../lib/utils";
 
-export interface DataTableProps<T> {
+export interface DataTableProps<T extends RowData> {
   table: Table<T>;
   stickyFirstCol?: boolean;
   cellRef?: (
@@ -13,7 +15,7 @@ export interface DataTableProps<T> {
   renderRowActions?: (row: Row<T>) => React.ReactNode;
 }
 
-export default function DataTable<T>({
+export default function DataTable<T extends RowData>({
   table,
   stickyFirstCol,
   cellRef,
@@ -59,11 +61,12 @@ export default function DataTable<T>({
       </thead>
       <tbody>
         <AnimatePresence initial={false}>
-          {(
-            hasSortedRowModel(table)
+          {(() => {
+            const rowModel = hasSortedRowModel(table)
               ? table.getSortedRowModel()
               : table.getRowModel()
-          ).rows.map((row: Row<T>) => (
+            return rowModel.rows
+          })().map((row: Row<T>) => (
             <motion.tr
               layout
               exit={{ opacity: 0 }}
