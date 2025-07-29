@@ -33,11 +33,11 @@ export default function DataTable<T extends RowData>({
 
   return (
     /* ─── CARD WRAPPER ──────────────────────────────────────────────── */
-    <div className="w-full overflow-x-auto p-5
-                    rounded-[var(--radius)]
-                    bg-[color:var(--card)]
-                    ring-1 ring-[color:var(--border)/25]
-                    shadow-md shadow-[color:var(--border)/15]
+      <div
+        className="bg-sidebar border border-sidebar-border
+                    rounded-[var(--radius)] shadow-md ring-1 ring-[color:var(--border)/25]
+                    w-full flex-1 min-h-[calc(100svh-6.25rem)]
+                    overflow-x-auto overflow-y-auto p-5
                     backdrop-blur-sm">
       {/* ─── DATA TABLE ─────────────────────────────────────────────── */}
         <table className="w-full min-w-max table-auto text-sm border-collapse
