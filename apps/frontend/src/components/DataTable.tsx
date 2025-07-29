@@ -48,7 +48,7 @@ export default function DataTable<T extends RowData>({
           {table.getHeaderGroups().map((hg) => (
             <tr
               key={hg.id}
-              className="bg-[color:var(--primary)]
+              className="bg-gradient-to-b from-[color:var(--primary)] to-[color:var(--secondary)] 
                           divide-x divide-[color:var(--border)/30]
                           text-[color:var(--primary-foreground)]
                           uppercase tracking-wider

@@ -5,11 +5,29 @@
 /* @custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *)); */
 /* @import "tw-animate-css"; */
 
-@theme {
+/* @theme {
   --font-display: "Satoshi", "sans-serif";
   --font-script: "Great Vibes", cursive;
-  /* ... map shadcn/ui CSS variables to Tailwind's @theme */
-} 
+  ... map shadcn/ui CSS variables to Tailwind's @theme
+}  */
+
+@font-face {
+    font-family: Quicksand;
+    font-display: swap;
+    src: url("/../styles/fonts/Quicksand-SemiBold.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: Spline;
+    font-display: swap;
+    src: url("/../styles/fonts/SplineSans-Regular.woff2") format("woff2");
+}
+
+@theme {
+    --font-sans: Quicksand, sans-serif;
+    --font-display: Spline, sans-serif;
+}
+
 
 :root {
   --radius: 0.65rem;
@@ -56,7 +74,7 @@
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.541 0.281 293.009);
   --primary-foreground: oklch(0.969 0.016 293.756);
-  --secondary: oklch(0.274 0.006 286.033);
+  --secondary: oklch(66.675% 0.25916 322.138);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.274 0.006 286.033);
   --muted-foreground: oklch(0.705 0.015 286.067);
@@ -82,6 +100,8 @@
 }
 
 @theme inline {
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);

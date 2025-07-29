@@ -2,7 +2,7 @@
 
 > **Metadata‑driven Lakehouse ingestion & orchestration framework**
 
-Lake‑Forge combines a **Next.js 15** frontend , **FastAPI** backend, a **PostgreSQL** database and an ingestion/orchestration framework of **Databricks notebooks / Jobs** to provide an end‑to‑end, low‑code experience for managing metadata configuration on Databricks + Lakebase.
+LakeForge is a new metadata driven framework built on a Next.js 15 frontend, FastAPI backend, a PostgreSQL database and an ingestion/orchestration framework of Databricks notebooks / Jobs to provide an end‑to‑end, low‑code experience for managing metadata configuration on Databricks + Lakebase.
 
 ---
 
