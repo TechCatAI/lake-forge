@@ -1,5 +1,7 @@
+'use client';
 import React from 'react';
 import styled from 'styled-components';
+import { motion } from 'framer-motion';
 
 type SwitchProps = {
   checked: boolean
@@ -16,9 +18,13 @@ const Switch: React.FC<SwitchProps> = ({ checked, onChange, ...rest }) => (
         {...rest}                     // value, id, etc.
       />
       <div className="slider">
-        <div className="circle">
+        <motion.div
+          className="circle"
+          animate={{ x: checked ? 22 : 0 }}
+          transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+        >
           {/* …existing SVGs… */}
-        </div>
+        </motion.div>
       </div>
     </label>
   </StyledWrapper>
@@ -162,7 +168,6 @@ const StyledWrapper = styled.div`
   }
 
   .switch input:checked+.slider .circle {
-    left: calc(100% - var(--circle-diameter) - var(--switch-offset));
     -webkit-box-shadow: var(--circle-checked-shadow);
     box-shadow: var(--circle-checked-shadow);
   }`;
