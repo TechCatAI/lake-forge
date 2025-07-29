@@ -10,7 +10,8 @@ import {
 } from "@tanstack/react-table";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import { toast } from "sonner";
-import { EditableCell, Switch } from "../../components/EditableCell";
+import { EditableCell } from "../../components/EditableCell";
+import { Switch } from "../../components/ui/switch";
 import Button from "../../components/ui/button";
 import GradientText from "../../components/GradientText";
 import AddScheduleDialog, { DAY_OPTIONS } from "./AddScheduleDialog";
