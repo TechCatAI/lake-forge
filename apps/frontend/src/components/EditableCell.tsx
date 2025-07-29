@@ -137,23 +137,3 @@ export const EditableCell = React.memo(
   EditableCellInner,
   (a, b) => a.initialValue === b.initialValue && a.saving === b.saving,
 ) as typeof EditableCellInner
-
-/* simple boolean switch used elsewhere in your tables */
-export function Switch({ checked, onChange }: { checked: boolean; onChange(v: boolean): void }) {
-  return (
-    <button
-      onClick={() => onChange(!checked)}
-      className={cn(
-        'w-10 h-5 rounded-full flex items-center px-0.5',
-        checked ? 'bg-green-500' : 'bg-gray-300',
-      )}
-    >
-      <span
-        className={cn(
-          'h-4 w-4 bg-white rounded-full transition-transform',
-          checked ? 'translate-x-5' : 'translate-x-0',
-        )}
-      />
-    </button>
-  )
-}
