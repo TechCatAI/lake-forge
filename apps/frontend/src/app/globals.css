@@ -28,6 +28,17 @@
     --font-display: Spline, sans-serif;
 }
 
+@layer utilities {
+  @keyframes gradient {
+    0%,100% { background-position: 0% 50%; }
+    50%     { background-position: 100% 50%; }
+  }
+
+  .animate-gradient {
+    background-size: 300% 100%;
+    animation: gradient 8s linear infinite;
+  }
+}
 
 :root {
   --radius: 0.65rem;
@@ -72,7 +83,7 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.21 0.006 285.885);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.541 0.281 293.009);
+  --primary: oklch(54.046% 0.28117 292.856);
   --primary-foreground: oklch(0.969 0.016 293.756);
   --secondary: oklch(66.675% 0.25916 322.138);
   --secondary-foreground: oklch(0.985 0 0);

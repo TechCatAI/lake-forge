@@ -259,7 +259,6 @@ export default function GroupsPage() {
     <div className="p-4 overflow-auto">
       <div className="relative mb-2 sticky top-0 bg-background z-10 flex justify-center">
         <GradientText
-          colors={["#40ffaa", "#4079ff", "#40ffaa", "#4079ff", "#40ffaa"]}
           animationSpeed={3}
           showBorder={false}
           className="text-2xl font-bold font-display"
