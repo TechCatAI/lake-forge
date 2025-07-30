@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/AppSidebar"
+import DarkVeil from "@/components/DarkVeil"; 
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
@@ -14,6 +15,9 @@ export default function RootLayout({ children,}: Readonly<{ children: React.Reac
   return (
     <html lang="en" className='dark'>
       <body className="antialiased flex bg-background text-foreground">
+        {/* ─── GLOBAL BACKDROP ─────────────────────────────── */}
+        <DarkVeil className="fixed inset-0 -z-10" />
+        {/* ─── APP CONTENT ─────────────────────────────────── */}
       <SidebarProvider>
         <AppSidebar />
         <main className="flex-1">
