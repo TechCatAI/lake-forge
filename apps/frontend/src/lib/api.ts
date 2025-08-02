@@ -276,8 +276,6 @@ export interface BronzeConfig {
   catalog: string
   schema_name: string
   table_name: string
-  source_path: string
-  file_format: string | null
   connection_id: number | null
   load_type: 'full' | 'incremental' | 'append' | 'mergedelete'
   is_stream: boolean

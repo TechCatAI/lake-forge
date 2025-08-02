@@ -282,6 +282,53 @@ export default function RawConfigPage() {
       ),
     },
     {
+      accessorKey: 'watermark_col',
+      header: 'Watermark Column',
+      cell: ({ row, getValue }) => (
+        <EditableCell
+          initialValue={getValue<string | null>() ?? ''}
+          onSave={(v) => handleEdit(row.original.id, 'watermark_col', v)}
+          className="text-left"
+        />
+      ),
+    },
+    {
+      accessorKey: 'watermark_increment_sec',
+      header: 'WM Increment (s)',
+      cell: ({ row, getValue }) => (
+        <EditableCell
+          initialValue={getValue<number | null>() ?? null}
+          onSave={(v) =>
+            handleEdit(
+              row.original.id,
+              'watermark_increment_sec',
+              v !== null ? Number(v) : null
+            )
+          }
+          className="text-left"
+        />
+      ),
+    },
+    {
+      accessorKey: 'watermark',
+      header: 'Current WM',
+      cell: ({ getValue }) => {
+        const val = getValue<string | null>()
+        return <span>{val ?? ''}</span>
+      },
+    },
+    {
+      accessorKey: 'watermark_initial',
+      header: 'Initial WM',
+      cell: ({ row, getValue }) => (
+        <EditableCell
+          initialValue={getValue<string | null>() ?? ''}
+          onSave={(v) => handleEdit(row.original.id, 'watermark_initial', v)}
+          className="text-left"
+        />
+      ),
+    },
+    {
       accessorKey: 'updated_at',
       header: 'Updated At',
       cell: ({ getValue }) => {

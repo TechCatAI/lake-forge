@@ -137,7 +137,6 @@ def create_bronze(cfg: BronzeConfigIn, db=None) -> BronzeConfigOut:
         "catalog",
         "schema_name",
         "table_name",
-        "source_path",
     ]
     for f in required:
         val = data.get(f)
@@ -167,11 +166,11 @@ def create_bronze(cfg: BronzeConfigIn, db=None) -> BronzeConfigOut:
     q = """
     INSERT INTO mdf_app.bronze_config
       (group_id, raw_config_id, source_kind, catalog, schema_name, table_name,
-       source_path, file_format, connection_id, load_type, is_stream, pk_columns,
+       connection_id, load_type, is_stream, pk_columns,
        partition_cols, zorder_cols, watermark_col, scd_type, ingest_options,
        quarantine, is_enabled, created_by, updated_by)
     VALUES (%(group_id)s, %(raw_config_id)s, %(source_kind)s, %(catalog)s,
-            %(schema_name)s, %(table_name)s, %(source_path)s, %(file_format)s,
+            %(schema_name)s, %(table_name)s,
             %(connection_id)s, %(load_type)s, %(is_stream)s, %(pk_columns)s,
             %(partition_cols)s, %(zorder_cols)s, %(watermark_col)s, %(scd_type)s,
             %(ingest_options)s, %(quarantine)s, %(is_enabled)s,

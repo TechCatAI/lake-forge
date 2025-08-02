@@ -19,8 +19,6 @@ export interface AddPayload {
   catalog: string
   schema_name: string
   table_name: string
-  source_path: string
-  file_format: 'parquet' | 'csv' | 'json' | 'avro'
   load_type: 'full' | 'incremental' | 'append' | 'mergedelete'
   is_stream: boolean
   pk_columns: string
@@ -41,8 +39,6 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
     catalog: '',
     schema_name: '',
     table_name: '',
-    source_path: '',
-    file_format: 'parquet',
     load_type: 'full',
     is_stream: false,
     pk_columns: '',
@@ -71,7 +67,6 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
     form.catalog &&
     form.schema_name &&
     form.table_name &&
-    form.source_path &&
     (form.load_type === 'incremental' ? form.pk_columns : true)
 
   async function submit(e?: React.FormEvent) {
@@ -86,8 +81,7 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
         catalog: form.catalog,
         schema_name: form.schema_name,
         table_name: form.table_name,
-        source_path: form.source_path,
-        file_format: form.file_format,
+        
         connection_id: null,
         load_type: form.load_type,
         is_stream: form.is_stream,
@@ -109,8 +103,7 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
         catalog: '',
         schema_name: '',
         table_name: '',
-        source_path: '',
-        file_format: 'parquet',
+        
         load_type: 'full',
         is_stream: false,
         pk_columns: '',
@@ -195,24 +188,6 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
               value={form.table_name}
               onChange={(e) => setForm({ ...form, table_name: e.target.value })}
             />
-            <input
-              className={`border w-full px-1 ${errors.source_path ? 'border-red-500' : ''}`}
-              placeholder="Source Path"
-              value={form.source_path}
-              onChange={(e) => setForm({ ...form, source_path: e.target.value })}
-            />
-            <select
-              className="border w-full px-1"
-              value={form.file_format}
-              onChange={(e) =>
-                setForm({ ...form, file_format: e.target.value as AddPayload['file_format'] })
-              }
-            >
-              <option value="parquet">parquet</option>
-              <option value="csv">csv</option>
-              <option value="json">json</option>
-              <option value="avro">avro</option>
-            </select>
             <select
               className="border w-full px-1"
               value={form.load_type}

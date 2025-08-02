@@ -19,8 +19,6 @@ SAMPLE_ROW = {
     "catalog": "c",
     "schema_name": "s",
     "table_name": "t",
-    "source_path": "/path",
-    "file_format": "csv",
     "connection_id": 2,
     "load_type": "full",
     "pk_columns": ["id"],
