@@ -30,16 +30,20 @@ CREATE TYPE trigger_type AS ENUM ('manual','schedule','adf','api');
 -- 2.1  Connection registry 
 -----------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS connection (
-    id            SERIAL PRIMARY KEY,
-    name          TEXT UNIQUE NOT NULL,
-    jdbc_url      TEXT,
-    secret_scope  TEXT,
-    secret_key    TEXT,
-    created_at    TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
-    created_by    TEXT        NOT NULL DEFAULT current_user,
-	updated_at    TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
-    updated_by    TEXT        NOT NULL DEFAULT current_user
+    id              SERIAL PRIMARY KEY,
+    name            TEXT UNIQUE NOT NULL,                 -- ‘Salesforce-PROD’, ‘Postgres-HR’
+    conn_type       TEXT NOT NULL CHECK (conn_type IN ('jdbc','adls','s3','restapi')),
+    driver_class    TEXT,           -- only for JDBC
+    endpoint_url    TEXT,           -- JDBC URL, https://api.mycorp.com, abfss://…
+    secret_scope    TEXT,           -- <scope> that holds creds
+    secret_key      TEXT,           -- key in the above scope (token / pwd)
+    options         JSONB NOT NULL DEFAULT '{}'::jsonb,   -- provider-specific knobs
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
+    created_by      TEXT NOT NULL  DEFAULT current_user,
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
+    updated_by      TEXT NOT NULL  DEFAULT current_user
 );
+
 
 -----------------------------------------------------------------------
 -- 2.2  Source-system registry   (NEW)
