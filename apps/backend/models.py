@@ -11,7 +11,6 @@ class RawConfigBase(BaseModel):
     connection_id: Optional[int] = None
     source_path: str
     ingestion_type: Literal["databricks", "adf", "manual"]
-    schedule_id: Optional[int] = None
     copy_options: dict = {}
     output_directory: str
     file_format: Optional[str] = None
@@ -46,7 +45,6 @@ class RawConfigUpdate(BaseModel):
     connection_id: Optional[int] = None
     source_path: Optional[str] = None
     ingestion_type: Optional[Literal["databricks", "adf", "manual"]] = None
-    schedule_id: Optional[int] = None
     copy_options: Optional[dict] = None
     output_directory: Optional[str] = None
     file_format: Optional[str] = None

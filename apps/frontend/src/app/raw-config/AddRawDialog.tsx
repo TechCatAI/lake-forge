@@ -48,7 +48,6 @@ export default function AddRawDialog({ onCreate }: { onCreate(r: RawConfig): voi
         ...form,
         group_id: null,
         connection_id: null,
-        schedule_id: null,
         copy_options: {},
         watermark_col: null,
         watermark: null,
