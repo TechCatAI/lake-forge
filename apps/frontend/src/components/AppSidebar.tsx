@@ -15,8 +15,8 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
 const navItems = [
-  { title: 'Dashboard',      url: '/',              icon: LayoutDashboard,  navGroup: 'Observability' },
-  { title: 'Source Systems', url: '/source-system', icon: Database,         navGroup: 'Connection'          },
+  { title: 'Dashboard',      url: '/dashboard',     icon: LayoutDashboard,  navGroup: 'Observability' },
+  { title: 'Source Systems', url: '/source-system', icon: Database,         navGroup: 'Connection'    },
   { title: 'Groups',         url: '/groups',        icon: Component,        navGroup: 'Orchestration' },
   { title: 'Schedules',      url: '/schedules',     icon: CalendarDays,     navGroup: 'Orchestration' },
   { title: 'Raw Config',     url: '/raw-config',    icon: Bolt,             navGroup: 'Configuration' },
