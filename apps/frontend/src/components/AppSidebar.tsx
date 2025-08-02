@@ -22,7 +22,6 @@ const navItems = [
   { title: 'Raw Config',     url: '/raw-config',    icon: Bolt,             navGroup: 'Configuration' },
   { title: 'Bronze Config',  url: '/bronze-config', icon: Layers,           navGroup: 'Configuration' },
   { title: 'DQ Rules',       url: '/dq-rules',      icon: ListChecks,       navGroup: 'Data Quality'  },
-  { title: 'Logging Test',       url: '/logging-test',      icon: ListChecks,       navGroup: 'Data Quality'  },
 ]
 
 export function AppSidebar() {

@@ -14,13 +14,13 @@
 @font-face {
     font-family: Quicksand;
     font-display: swap;
-    src: url("/../styles/fonts/Quicksand-SemiBold.woff2") format("woff2");
+    src: url("../../public/styles/fonts/Quicksand-SemiBold.woff2") format("woff2");
 }
 
 @font-face {
     font-family: Spline;
     font-display: swap;
-    src: url("/../styles/fonts/SplineSans-Regular.woff2") format("woff2");
+    src: url("../../public/styles/fonts/SplineSans-Regular.woff2") format("woff2");
 }
 
 @theme {
