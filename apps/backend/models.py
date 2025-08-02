@@ -1,6 +1,6 @@
 # apps/backend/models.py
 from pydantic import BaseModel, validator, Field, constr
-from typing import List, Optional, Literal, Any
+from typing import List, Optional, Literal
 import datetime as dt
 
 
@@ -56,7 +56,6 @@ class RawConfigUpdate(BaseModel):
     watermark_initial: Optional[dt.datetime] = None
     is_enabled: Optional[bool] = None
     updated_by: Optional[str] = None
-
 
 
 # ---------- BronzeConfig ----------
@@ -147,7 +146,6 @@ class BronzeConfigUpdate(BaseModel):
         if load_type == "incremental" and (not v or len(v) == 0):
             raise ValueError("pk_columns required for incremental load")
         return v
-
 
 
 # ---------- DQRule ----------

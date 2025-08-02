@@ -312,10 +312,13 @@ export default function RawConfigPage() {
     {
       accessorKey: 'watermark',
       header: 'Current WM',
-      cell: ({ getValue }) => {
-        const val = getValue<string | null>()
-        return <span>{val ?? ''}</span>
-      },
+      cell: ({ row, getValue }) => (
+        <EditableCell
+          initialValue={getValue<string | null>() ?? ''}
+          onSave={(v) => handleEdit(row.original.id, 'watermark', v)}
+          className="text-left"
+        />
+      ),
     },
     {
       accessorKey: 'watermark_initial',

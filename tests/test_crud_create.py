@@ -1,13 +1,12 @@
 import pathlib
 import sys
-from types import SimpleNamespace
 
 BASE = pathlib.Path(__file__).resolve().parents[1]
 sys.path.append(str(BASE))
 sys.path.append(str(BASE / "apps" / "backend"))
 
-import crud
-from apps.backend.models import BronzeConfigIn
+import crud  # noqa: E402
+from apps.backend.models import BronzeConfigIn  # noqa: E402
 
 
 def test_create_bronze_allows_empty_pk_for_full(monkeypatch):
@@ -25,28 +24,29 @@ def test_create_bronze_allows_empty_pk_for_full(monkeypatch):
 
         def execute(self, q2, p2):
             self.params = p2
-            called['params'] = p2
+            called["params"] = p2
 
         def fetchone(self):
             p = self.params
             return {
-                'id': 1,
-                'group_id': p['group_id'],
-                'raw_config_id': p['raw_config_id'],
-                'source_kind': p['source_kind'],
-                'catalog': p['catalog'],
-                'schema_name': p['schema_name'],
-                'table_name': p['table_name'],
-                
-                'connection_id': p['connection_id'],
-                'load_type': p['load_type'],
-                'pk_columns': p['pk_columns'],
-                'watermark_col': p['watermark_col'],
-                'ingest_options': (
-                    p['ingest_options'].adapted if hasattr(p['ingest_options'], 'adapted') else p['ingest_options']
+                "id": 1,
+                "group_id": p["group_id"],
+                "raw_config_id": p["raw_config_id"],
+                "source_kind": p["source_kind"],
+                "catalog": p["catalog"],
+                "schema_name": p["schema_name"],
+                "table_name": p["table_name"],
+                "connection_id": p["connection_id"],
+                "load_type": p["load_type"],
+                "pk_columns": p["pk_columns"],
+                "watermark_col": p["watermark_col"],
+                "ingest_options": (
+                    p["ingest_options"].adapted
+                    if hasattr(p["ingest_options"], "adapted")
+                    else p["ingest_options"]
                 ),
-                'quarantine': p['quarantine'],
-                'is_enabled': p['is_enabled'],
+                "quarantine": p["quarantine"],
+                "is_enabled": p["is_enabled"],
             }
 
     class DummyConn:
@@ -59,17 +59,17 @@ def test_create_bronze_allows_empty_pk_for_full(monkeypatch):
         def cursor(self, *a, **kw):
             return DummyCursor()
 
-    monkeypatch.setattr(crud, 'get_conn', lambda: DummyConn())
+    monkeypatch.setattr(crud, "get_conn", lambda: DummyConn())
 
     cfg = BronzeConfigIn(
         group_id=None,
         raw_config_id=1,
-        source_kind='volume',
-        catalog='c',
-        schema_name='s',
-        table_name='t',
+        source_kind="volume",
+        catalog="c",
+        schema_name="s",
+        table_name="t",
         connection_id=None,
-        load_type='full',
+        load_type="full",
         pk_columns=[],
         ingest_options={},
         watermark_col=None,
@@ -79,4 +79,4 @@ def test_create_bronze_allows_empty_pk_for_full(monkeypatch):
 
     row = crud.create_bronze(cfg)
     assert row.pk_columns == []
-    assert called['params']['pk_columns'] == []
+    assert called["params"]["pk_columns"] == []

@@ -1,5 +1,7 @@
 from fastapi.testclient import TestClient
-import pathlib, sys
+import pathlib
+import sys
+
 sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
 sys.path.append(str(pathlib.Path(__file__).resolve().parents[1] / "apps" / "backend"))
 
@@ -44,8 +46,10 @@ def test_flow(monkeypatch):
     assert resp.status_code == 200
 
     called = {}
+
     def del_stub(id: int):
         called["id"] = id
+
     monkeypatch.setattr(crud, "delete_source_system", del_stub)
     resp = client.delete("/api/source-systems/1")
     assert resp.status_code == 204
