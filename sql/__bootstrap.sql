@@ -120,7 +120,6 @@ CREATE TABLE IF NOT EXISTS raw_config (
     connection_id   INT REFERENCES connection(id),
     source_path     TEXT NOT NULL UNIQUE,
     ingestion_type  TEXT NOT NULL CHECK (ingestion_type IN ('databricks','adf','manual')),
-    -- schedule_id     INT REFERENCES schedule(id),
 
     copy_options     JSONB NOT NULL DEFAULT '{}'::jsonb,
     output_directory TEXT NOT NULL,
@@ -152,8 +151,6 @@ CREATE TABLE IF NOT EXISTS bronze_config (
     catalog         TEXT NOT NULL,
     schema_name     TEXT NOT NULL,
     table_name      TEXT NOT NULL,
-    -- source_path     TEXT NOT NULL,
-    -- file_format     TEXT,
     connection_id   INT REFERENCES connection(id),
 
     load_type       TEXT NOT NULL CHECK (load_type IN ('full','incremental', 'append', 'mergedelete')),
@@ -276,7 +273,7 @@ CREATE TABLE IF NOT EXISTS table_run (
     table_config_id INT NOT NULL REFERENCES bronze_config(id),
     started_at      TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     finished_at     TIMESTAMPTZ,
-	stage			TEXT NOT NULL CHECK (stage in ('raw_to_bronze','bronze_to_silver','silver_to_gold')),
+	stage			TEXT NOT NULL CHECK (stage in ('source_to_raw', 'raw_to_bronze','bronze_to_silver','silver_to_gold')),
     status          run_status NOT NULL DEFAULT 'running',
     row_ct_in       BIGINT,
     row_ct_out      BIGINT,
