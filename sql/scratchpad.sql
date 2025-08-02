@@ -19,6 +19,7 @@ SELECT * FROM bronze_config;
 	UPDATE raw_config SET group_id = 1;
 SELECT * FROM dq_rule;
 SELECT * FROM watermark_cache;
+	DELETE FROM watermark_cache;
 SELECT * FROM table_schema_cache;
 -- SELECT * FROM mdf_app.table_group;
 
@@ -28,10 +29,13 @@ SELECT * FROM table_schema_cache;
 SELECT * FROM batch_run;
 -- DELETE FROM batch_run;
 SELECT * FROM zone_run;
+-- DELETE FROM zone_run
 SELECT * FROM table_run;
 -- DELETE FROM table_run;
 SELECT * FROM step_run;
+-- DELETE FROM step_run
 SELECT * FROM dq_run;
+-- DELETE FROM dq_run
 
 ----------------------------
 --- UTILITY HELPER VIEWS ---
