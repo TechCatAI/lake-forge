@@ -23,9 +23,11 @@ import {
   deleteRawConfig,
   fetchGroups,
   fetchSourceSystems,
+  fetchConnections,
   type RawConfig,
   type Group,
   type SourceSystem,
+  type Connection,
   type APIError,
 } from '../../lib/api'
 import {
@@ -47,6 +49,7 @@ export default function RawConfigPage() {
   const [sorting, setSorting] = useState<SortingState>([])
   const [groups, setGroups] = useState<Group[]>([])
   const [sources, setSources] = useState<SourceSystem[]>([])
+  const [connections, setConnections] = useState<Connection[]>([])
   const [confirmDelete, setConfirmDelete] = useState<{
     id: number
     row: RawConfig
@@ -59,6 +62,7 @@ export default function RawConfigPage() {
       .then((gs) => setGroups(gs))
       .catch(() => setGroups([]))
     fetchSourceSystems().then(setSources, () => setSources([]))
+    fetchConnections().then(setConnections, () => setConnections([]))
   }, [])
 
   useEffect(() => {
@@ -226,6 +230,35 @@ export default function RawConfigPage() {
           ))}
         </select>
       ),
+    },
+    {
+      accessorKey: 'connection_id',
+      header: 'Connection',
+      cell: ({ row, getValue }) => {
+        const val = getValue<number | null>() ?? null;
+        return (
+          <Tooltip content={val !== null ? String(val) : ''}>
+            <select
+              className="border rounded px-1"
+              value={val ?? ''}
+              onChange={(e) =>
+                handleEdit(
+                  row.original.id,
+                  'connection_id',
+                  e.target.value ? Number(e.target.value) : null,
+                )
+              }
+            >
+              <option value="">None</option>
+              {connections.map((c) => (
+                <option key={c.id} value={c.id} title={String(c.id)}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </Tooltip>
+        );
+      },
     },
     {
       accessorKey: 'source_path',

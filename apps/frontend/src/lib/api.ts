@@ -218,6 +218,7 @@ export interface RawConfig {
   id: number
   group_id: number | null
   source_system_id: number | null
+  connection_id: number | null
   source_path: string
   ingestion_type: 'databricks' | 'adf' | 'manual'
   output_directory: string
