@@ -323,6 +323,55 @@ export async function deleteBronzeConfig(id: number): Promise<void> {
   if (!res.ok) throw (await res.json()) as APIError
 }
 
+// ----- Connection -----
+export interface Connection {
+  id: number
+  name: string
+  conn_type: 'jdbc' | 'adls' | 's3' | 'restapi'
+  driver_class: string | null
+  endpoint_url: string | null
+  secret_scope: string | null
+  secret_key: string | null
+  options: Record<string, unknown>
+  updated_at: string | null
+}
+
+export type ConnectionInput = Omit<Connection, 'id' | 'updated_at'>
+
+export async function fetchConnections(): Promise<Connection[]> {
+  const res = await fetch('/api/connections')
+  if (!res.ok) throw (await res.json()) as APIError
+  return res.json()
+}
+
+export async function createConnection(payload: ConnectionInput): Promise<Connection> {
+  const res = await fetch('/api/connections', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) throw (await res.json()) as APIError
+  return res.json()
+}
+
+export async function updateConnection(
+  id: number,
+  delta: Partial<ConnectionInput>,
+): Promise<Connection> {
+  const res = await fetch(`/api/connections/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(delta),
+  })
+  if (!res.ok) throw (await res.json()) as APIError
+  return res.json()
+}
+
+export async function deleteConnection(id: number): Promise<void> {
+  const res = await fetch(`/api/connections/${id}`, { method: 'DELETE' })
+  if (!res.ok) throw (await res.json()) as APIError
+}
+
 // ----- Source System -----
 export interface SourceSystem {
   id: number
