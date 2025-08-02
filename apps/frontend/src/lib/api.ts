@@ -233,7 +233,6 @@ export interface RawConfig {
 export type RawConfigInput = Omit<RawConfig, 'id' | 'updated_at'> & {
   group_id?: number | null
   connection_id?: number | null
-  schedule_id?: number | null
   copy_options?: Record<string, unknown>
 }
 

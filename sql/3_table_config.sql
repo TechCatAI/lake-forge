@@ -13,7 +13,6 @@ CREATE TABLE mdf_app.raw_config (
     connection_id   INT  REFERENCES mdf_app.connection(id),
     source_path     TEXT,                      -- path / table / URL
     ingestion_type  mdf_app.ingestion_type NOT NULL,
-    schedule_id     INT REFERENCES mdf_app.schedule(id),               -- override
     copy_options    JSONB NOT NULL DEFAULT '{}'::jsonb,
     output_directory TEXT NOT NULL,            -- /Volumes/raw/…
     is_enabled      BOOLEAN NOT NULL DEFAULT TRUE,
