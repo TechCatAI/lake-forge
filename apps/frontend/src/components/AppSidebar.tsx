@@ -1,5 +1,5 @@
 import Link from 'next/link'; 
-import { Home, LayoutDashboard, Database, Plug, Component, CalendarDays, Bolt, Layers, ListChecks, User} from 'lucide-react';
+import { Home, LayoutDashboard, Database, Component, CalendarDays, Bolt, Layers, ListChecks, User} from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -17,7 +17,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 const navItems = [
   { title: 'Dashboard',      url: '/dashboard',     icon: LayoutDashboard,  navGroup: 'Observability' },
   { title: 'Source Systems', url: '/source-system', icon: Database,         navGroup: 'Connection'    },
-  { title: 'Connection',     url: '/connection',    icon: Plug,             navGroup: 'Connection'    },
   { title: 'Groups',         url: '/groups',        icon: Component,        navGroup: 'Orchestration' },
   { title: 'Schedules',      url: '/schedules',     icon: CalendarDays,     navGroup: 'Orchestration' },
   { title: 'Raw Config',     url: '/raw-config',    icon: Bolt,             navGroup: 'Configuration' },
