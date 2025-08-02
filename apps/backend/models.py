@@ -275,3 +275,37 @@ class SourceSystemUpdate(BaseModel):
     description: Optional[str] = None
     type: Optional[Literal["adls", "databricks", "sql", "restapi"]] = None
     updated_by: Optional[str] = None
+
+
+# ---------- Connection ----------
+class ConnectionBase(BaseModel):
+    name: constr(strip_whitespace=True, min_length=1)
+    conn_type: Literal["jdbc", "adls", "s3", "restapi"]
+    driver_class: Optional[str] = None
+    endpoint_url: Optional[str] = None
+    secret_scope: Optional[str] = None
+    secret_key: Optional[str] = None
+    options: dict = {}
+
+
+class ConnectionIn(ConnectionBase):
+    pass
+
+
+class ConnectionOut(ConnectionBase):
+    id: int
+    updated_at: Optional[dt.datetime] = None
+
+
+class ConnectionUpdate(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    name: Optional[constr(strip_whitespace=True, min_length=1)] = None
+    conn_type: Optional[Literal["jdbc", "adls", "s3", "restapi"]] = None
+    driver_class: Optional[str] = None
+    endpoint_url: Optional[str] = None
+    secret_scope: Optional[str] = None
+    secret_key: Optional[str] = None
+    options: Optional[dict] = None
+    updated_by: Optional[str] = None

@@ -20,6 +20,9 @@ from models import (
     ScheduleIn,
     ScheduleOut,
     ScheduleUpdate,
+    ConnectionIn,
+    ConnectionOut,
+    ConnectionUpdate,
     SourceSystemIn,
     SourceSystemOut,
     SourceSystemUpdate,
@@ -400,6 +403,52 @@ def delete_schedule(id: int) -> None:
         cur.execute('DELETE FROM mdf_app.schedule WHERE id = %s', (id,))
         if cur.rowcount == 0:
             raise HTTPException(status_code=404, detail='Schedule not found')
+
+
+def list_connections() -> list[ConnectionOut]:
+    with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute('SELECT * FROM mdf_app.connection ORDER BY id;')
+        rows = cur.fetchall()
+    return [ConnectionOut(**row) for row in rows]
+
+
+def create_connection(p: ConnectionIn) -> ConnectionOut:
+    data = p.dict()
+    if 'options' in data:
+        data['options'] = psycopg2.extras.Json(data['options'], dumps=lambda v: json.dumps(v, default=str))
+    q = (
+        'INSERT INTO mdf_app.connection '
+        '(name, conn_type, driver_class, endpoint_url, secret_scope, secret_key, options, created_by, updated_by) '
+        'VALUES (%(name)s, %(conn_type)s, %(driver_class)s, %(endpoint_url)s, %(secret_scope)s, %(secret_key)s, %(options)s, %(user)s, %(user)s) '
+        'RETURNING *;'
+    )
+    with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(q, {**data, 'user': 'lake-forge-api'})
+        row = cur.fetchone()
+    return ConnectionOut(**row)
+
+
+def update_connection(id: int, delta: ConnectionUpdate) -> ConnectionOut:
+    fields = delta.dict(exclude_none=True)
+    user = fields.pop('updated_by', None) or 'system'
+    if 'options' in fields:
+        fields['options'] = psycopg2.extras.Json(fields['options'], dumps=lambda v: json.dumps(v, default=str))
+    stmt, params = build_update_sql('mdf_app.connection', fields)
+    params.update({'id': id, 'updated_by': user})
+    with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(stmt, params)
+        row = cur.fetchone()
+    return ConnectionOut(**row)
+
+
+def delete_connection(id: int) -> None:
+    with get_conn() as c, c.cursor() as cur:
+        cur.execute('SELECT 1 FROM mdf_app.raw_config WHERE connection_id = %s LIMIT 1', (id,))
+        if cur.fetchone():
+            raise HTTPException(status_code=409, detail='Connection still referenced')
+        cur.execute('DELETE FROM mdf_app.connection WHERE id = %s', (id,))
+        if cur.rowcount == 0:
+            raise HTTPException(status_code=404, detail='Connection not found')
 
 
 def list_source_systems() -> list[SourceSystemOut]:
