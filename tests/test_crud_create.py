@@ -37,8 +37,7 @@ def test_create_bronze_allows_empty_pk_for_full(monkeypatch):
                 'catalog': p['catalog'],
                 'schema_name': p['schema_name'],
                 'table_name': p['table_name'],
-                'source_path': p['source_path'],
-                'file_format': p['file_format'],
+                
                 'connection_id': p['connection_id'],
                 'load_type': p['load_type'],
                 'pk_columns': p['pk_columns'],
@@ -69,8 +68,6 @@ def test_create_bronze_allows_empty_pk_for_full(monkeypatch):
         catalog='c',
         schema_name='s',
         table_name='t',
-        source_path='/p',
-        file_format=None,
         connection_id=None,
         load_type='full',
         pk_columns=[],

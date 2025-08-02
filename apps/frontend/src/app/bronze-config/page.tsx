@@ -276,33 +276,6 @@ export default function BronzeConfigPage() {
       ),
     },
     {
-      accessorKey: 'source_path',
-      header: 'Source Path',
-      cell: ({ row, getValue }) => (
-        <EditableCell
-          initialValue={getValue<string>()}
-          onSave={(v) => handleEdit(row.original.id, 'source_path', v)}
-          className="text-left"
-        />
-      ),
-    },
-    {
-      accessorKey: 'file_format',
-      header: 'File Format',
-      cell: ({ row, getValue }) => (
-        <select
-          className="border rounded px-1 w-28"
-          defaultValue={getValue<string | null>() ?? 'parquet'}
-          onChange={(e) => handleEdit(row.original.id, 'file_format', e.target.value as BronzeConfig['file_format'])}
-        >
-          <option value="parquet">parquet</option>
-          <option value="csv">csv</option>
-          <option value="json">json</option>
-          <option value="avro">avro</option>
-        </select>
-      ),
-    },
-    {
       accessorKey: 'load_type',
       header: 'Load Type',
       cell: ({ row, getValue }) => {

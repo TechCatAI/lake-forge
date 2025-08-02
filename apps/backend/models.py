@@ -57,11 +57,6 @@ class RawConfigUpdate(BaseModel):
     is_enabled: Optional[bool] = None
     updated_by: Optional[str] = None
 
-    @validator("source_path")
-    def _non_blank_patch(cls, v: Optional[str]) -> Optional[str]:
-        if v is not None and not str(v).strip():
-            raise ValueError("source_path must not be blank")
-        return v
 
 
 # ---------- BronzeConfig ----------
@@ -72,8 +67,6 @@ class BronzeConfigBase(BaseModel):
     catalog: str
     schema_name: str
     table_name: str
-    source_path: str
-    file_format: Optional[str] = None
     connection_id: Optional[int] = None
     load_type: Literal["full", "incremental", "append", "mergedelete"]
     is_stream: bool = False
@@ -85,12 +78,6 @@ class BronzeConfigBase(BaseModel):
     ingest_options: dict = {}
     quarantine: bool = False
     is_enabled: bool = True
-
-    @validator("source_path")
-    def _non_blank_path(cls, v: str) -> str:
-        if not v or not str(v).strip():
-            raise ValueError("source_path must not be blank")
-        return v
 
 
 class BronzeConfigIn(BronzeConfigBase):
@@ -129,8 +116,6 @@ class BronzeConfigUpdate(BaseModel):
     catalog: Optional[str] = None
     schema_name: Optional[str] = None
     table_name: Optional[str] = None
-    source_path: Optional[str] = None
-    file_format: Optional[str] = None
     connection_id: Optional[int] = None
     load_type: Optional[Literal["full", "incremental", "append", "mergedelete"]] = None
     is_stream: Optional[bool] = None
@@ -163,11 +148,6 @@ class BronzeConfigUpdate(BaseModel):
             raise ValueError("pk_columns required for incremental load")
         return v
 
-    @validator("source_path")
-    def _non_blank_patch(cls, v: Optional[str]) -> Optional[str]:
-        if v is not None and not str(v).strip():
-            raise ValueError("source_path must not be blank")
-        return v
 
 
 # ---------- DQRule ----------

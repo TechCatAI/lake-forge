@@ -46,8 +46,7 @@ BRONZE_ROW = {
     "catalog": "c",
     "schema_name": "s",
     "table_name": "t",
-    "source_path": "/raw",
-    "file_format": None,
+
     "connection_id": None,
     "load_type": "full",
     "is_stream": False,
@@ -106,8 +105,6 @@ def bronze_payload():
         "catalog": "c",
         "schema_name": "s",
         "table_name": "t",
-        "source_path": "/raw",
-        "file_format": None,
         "connection_id": None,
         "load_type": "full",
         "is_stream": False,
