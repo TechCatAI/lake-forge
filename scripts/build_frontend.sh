@@ -14,6 +14,8 @@ FRONTEND_DIR="$ROOT_DIR/apps/frontend"
 STATIC_OUT_DIR="$FRONTEND_DIR/out"
 BACKEND_STATIC_DIR="$ROOT_DIR/apps/backend/static"
 
+rm -rf "$FRONTEND_DIR/.next"
+
 echo "▶️  [lake-forge] Building Next.js app…"
 cd "$FRONTEND_DIR"
 
