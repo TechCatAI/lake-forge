@@ -56,6 +56,18 @@ export default function BronzeConfigPage() {
   } | null>(null)
   const [rawOptions, setRawOptions] = useState<RawConfig[]>([])
 
+  type BronzeWithExtras = BronzeConfig & {
+    source_path?: string
+    file_format?: string | null
+  }
+
+  function sanitize(row: BronzeWithExtras): BronzeConfig {
+    const { source_path, file_format, ...rest } = row
+    void source_path
+    void file_format
+    return rest
+  }
+
   useEffect(() => {
     loadData()
     fetchRawConfigs().then(setRawOptions, () => setRawOptions([]))
@@ -63,6 +75,7 @@ export default function BronzeConfigPage() {
       .then((gs) => setGroups(gs))
       .catch(() => setGroups([]))
     fetchSourceSystems().then(setSources, () => setSources([]))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -76,7 +89,9 @@ export default function BronzeConfigPage() {
   async function loadData() {
     try {
       setLoading(true)
-      const rows = await fetchBronzeConfigs()
+      const rows = (
+        (await fetchBronzeConfigs()) as BronzeWithExtras[]
+      ).map(sanitize)
       setData(rows)
       origData.current = new Map(rows.map((r) => [r.id, r]))
       setDirtyRows(new Map())
@@ -115,7 +130,7 @@ export default function BronzeConfigPage() {
     const results = await Promise.all(
       entries.map(([id, delta]) =>
         updateBronzeConfig(id, delta).then(
-          (row) => ({ id, row }),
+          (row) => ({ id, row: sanitize(row as BronzeWithExtras) }),
           (err: APIError) => ({ id, err })
         )
       )
@@ -140,9 +155,10 @@ export default function BronzeConfigPage() {
   }
 
   async function addRow(row: BronzeConfig) {
-    setData((d) => [row, ...d])
-    origData.current.set(row.id, row)
-    setLastAdded(row.id)
+    const clean = sanitize(row as BronzeWithExtras)
+    setData((d) => [clean, ...d])
+    origData.current.set(clean.id, clean)
+    setLastAdded(clean.id)
   }
 
   async function handleDelete(id: number, row: BronzeConfig, index: number) {
