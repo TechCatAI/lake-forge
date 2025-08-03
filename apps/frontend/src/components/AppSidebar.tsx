@@ -1,5 +1,5 @@
-import Link from 'next/link';
-import { Home, LayoutDashboard, Database, Plug, Component, CalendarDays, Bolt, Layers, ListChecks, User, Cpu } from 'lucide-react';
+import Link from 'next/link'; 
+import { Home, LayoutDashboard, Database, Plug, Component, CalendarDays, Bolt, Layers, ListChecks, User} from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -23,7 +23,6 @@ const navItems = [
   { title: 'Raw Config',     url: '/raw-config',    icon: Bolt,             navGroup: 'Configuration' },
   { title: 'Bronze Config',  url: '/bronze-config', icon: Layers,           navGroup: 'Configuration' },
   { title: 'DQ Rules',       url: '/dq-rules',      icon: ListChecks,       navGroup: 'Data Quality'  },
-  { title: 'Compute Profiles', url: '/compute-profile', icon: Cpu, navGroup: 'Settings' },
 ]
 
 export function AppSidebar() {

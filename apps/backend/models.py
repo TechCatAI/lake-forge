@@ -178,38 +178,6 @@ class DQRuleUpdate(BaseModel):
     updated_by: Optional[str] = None
 
 
-# ---------- ComputeProfile ----------
-class ComputeProfileBase(BaseModel):
-    name: constr(strip_whitespace=True, min_length=1)
-    description: Optional[str] = None
-    policy_id: Optional[str] = None
-    cluster_json: dict
-    default_libraries: list[dict] = Field(default_factory=list)
-    is_default: bool = False
-
-
-class ComputeProfileIn(ComputeProfileBase):
-    pass
-
-
-class ComputeProfileOut(ComputeProfileBase):
-    id: int
-    updated_at: Optional[dt.datetime] = None
-
-
-class ComputeProfileUpdate(BaseModel):
-    class Config:
-        extra = "forbid"
-
-    name: Optional[constr(strip_whitespace=True, min_length=1)] = None
-    description: Optional[str] = None
-    policy_id: Optional[str] = None
-    cluster_json: Optional[dict] = None
-    default_libraries: Optional[list[dict]] = None
-    is_default: Optional[bool] = None
-    updated_by: Optional[str] = None
-
-
 # ---------- Group ----------
 class GroupBase(BaseModel):
     name: constr(strip_whitespace=True, min_length=1)
@@ -218,7 +186,6 @@ class GroupBase(BaseModel):
     is_raw: bool = False
     is_bronze: bool = False
     schedule_id: Optional[int] = None
-    compute_profile_id: Optional[int] = None
 
 
 class GroupIn(GroupBase):
@@ -240,7 +207,6 @@ class GroupUpdate(BaseModel):
     is_raw: Optional[bool] = None
     is_bronze: Optional[bool] = None
     schedule_id: Optional[int] = None
-    compute_profile_id: Optional[int] = None
 
 
 # ---------- Schedule ----------

@@ -128,7 +128,6 @@ export interface Group {
   is_raw: boolean
   is_bronze: boolean
   schedule_id: number | null
-  compute_profile_id: number | null
   updated_at: string | null
 }
 
@@ -165,54 +164,6 @@ export async function updateGroup(
 
 export async function deleteGroup(id: number): Promise<void> {
   const res = await fetch(`/api/groups/${id}`, { method: 'DELETE' })
-  if (!res.ok) throw (await res.json()) as APIError
-}
-
-// ----- Compute Profile -----
-export interface ComputeProfile {
-  id: number
-  name: string
-  description: string | null
-  policy_id: string | null
-  cluster_json: Record<string, unknown>
-  default_libraries: Array<Record<string, unknown>>
-  is_default: boolean
-  updated_at: string | null
-}
-
-export type ComputeProfileInput = Omit<ComputeProfile, 'id' | 'updated_at'>
-
-export async function fetchComputeProfiles(): Promise<ComputeProfile[]> {
-  const res = await fetch('/api/compute-profiles')
-  if (!res.ok) throw (await res.json()) as APIError
-  return res.json()
-}
-
-export async function createComputeProfile(payload: ComputeProfileInput): Promise<ComputeProfile> {
-  const res = await fetch('/api/compute-profiles', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  })
-  if (!res.ok) throw (await res.json()) as APIError
-  return res.json()
-}
-
-export async function updateComputeProfile(
-  id: number,
-  delta: Partial<ComputeProfileInput>,
-): Promise<ComputeProfile> {
-  const res = await fetch(`/api/compute-profiles/${id}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(delta),
-  })
-  if (!res.ok) throw (await res.json()) as APIError
-  return res.json()
-}
-
-export async function deleteComputeProfile(id: number): Promise<void> {
-  const res = await fetch(`/api/compute-profiles/${id}`, { method: 'DELETE' })
   if (!res.ok) throw (await res.json()) as APIError
 }
 

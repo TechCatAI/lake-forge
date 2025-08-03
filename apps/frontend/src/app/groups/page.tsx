@@ -21,10 +21,8 @@ import {
   updateGroup,
   deleteGroup,
   fetchSchedules,
-  fetchComputeProfiles,
   type Group,
   type Schedule,
-  type ComputeProfile,
   type APIError,
 } from "../../lib/api";
 import {
@@ -33,13 +31,11 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
 } from "../../components/ui/alert-dialog";
-import { Tooltip } from "../../components/ui/tooltip";
 
 export default function GroupsPage() {
   const [data, setData] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
-  const [profiles, setProfiles] = useState<ComputeProfile[]>([]);
   const firstCellRefs = useRef<Record<number, HTMLTableCellElement | null>>({});
   const [lastAdded, setLastAdded] = useState<number | null>(null);
   const [dirtyRows, setDirtyRows] = useState<Map<number, Partial<Group>>>(new Map());
@@ -68,14 +64,9 @@ export default function GroupsPage() {
   async function loadData() {
     try {
       setLoading(true);
-      const [rows, scheds, cps] = await Promise.all([
-        fetchGroups(),
-        fetchSchedules(),
-        fetchComputeProfiles(),
-      ]);
+      const [rows, scheds] = await Promise.all([fetchGroups(), fetchSchedules()]);
       setData(rows);
       setSchedules(scheds);
-      setProfiles(cps);
       origData.current = new Map(rows.map((r) => [r.id, r]));
       setDirtyRows(new Map());
       setDirtyCount(0);
@@ -236,35 +227,6 @@ export default function GroupsPage() {
           ))}
         </select>
       ),
-    },
-    {
-      accessorKey: "compute_profile_id",
-      header: "Compute",
-      cell: ({ row, getValue }) => {
-        const val = getValue<number | null>() ?? null;
-        return (
-          <Tooltip content={val !== null ? String(val) : ""}>
-            <select
-              className="border rounded px-1"
-              value={val ?? ""}
-              onChange={(e) =>
-                handleEdit(
-                  row.original.id,
-                  "compute_profile_id",
-                  e.target.value ? Number(e.target.value) : null,
-                )
-              }
-            >
-              <option value="">None</option>
-              {profiles.map((p) => (
-                <option key={p.id} value={p.id} title={String(p.id)}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-          </Tooltip>
-        );
-      },
     },
     {
       accessorKey: "updated_at",
