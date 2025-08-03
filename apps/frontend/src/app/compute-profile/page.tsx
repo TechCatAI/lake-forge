@@ -11,19 +11,15 @@ import {
 import LoadingSpinner from "../../components/LoadingSpinner";
 import { toast } from "sonner";
 import { EditableCell } from "../../components/EditableCell";
-import Switch from '../../components/ui/switch'
+import Switch from "../../components/ui/switch";
 import Button from "../../components/ui/button";
 import GradientText from "../../components/GradientText";
-import AddGroupDialog from "./AddGroupDialog";
+import AddComputeProfileDialog from "./AddComputeProfileDialog";
 import DataTable from "../../components/DataTable";
 import {
-  fetchGroups,
-  updateGroup,
-  deleteGroup,
-  fetchSchedules,
   fetchComputeProfiles,
-  type Group,
-  type Schedule,
+  updateComputeProfile,
+  deleteComputeProfile,
   type ComputeProfile,
   type APIError,
 } from "../../lib/api";
@@ -33,25 +29,18 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
 } from "../../components/ui/alert-dialog";
-import { Tooltip } from "../../components/ui/tooltip";
 
-export default function GroupsPage() {
-  const [data, setData] = useState<Group[]>([]);
+export default function ComputeProfilePage() {
+  const [data, setData] = useState<ComputeProfile[]>([]);
   const [loading, setLoading] = useState(true);
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
-  const [profiles, setProfiles] = useState<ComputeProfile[]>([]);
   const firstCellRefs = useRef<Record<number, HTMLTableCellElement | null>>({});
   const [lastAdded, setLastAdded] = useState<number | null>(null);
-  const [dirtyRows, setDirtyRows] = useState<Map<number, Partial<Group>>>(new Map());
-  const origData = useRef<Map<number, Group>>(new Map());
+  const [dirtyRows, setDirtyRows] = useState<Map<number, Partial<ComputeProfile>>>(new Map());
+  const origData = useRef<Map<number, ComputeProfile>>(new Map());
   const [dirtyCount, setDirtyCount] = useState(0);
   const [savingAll, setSavingAll] = useState(false);
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [confirmDelete, setConfirmDelete] = useState<{
-    id: number;
-    row: Group;
-    index: number;
-  } | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
 
   useEffect(() => {
     loadData();
@@ -68,14 +57,8 @@ export default function GroupsPage() {
   async function loadData() {
     try {
       setLoading(true);
-      const [rows, scheds, cps] = await Promise.all([
-        fetchGroups(),
-        fetchSchedules(),
-        fetchComputeProfiles(),
-      ]);
+      const rows = await fetchComputeProfiles();
       setData(rows);
-      setSchedules(scheds);
-      setProfiles(cps);
       origData.current = new Map(rows.map((r) => [r.id, r]));
       setDirtyRows(new Map());
       setDirtyCount(0);
@@ -88,7 +71,7 @@ export default function GroupsPage() {
     }
   }
 
-  function handleEdit<K extends keyof Group>(id: number, field: K, value: Group[K]) {
+  function handleEdit<K extends keyof ComputeProfile>(id: number, field: K, value: ComputeProfile[K]) {
     setData((ds) => ds.map((r) => (r.id === id ? { ...r, [field]: value } : r)));
     setDirtyRows((map) => {
       const next = new Map(map);
@@ -112,7 +95,7 @@ export default function GroupsPage() {
     const before = new Map(entries.map(([id]) => [id, data.find((r) => r.id === id)]));
     const results = await Promise.all(
       entries.map(([id, delta]) =>
-        updateGroup(id, delta).then(
+        updateComputeProfile(id, delta).then(
           (row) => ({ id, row }),
           (err: APIError) => ({ id, err }),
         ),
@@ -138,59 +121,31 @@ export default function GroupsPage() {
     setSavingAll(false);
   }
 
-  function addRow(row: Group) {
-    setData((d) => [row, ...d]);
-    origData.current.set(row.id, row);
-    setLastAdded(row.id);
-  }
-
-  async function handleDelete(id: number, row: Group, index: number) {
-    setData((ds) => ds.filter((r) => r.id !== id));
+  async function handleDelete(id: number) {
     try {
-      await deleteGroup(id);
+      await deleteComputeProfile(id);
+      setData((ds) => ds.filter((r) => r.id !== id));
       origData.current.delete(id);
       setDirtyRows((map) => {
         const next = new Map(map);
         next.delete(id);
-        const count = Array.from(next.values()).reduce((s, d) => s + Object.keys(d).length, 0);
-        setDirtyCount(count);
         return next;
       });
       toast.success("Deleted");
     } catch (err) {
-      setData((ds) => {
-        const next = [...ds];
-        next.splice(index, 0, row);
-        return next;
-      });
       const detail = (err as APIError).detail;
       const msg = Array.isArray(detail) ? detail[0].msg : detail;
-      toast.error(msg || "Error deleting");
+      toast.error(msg || "Delete failed");
     }
   }
 
-  const columns: ColumnDef<Group>[] = [
-    {
-      accessorKey: "is_enabled",
-      header: "Enabled",
-      cell: ({ row, getValue }) => (
-        <Switch checked={getValue<boolean>()} onChange={(v) => handleEdit(row.original.id, "is_enabled", v)} />
-      ),
-    },
-    {
-      accessorKey: "is_raw",
-      header: "Raw",
-      cell: ({ row, getValue }) => (
-        <Switch checked={getValue<boolean>()} onChange={(v) => handleEdit(row.original.id, "is_raw", v)} />
-      ),
-    },
-    {
-      accessorKey: "is_bronze",
-      header: "Bronze",
-      cell: ({ row, getValue }) => (
-        <Switch checked={getValue<boolean>()} onChange={(v) => handleEdit(row.original.id, "is_bronze", v)} />
-      ),
-    },
+  function addRow(row: ComputeProfile) {
+    setData((ds) => [...ds, row]);
+    origData.current.set(row.id, row);
+    setLastAdded(row.id);
+  }
+
+  const columns: ColumnDef<ComputeProfile>[] = [
     {
       accessorKey: "name",
       header: "Name",
@@ -214,57 +169,63 @@ export default function GroupsPage() {
       ),
     },
     {
-      accessorKey: "schedule_id",
-      header: "Schedule",
+      accessorKey: "policy_id",
+      header: "Policy ID",
       cell: ({ row, getValue }) => (
-        <select
-          className="border rounded px-1"
-          defaultValue={getValue<number | null>() ?? ""}
-          onChange={(e) =>
-            handleEdit(
-              row.original.id,
-              "schedule_id",
-              e.target.value ? Number(e.target.value) : null,
-            )
-          }
-        >
-          <option value="">No schedule</option>
-          {schedules.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.id} - {s.name}
-            </option>
-          ))}
-        </select>
+        <EditableCell
+          initialValue={getValue<string | null>() ?? ""}
+          onSave={(v) => handleEdit(row.original.id, "policy_id", v)}
+          className="text-left"
+        />
       ),
     },
     {
-      accessorKey: "compute_profile_id",
-      header: "Compute",
-      cell: ({ row, getValue }) => {
-        const val = getValue<number | null>() ?? null;
-        return (
-          <Tooltip content={val !== null ? String(val) : ""}>
-            <select
-              className="border rounded px-1"
-              value={val ?? ""}
-              onChange={(e) =>
-                handleEdit(
-                  row.original.id,
-                  "compute_profile_id",
-                  e.target.value ? Number(e.target.value) : null,
-                )
-              }
-            >
-              <option value="">None</option>
-              {profiles.map((p) => (
-                <option key={p.id} value={p.id} title={String(p.id)}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-          </Tooltip>
-        );
-      },
+      accessorKey: "cluster_json",
+      header: "Cluster JSON",
+      cell: ({ row, getValue }) => (
+        <EditableCell
+          initialValue={getValue<Record<string, unknown>>()}
+          onSave={(v) => handleEdit(row.original.id, "cluster_json", v)}
+          format={(v) => JSON.stringify(v ?? {})}
+          parse={(v) => {
+            try {
+              return JSON.parse(v);
+            } catch {
+              return {};
+            }
+          }}
+          className="text-left"
+        />
+      ),
+    },
+    {
+      accessorKey: "default_libraries",
+      header: "Default Libraries",
+      cell: ({ row, getValue }) => (
+        <EditableCell
+          initialValue={getValue<Array<Record<string, unknown>>>()} 
+          onSave={(v) => handleEdit(row.original.id, "default_libraries", v)}
+          format={(v) => JSON.stringify(v ?? [])}
+          parse={(v) => {
+            try {
+              return JSON.parse(v);
+            } catch {
+              return [];
+            }
+          }}
+          className="text-left"
+        />
+      ),
+    },
+    {
+      accessorKey: "is_default",
+      header: "Default",
+      cell: ({ row, getValue }) => (
+        <Switch
+          checked={getValue<boolean>()}
+          onChange={(v) => handleEdit(row.original.id, "is_default", v)}
+        />
+      ),
     },
     {
       accessorKey: "updated_at",
@@ -294,58 +255,57 @@ export default function GroupsPage() {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="p-4 overflow-auto">
+    <div className="p-4 flex flex-col gap-2">
       <div className="relative mb-2 sticky top-0 bg-background z-10 flex justify-center">
-        <GradientText
-          animationSpeed={3}
-          showBorder={false}
-          className="text-2xl font-bold font-display"
-        >
-          Groups
+        <GradientText animationSpeed={3} showBorder={false} className="text-2xl font-bold font-display">
+          Compute Profiles
         </GradientText>
         <div className="absolute right-0 top-0 flex items-center gap-2">
           {dirtyCount > 0 && (
             <Button onClick={saveChanges} disabled={savingAll}>
-              {savingAll && <span className="h-4 w-4 mr-1 border-2 border-current border-t-transparent rounded-full animate-spin" />}
+              {savingAll && (
+                <span className="h-4 w-4 mr-1 border-2 border-current border-t-transparent rounded-full animate-spin" />
+              )}
               Save changes ({dirtyCount})
             </Button>
           )}
-          <AddGroupDialog onCreate={addRow} />
+          <AddComputeProfileDialog onCreate={addRow} />
         </div>
       </div>
       <DataTable
         table={table}
         cellRef={(row, idx) =>
-          idx === 3
+          idx === 0
             ? (el) => {
                 firstCellRefs.current[row.original.id] = el;
               }
             : undefined
         }
-        renderRowActions={(row) => (
-          <Trash
-            className="h-4 w-4 opacity-0 group-hover:opacity-100 text-red-500 cursor-pointer"
-            onClick={() =>
-              setConfirmDelete({ id: row.original.id, row: row.original, index: row.index })
-            }
-          />
-        )}
-      />
-      <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
-        {confirmDelete && (
+          renderRowActions={(row) => (
+            <Trash
+              className="h-4 w-4 opacity-0 group-hover:opacity-100 text-red-500 cursor-pointer"
+              onClick={() => setConfirmDelete(row.original.id)}
+            />
+          )}
+        />
+        <AlertDialog
+          open={confirmDelete !== null}
+          onOpenChange={(o) => !o && setConfirmDelete(null)}
+        >
+          {confirmDelete !== null && (
           <>
             <AlertDialogTitle>Delete row?</AlertDialogTitle>
             <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
             <AlertDialogFooter>
               <Button onClick={() => setConfirmDelete(null)}>Cancel</Button>
-              <Button
-                onClick={() => {
-                  if (confirmDelete)
-                    handleDelete(confirmDelete.id, confirmDelete.row, confirmDelete.index).then(() => setConfirmDelete(null));
-                }}
-              >
-                Delete
-              </Button>
+                <Button
+                  onClick={() => {
+                    if (confirmDelete !== null)
+                      handleDelete(confirmDelete).then(() => setConfirmDelete(null));
+                  }}
+                >
+                  Delete
+                </Button>
             </AlertDialogFooter>
           </>
         )}

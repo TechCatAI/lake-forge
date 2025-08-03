@@ -3,7 +3,15 @@ import { useState, useEffect } from "react";
 import Button from "../../components/ui/button";
 import Spinner from "../../components/Spinner";
 import { toast } from "sonner";
-import { createGroup, fetchSchedules, type Group, type Schedule, type APIError } from "../../lib/api";
+import {
+  createGroup,
+  fetchSchedules,
+  fetchComputeProfiles,
+  type Group,
+  type Schedule,
+  type ComputeProfile,
+  type APIError,
+} from "../../lib/api";
 
 export interface AddPayload {
   name: string;
@@ -12,6 +20,7 @@ export interface AddPayload {
   is_raw: boolean;
   is_bronze: boolean;
   schedule_id: number | null;
+  compute_profile_id: number | null;
 }
 
 export default function AddGroupDialog({ onCreate }: { onCreate(g: Group): void }) {
@@ -23,13 +32,18 @@ export default function AddGroupDialog({ onCreate }: { onCreate(g: Group): void 
     is_raw: false,
     is_bronze: false,
     schedule_id: null,
+    compute_profile_id: null,
   });
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [profiles, setProfiles] = useState<ComputeProfile[]>([]);
 
   useEffect(() => {
-    if (open) fetchSchedules().then(setSchedules, () => setSchedules([]));
+    if (open) {
+      fetchSchedules().then(setSchedules, () => setSchedules([]));
+      fetchComputeProfiles().then(setProfiles, () => setProfiles([]));
+    }
   }, [open]);
 
   const valid = form.name.trim().length > 0;
@@ -50,6 +64,7 @@ export default function AddGroupDialog({ onCreate }: { onCreate(g: Group): void 
         is_raw: false,
         is_bronze: false,
         schedule_id: null,
+        compute_profile_id: null,
       });
       setOpen(false);
     } catch (err) {
@@ -101,6 +116,25 @@ export default function AddGroupDialog({ onCreate }: { onCreate(g: Group): void 
               {schedules.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.id} - {s.name}
+                </option>
+              ))}
+            </select>
+            <select
+              className="border w-full px-1"
+              value={form.compute_profile_id ?? ''}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  compute_profile_id: e.target.value
+                    ? Number(e.target.value)
+                    : null,
+                })
+              }
+            >
+              <option value="">No compute profile</option>
+              {profiles.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
                 </option>
               ))}
             </select>
