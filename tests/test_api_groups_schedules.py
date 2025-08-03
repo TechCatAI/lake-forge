@@ -20,6 +20,7 @@ GROUP_ROW = {
     "is_raw": False,
     "is_bronze": True,
     "schedule_id": None,
+    "compute_profile_id": None,
     "updated_at": None,
 }
 SCHED_ROW = {"id": 1, "name": "s", "description": None, "days": [1], "times": ["05:00"], "is_enabled": True, "updated_at": None}

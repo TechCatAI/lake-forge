@@ -17,6 +17,9 @@ from models import (
     GroupIn,
     GroupOut,
     GroupUpdate,
+    ComputeProfileIn,
+    ComputeProfileOut,
+    ComputeProfileUpdate,
     ScheduleIn,
     ScheduleOut,
     ScheduleUpdate,
@@ -332,8 +335,8 @@ def list_groups() -> list[GroupOut]:
 
 def create_group(payload: GroupIn) -> GroupOut:
     q = (
-        "INSERT INTO mdf_app.\"group\" (name, description, is_enabled, is_raw, is_bronze, schedule_id) "
-        "VALUES (%(name)s, %(description)s, %(is_enabled)s, %(is_raw)s, %(is_bronze)s, %(schedule_id)s) RETURNING *;"
+        "INSERT INTO mdf_app.\"group\" (name, description, is_enabled, is_raw, is_bronze, schedule_id, compute_profile_id) "
+        "VALUES (%(name)s, %(description)s, %(is_enabled)s, %(is_raw)s, %(is_bronze)s, %(schedule_id)s, %(compute_profile_id)s) RETURNING *;"
     )
     with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(q, payload.dict())
@@ -359,6 +362,51 @@ def delete_group(id: int) -> None:
         cur.execute('DELETE FROM mdf_app."group" WHERE id = %s', (id,))
         if cur.rowcount == 0:
             raise HTTPException(status_code=404, detail='Group not found')
+
+
+def list_compute_profiles() -> list[ComputeProfileOut]:
+    with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute('SELECT * FROM mdf_app.compute_profile ORDER BY id;')
+        rows = cur.fetchall()
+    return [ComputeProfileOut(**row) for row in rows]
+
+
+def create_compute_profile(p: ComputeProfileIn) -> ComputeProfileOut:
+    data = p.dict()
+    data['cluster_json'] = psycopg2.extras.Json(data['cluster_json'], dumps=lambda v: json.dumps(v, default=str))
+    data['default_libraries'] = psycopg2.extras.Json(data['default_libraries'], dumps=lambda v: json.dumps(v, default=str))
+    q = (
+        'INSERT INTO mdf_app.compute_profile '
+        '(name, description, policy_id, cluster_json, default_libraries, is_default, created_by, updated_by) '
+        'VALUES (%(name)s, %(description)s, %(policy_id)s, %(cluster_json)s, %(default_libraries)s, %(is_default)s, %(user)s, %(user)s) '
+        'RETURNING *;'
+    )
+    with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(q, {**data, 'user': 'lake-forge-api'})
+        row = cur.fetchone()
+    return ComputeProfileOut(**row)
+
+
+def update_compute_profile(id: int, delta: ComputeProfileUpdate) -> ComputeProfileOut:
+    fields = delta.dict(exclude_none=True)
+    user = fields.pop('updated_by', None) or 'system'
+    if 'cluster_json' in fields:
+        fields['cluster_json'] = psycopg2.extras.Json(fields['cluster_json'], dumps=lambda v: json.dumps(v, default=str))
+    if 'default_libraries' in fields:
+        fields['default_libraries'] = psycopg2.extras.Json(fields['default_libraries'], dumps=lambda v: json.dumps(v, default=str))
+    stmt, params = build_update_sql('mdf_app.compute_profile', fields)
+    params.update({'id': id, 'updated_by': user})
+    with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(stmt, params)
+        row = cur.fetchone()
+    return ComputeProfileOut(**row)
+
+
+def delete_compute_profile(id: int) -> None:
+    with get_conn() as c, c.cursor() as cur:
+        cur.execute('DELETE FROM mdf_app.compute_profile WHERE id = %s', (id,))
+        if cur.rowcount == 0:
+            raise HTTPException(status_code=404, detail='Compute profile not found')
 
 
 def list_schedules() -> list[ScheduleOut]:
