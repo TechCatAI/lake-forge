@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS connection (
 
 
 -----------------------------------------------------------------------
--- 2.2  Source-system registry   (NEW)
+-- 2.2  Source-system registry  
 -----------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS source_system (
     id          SERIAL PRIMARY KEY,
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS source_system (
 );
 
 -----------------------------------------------------------------------
--- 2.3  Zone dimension          (NEW)
+-- 2.3  Zone dimension       
 -----------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS zone (
     id            SMALLINT PRIMARY KEY,
@@ -92,17 +92,18 @@ CREATE TABLE IF NOT EXISTS schedule (
 );
 
 CREATE TABLE IF NOT EXISTS "group" (
-    id          SERIAL PRIMARY KEY,
-    name        TEXT UNIQUE NOT NULL,
+    id          SERIAL       PRIMARY KEY,
+    name        TEXT         UNIQUE NOT NULL,
     description TEXT,
 	is_enabled  BOOLEAN      NOT NULL DEFAULT TRUE,
-    is_raw      BOOLEAN NOT NULL DEFAULT FALSE,
-    is_bronze   BOOLEAN NOT NULL DEFAULT FALSE,
-    schedule_id INT REFERENCES schedule(id),
-    created_at  TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
-    created_by  TEXT        NOT NULL DEFAULT current_user,
-	updated_at  TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
-    updated_by  TEXT        NOT NULL DEFAULT current_user
+    is_raw      BOOLEAN      NOT NULL DEFAULT FALSE,
+    is_bronze   BOOLEAN      NOT NULL DEFAULT FALSE,
+    schedule_id INT          REFERENCES schedule(id),
+	compute_profile_id INT   REFERENCES mdf_app.compute_profile(id);
+    created_at  TIMESTAMPTZ  NOT NULL DEFAULT current_timestamp,
+    created_by  TEXT         NOT NULL DEFAULT current_user,
+	updated_at  TIMESTAMPTZ  NOT NULL DEFAULT current_timestamp,
+    updated_by  TEXT         NOT NULL DEFAULT current_user
 );
 
 CREATE TABLE mdf_app.group_schedule (
@@ -110,6 +111,55 @@ CREATE TABLE mdf_app.group_schedule (
     schedule_id  INT NOT NULL REFERENCES mdf_app.schedule(id) ON DELETE CASCADE,
     PRIMARY KEY (group_id, schedule_id)
 );
+-----------------------------------------------------------------------
+-- 2.5  Global and Group Profile/Settings tables
+-----------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS compute_profile (
+    id                SERIAL      PRIMARY KEY,
+    name              TEXT        UNIQUE NOT NULL,
+    description       TEXT,
+    policy_id         TEXT,                                     -- Optional: bind this template to a Databricks cluster-policy and store only the per-job overrides in cluster_json.
+    cluster_json      JSONB       NOT NULL,                     -- Pure Databricks ClusterSpec JSON. Everything but libraries here.
+    default_libraries JSONB       NOT NULL DEFAULT '[]'::jsonb, -- Array of `{pypi:{package:'xyz==1.2.3'}}` objects that should be attached to every task that uses this profile.
+    is_default        BOOLEAN     NOT NULL DEFAULT FALSE,       -- Workspace-wide default. A partial unique index (below) enforces at most one TRUE.
+    created_at        TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
+    created_by        TEXT        NOT NULL DEFAULT current_user,
+    updated_at        TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
+    updated_by        TEXT        NOT NULL DEFAULT current_user
+);
+-- Rule: only one row may have is_default = TRUE 
+CREATE UNIQUE INDEX IF NOT EXISTS ux_compute_profile_default
+    ON compute_profile (is_default)
+    WHERE is_default    -- partial index ⇒ affects only TRUE rows
+;
+--  Seed a sensible default compute profile
+INSERT INTO compute_profile
+        (name, description, cluster_json, default_libraries, is_default)
+VALUES  ('Default-SingleNode-Small',
+         'Single-node, D4s_v3 - good for orchestration or light jobs',
+         $${
+		    "spark_version": "17.1.x-scala2.13",
+		    "spark_conf": {
+		        "spark.databricks.cluster.profile": "singleNode"
+		    },
+		    "node_type_id": "Standard_D4s_v3",
+		    "custom_tags": {
+		        "lf": "orchestrator"
+		    },
+		    "autotermination_minutes": 0,
+		    "single_user_name": "patrick@techcat.ai",
+		    "data_security_mode": "SINGLE_USER",
+		    "kind": "CLASSIC_PREVIEW",
+		    "is_single_node": true,
+		    "num_workers": 0
+          }$$::jsonb,
+	      $$[
+            { "pypi": { "package": "databricks-sdk>=0.61.0" } },
+            { "pypi": { "package": "psycopg2-binary" } },
+            { "pypi": { "package": "databricks-labs-dqx==0.7.0" } }
+          ]$$::jsonb,
+         TRUE)
+ON CONFLICT (name) DO NOTHING;   -- safe re-runs
 
 /*======================================================================
   3.  CONFIG TABLES  (RAW & BRONZE)

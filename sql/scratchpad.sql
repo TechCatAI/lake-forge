@@ -10,6 +10,7 @@ SELECT * FROM zone;
 SELECT * FROM schedule;
 SELECT * FROM "group";
 SELECT * FROM group_schedule;
+SELECT * FROM compute_profile;
 
 --------------------------
 --- CORE CONFIG TABLES ---
