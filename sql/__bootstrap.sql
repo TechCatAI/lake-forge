@@ -396,7 +396,32 @@ LEFT   JOIN watermark_cache wc ON wc.table_config_id = rc.id AND wc.zone_id = 1 
 WHERE  rc.is_enabled = True;
 
 /*======================================================================
-  5.  HELPER VIEW  (bronze + raw + source_system)
+  5.  COST, PERFORMANCE, GOVERNANCE  (Profiling)
+======================================================================*/
+CREATE TABLE IF NOT EXISTS profile_cache (
+    table_config_id   INT       NOT NULL,                      -- raw_config.id or bronze_config.id
+    zone_id           SMALLINT  NOT NULL REFERENCES zone(id),  -- 1-raw, 2-bronze, 3-silver, 4-gold
+    profiled_at       TIMESTAMPTZ  NOT NULL DEFAULT current_timestamp,
+
+    /* run metadata */
+    sample_fraction   REAL      NOT NULL,                      -- 1.0 = full profile
+    row_count         BIGINT    NOT NULL,
+    size_bytes        BIGINT,                                  -- DESCRIBE DETAIL.sizeInBytes (optional)
+
+    /* profiler output */
+    summary_stats     JSONB     NOT NULL,                      -- `{col:{count:…, mean:…}, …}`
+    profiles_json     JSONB     NOT NULL,                      -- raw list of DQProfile objects
+                                                               -- (use json.dumps([p.as_dict() for p in profiles]))
+
+    /* bookkeeping */
+    updated_at        TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
+
+    PRIMARY KEY (table_config_id, zone_id)                     -- one current cache row per table+zone
+);
+COMMENT ON TABLE profile_cache IS 'Latest profiling statistics & generated DQ profiles per table/zone (cache for quick look-ups)';
+
+/*======================================================================
+  6.  HELPER VIEW  (bronze + raw + source_system)
 ======================================================================*/
 CREATE OR REPLACE VIEW vw_bronze_extended AS
 SELECT b.raw_config_id,

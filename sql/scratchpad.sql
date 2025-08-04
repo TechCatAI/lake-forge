@@ -23,6 +23,8 @@ SELECT * FROM watermark_cache;
 	DELETE FROM watermark_cache;
 SELECT * FROM table_schema_cache;
 -- SELECT * FROM mdf_app.table_group;
+SELECT * FROM profile_cache;
+	DELETE FROM profile
 
 --------------------------
 ----- LOGGING TABLES -----
@@ -58,6 +60,7 @@ SELECT * FROM vw_bronze_extended; -- view that will be called by RawToBronze (cl
 -- DROP TABLE mdf_app.zone_run;
 -- DROP TABLE mdf_app.batch_run;
 -- table config --
+-- DROP TABLE mdf_app.profile_cache;
 -- DROP TABLE mdf_app.table_schema_cache;
 -- DROP TABLE mdf_app.watermark_cache;
 -- DROP TABLE mdf_app.dq_rule;
@@ -65,6 +68,7 @@ SELECT * FROM vw_bronze_extended; -- view that will be called by RawToBronze (cl
 -- DROP TABLE mdf_app.bronze_config;
 -- DROP TABLE mdf_app.raw_config;
 -- core config --
+-- DROP TABLE mdf_app.compute_profile;
 -- DROP TABLE mdf_app.schedule;
 -- DROP TABLE mdf_app.group;
 -- DROP TABLE mdf_app.group_schedule;
