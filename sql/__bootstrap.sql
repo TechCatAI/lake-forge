@@ -408,7 +408,7 @@ CREATE TABLE IF NOT EXISTS dq_suggestion (
     rule_name         TEXT          NOT NULL,                                 -- e.g.  is_not_null
     rule_sql          TEXT          NOT NULL,                                 -- SQL expression or CHECK
     rule_params       JSONB         NOT NULL DEFAULT '{}'::jsonb,             -- extra knobs (min/max/in…)
-    severity          TEXT          NOT NULL DEFAULT 'error' CHECK (severity IN ('pass','warn','fail','drop')),
+    severity          TEXT          NOT NULL DEFAULT 'error' CHECK (severity IN ('warn','fail','drop')),
 
     /* provenance */
     profiled_at       TIMESTAMPTZ   NOT NULL,                                 -- timestamp from profile_cache
@@ -416,7 +416,7 @@ CREATE TABLE IF NOT EXISTS dq_suggestion (
 
     /* workflow */
     suggestion_status TEXT          NOT NULL DEFAULT 'new' CHECK (suggestion_status IN ('new','accepted','rejected','implemented', 'disabled')),
-    dq_rule_id        INT          REFERENCES dq_rule(id),                    -- filled when promoted
+    dq_rule_id        INT           REFERENCES dq_rule(id),                    -- filled when promoted
     note              TEXT,                                                   -- approver comments / reason
 
     /* bookkeeping */
