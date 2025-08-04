@@ -24,7 +24,9 @@ SELECT * FROM watermark_cache;
 SELECT * FROM table_schema_cache;
 -- SELECT * FROM mdf_app.table_group;
 SELECT * FROM profile_cache;
-	DELETE FROM profile
+	DELETE FROM profile_cache;
+SELECT * FROM dq_suggestion;
+	DELETE FROM dq_suggestion;
 
 --------------------------
 ----- LOGGING TABLES -----

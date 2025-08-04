@@ -363,8 +363,79 @@ CREATE TABLE IF NOT EXISTS dq_run (
 );
 
 /*======================================================================
-  5. HELPER VIEW:  raw               (zone_id = 1 → RAW)
+  5.  COST, PERFORMANCE, GOVERNANCE  (Profiling)
 ======================================================================*/
+-----------------------------------------------------------------------
+-- 5.1  profile_cache
+-----------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS profile_cache (
+	zone_id           SMALLINT  NOT NULL REFERENCES zone(id),  -- 1-raw, 2-bronze, 3-silver, 4-gold
+    table_config_id   INT       NOT NULL,                      -- raw_config.id or bronze_config.id
+
+    /* run metadata */
+    sample_fraction   REAL      NOT NULL,                      -- 1.0 = full profile; 0.5 = 50% of table profiled
+    sampled_row_count BIGINT    NOT NULL,					   -- Count of rows sampled to profile the data
+    size_bytes        BIGINT,                                  -- DESCRIBE DETAIL <table> to retrieve table's sizeInBytes 
+	profile_time_secs INT		NOT NULL,					   -- time it took (in seconds) to run profiling on data
+
+    /* profiler output */
+    summary_stats     JSONB     NOT NULL,                      -- `{col:{count:…, mean:…}, …}`
+    profiles_json     JSONB     NOT NULL,                      -- raw list of DQProfile objects
+                                                               -- (use json.dumps([p.as_dict() for p in profiles]))
+    /* bookkeeping */
+    profiled_at       TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
+
+    PRIMARY KEY (table_config_id, zone_id)                     -- one current cache row per table+zone
+);
+COMMENT ON TABLE profile_cache IS 'Latest profiling statistics & generated DQ profiles per table/zone (cache for quick look-ups)';
+
+-- helpful index if you ever keep many history rows instead of upserts
+CREATE INDEX IF NOT EXISTS ix_profile_cache_profiled_at
+    ON profile_cache (profiled_at DESC);
+
+-----------------------------------------------------------------------
+-- 5.2  dq_suggestion
+-----------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS dq_suggestion (
+    id               SERIAL        PRIMARY KEY,
+
+    /* where this suggestion applies */
+    table_config_id   INT           NOT NULL,
+    zone_id           SMALLINT      NOT NULL REFERENCES zone(id),             -- 1-raw / 2-bronze / 3-Silver
+    column_name       TEXT,                                                   -- NULL ⇒ table-wide rule
+
+    /* the proposed rule */
+    rule_name         TEXT          NOT NULL,                                 -- e.g.  is_not_null
+    rule_sql          TEXT          NOT NULL,                                 -- SQL expression or CHECK
+    rule_params       JSONB         NOT NULL DEFAULT '{}'::jsonb,             -- extra knobs (min/max/in…)
+    severity          TEXT          NOT NULL DEFAULT 'error' CHECK (severity IN ('pass','warn','fail','drop')),
+
+    /* provenance */
+    profiled_at       TIMESTAMPTZ   NOT NULL,                                 -- timestamp from profile_cache
+    confidence        REAL          NOT NULL DEFAULT 1.0,                     -- 0-1 heuristic
+
+    /* workflow */
+    suggestion_status TEXT          NOT NULL DEFAULT 'new' CHECK (suggestion_status IN ('new','accepted','rejected','implemented', 'disabled')),
+    dq_rule_id        INT          REFERENCES dq_rule(id),                    -- filled when promoted
+    note              TEXT,                                                   -- approver comments / reason
+
+    /* bookkeeping */
+    created_at        TIMESTAMPTZ   NOT NULL DEFAULT current_timestamp,
+    created_by        TEXT          NOT NULL DEFAULT current_user,
+    updated_at        TIMESTAMPTZ   NOT NULL DEFAULT current_timestamp,
+    updated_by        TEXT          NOT NULL DEFAULT current_user,
+
+    /* avoid duplicate suggestions for the same profile run */
+    UNIQUE (table_config_id, zone_id, column_name, rule_name, profiled_at)
+);
+COMMENT ON TABLE dq_suggestion IS 'Machine-generated data-quality rules awaiting human review (one row per rule candidate).';
+  
+/*======================================================================
+  6.  HELPER VIEW  (bronze + raw + source_system)
+======================================================================*/
+-----------------------------------------------------------------------
+-- 6.1  vw_raw_extended (Used to build raw control table for ingestion)
+-----------------------------------------------------------------------
 CREATE OR REPLACE VIEW vw_raw_extended AS
 SELECT
        rc.id                  AS raw_config_id,
@@ -395,34 +466,9 @@ LEFT   JOIN "group"      g     ON g.id  = rc.group_id
 LEFT   JOIN watermark_cache wc ON wc.table_config_id = rc.id AND wc.zone_id = 1    -- RAW
 WHERE  rc.is_enabled = True;
 
-/*======================================================================
-  5.  COST, PERFORMANCE, GOVERNANCE  (Profiling)
-======================================================================*/
-CREATE TABLE IF NOT EXISTS profile_cache (
-    table_config_id   INT       NOT NULL,                      -- raw_config.id or bronze_config.id
-    zone_id           SMALLINT  NOT NULL REFERENCES zone(id),  -- 1-raw, 2-bronze, 3-silver, 4-gold
-    profiled_at       TIMESTAMPTZ  NOT NULL DEFAULT current_timestamp,
-
-    /* run metadata */
-    sample_fraction   REAL      NOT NULL,                      -- 1.0 = full profile
-    row_count         BIGINT    NOT NULL,
-    size_bytes        BIGINT,                                  -- DESCRIBE DETAIL.sizeInBytes (optional)
-
-    /* profiler output */
-    summary_stats     JSONB     NOT NULL,                      -- `{col:{count:…, mean:…}, …}`
-    profiles_json     JSONB     NOT NULL,                      -- raw list of DQProfile objects
-                                                               -- (use json.dumps([p.as_dict() for p in profiles]))
-
-    /* bookkeeping */
-    updated_at        TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
-
-    PRIMARY KEY (table_config_id, zone_id)                     -- one current cache row per table+zone
-);
-COMMENT ON TABLE profile_cache IS 'Latest profiling statistics & generated DQ profiles per table/zone (cache for quick look-ups)';
-
-/*======================================================================
-  6.  HELPER VIEW  (bronze + raw + source_system)
-======================================================================*/
+-----------------------------------------------------------------------
+-- 6.2  vw_bronze_extended (Used to build bronze control table for ingestion)
+-----------------------------------------------------------------------
 CREATE OR REPLACE VIEW vw_bronze_extended AS
 SELECT b.raw_config_id,
 	   b.id AS bronze_config_id,
