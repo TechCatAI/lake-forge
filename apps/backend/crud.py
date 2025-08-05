@@ -14,6 +14,8 @@ from models import (
     DQRuleIn,
     DQRuleOut,
     DQRuleUpdate,
+    DQSuggestionOut,
+    DQSuggestionUpdate,
     GroupIn,
     GroupOut,
     GroupUpdate,
@@ -324,6 +326,114 @@ def delete_rule(id: int) -> None:
         cur.execute("DELETE FROM mdf_app.dq_rule WHERE id = %s", (id,))
         if cur.rowcount == 0:
             raise HTTPException(status_code=404, detail="Rule not found")
+
+
+def list_dq_suggestions() -> list[DQSuggestionOut]:
+    q = """
+    SELECT s.*, bc.catalog||'.'||bc.schema_name||'.'||bc.table_name AS table_name
+      FROM mdf_app.dq_suggestion s
+      JOIN mdf_app.bronze_config bc ON bc.id = s.table_config_id
+     ORDER BY profiled_at DESC;
+    """
+    with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(q)
+        rows = cur.fetchall()
+    return [DQSuggestionOut(**row) for row in rows]
+
+
+def update_dq_suggestion(id: int, delta: DQSuggestionUpdate) -> DQSuggestionOut:
+    fields = delta.dict(exclude_none=True)
+    user = fields.pop("updated_by", None) or "system"
+    stmt, params = build_update_sql("mdf_app.dq_suggestion", fields)
+    params.update({"id": id, "updated_by": user})
+    with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(stmt, params)
+        row = cur.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Suggestion not found")
+    return DQSuggestionOut(**row)
+
+
+def bulk_update_dq_suggestions(ids: list[int], status: str) -> None:
+    if status not in {"accepted", "rejected"}:
+        raise ValueError("status must be 'accepted' or 'rejected'")
+    with get_conn() as c, c.cursor() as cur:
+        cur.execute(
+            """
+            UPDATE mdf_app.dq_suggestion
+               SET suggestion_status = %s,
+                   updated_at = now(),
+                   updated_by = 'system'
+             WHERE id = ANY(%s)
+             RETURNING id;
+            """,
+            (status, ids),
+        )
+        rows = cur.fetchall()
+        if len(rows) != len(ids):
+            raise HTTPException(status_code=404, detail="Suggestion not found")
+
+
+def implement_dq_suggestions(ids: list[int], user: str) -> list[int]:
+    if not ids:
+        return []
+    with get_conn() as conn:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(
+                """
+                SELECT id, table_config_id, rule_name, rule_sql, severity, suggestion_status
+                  FROM mdf_app.dq_suggestion
+                 WHERE id = ANY(%s)
+                 FOR UPDATE;
+                """,
+                (ids,),
+            )
+            rows = cur.fetchall()
+            if len(rows) != len(ids):
+                raise HTTPException(status_code=404, detail="Suggestion not found")
+            for row in rows:
+                if row["suggestion_status"] != "accepted":
+                    raise HTTPException(status_code=409, detail="Suggestion not accepted")
+
+            rule_ids: list[int] = []
+            for row in rows:
+                cur.execute(
+                    """
+                    INSERT INTO mdf_app.dq_rule
+                        (bronze_config_id, rule_name, rule_sql, severity, is_enabled, created_by, updated_by)
+                    VALUES (%s, %s, TRIM(%s), %s, true, %s, %s)
+                    ON CONFLICT (bronze_config_id, rule_name)
+                    DO UPDATE SET
+                        rule_sql = EXCLUDED.rule_sql,
+                        severity = EXCLUDED.severity,
+                        updated_at = now(),
+                        updated_by = EXCLUDED.updated_by
+                    RETURNING id;
+                    """,
+                    (
+                        row["table_config_id"],
+                        row["rule_name"],
+                        row["rule_sql"],
+                        row["severity"],
+                        user,
+                        user,
+                    ),
+                )
+                rule_id = cur.fetchone()["id"]
+                rule_ids.append(rule_id)
+                cur.execute(
+                    """
+                    UPDATE mdf_app.dq_suggestion
+                       SET suggestion_status = 'implemented',
+                           dq_rule_id = %s,
+                           updated_at = now(),
+                           updated_by = %s
+                     WHERE id = %s;
+                    """,
+                    (rule_id, user, row["id"]),
+                )
+        conn.commit()
+    return rule_ids
 
 
 def list_groups() -> list[GroupOut]:
