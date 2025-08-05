@@ -178,6 +178,44 @@ class DQRuleUpdate(BaseModel):
     updated_by: Optional[str] = None
 
 
+# ---------- DQSuggestion ----------
+class DQSuggestionOut(BaseModel):
+    id: int
+    table_config_id: int
+    table_name: str
+    rule_name: str
+    rule_sql: str
+    severity: Literal["warn", "fail", "drop"]
+    suggestion_status: Literal[
+        "new", "accepted", "rejected", "implemented", "disabled"
+    ]
+    profiled_at: dt.datetime
+    note: Optional[str] = None
+
+
+class DQSuggestionUpdate(BaseModel):
+    class Config:
+        extra = "forbid"
+
+    rule_name: Optional[str] = None
+    rule_sql: Optional[str] = None
+    severity: Optional[Literal["warn", "fail", "drop"]] = None
+    note: Optional[str] = None
+    suggestion_status: Optional[
+        Literal["new", "accepted", "rejected", "implemented", "disabled"]
+    ] = None
+    updated_by: Optional[str] = None
+
+
+class BulkActionIn(BaseModel):
+    ids: List[int]
+    action: Literal["accept", "reject"]
+
+
+class IdsIn(BaseModel):
+    ids: List[int]
+
+
 # ---------- ComputeProfile ----------
 class ComputeProfileBase(BaseModel):
     name: constr(strip_whitespace=True, min_length=1)
