@@ -23,7 +23,6 @@ const navItems = [
   { title: 'Raw Config',     url: '/raw-config',    icon: Bolt,             navGroup: 'Configuration' },
   { title: 'Bronze Config',  url: '/bronze-config', icon: Layers,           navGroup: 'Configuration' },
   { title: 'DQ Rules',       url: '/dq-rules',      icon: ListChecks,       navGroup: 'Data Quality'  },
-  { title: 'DQ Suggestions', url: '/dq-suggestions', icon: ListChecks,     navGroup: 'Data Quality'  },
   { title: 'Compute Profiles', url: '/compute-profile', icon: Cpu, navGroup: 'Settings' },
 ]
 

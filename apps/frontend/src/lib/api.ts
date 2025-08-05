@@ -120,58 +120,6 @@ export async function deleteRule(id: number): Promise<void> {
   }
 }
 
-// ----- DQ Suggestions -----
-export interface DQSuggestion {
-  id: number
-  table_name: string
-  rule_name: string
-  rule_sql: string
-  severity: 'warn' | 'fail' | 'drop'
-  suggestion_status: 'new' | 'accepted' | 'rejected' | 'implemented' | 'disabled'
-  profiled_at: string
-  note: string | null
-}
-
-export async function fetchDQSuggestions(): Promise<DQSuggestion[]> {
-  const res = await fetch('/api/dq-suggestions')
-  if (!res.ok) throw (await res.json()) as APIError
-  return res.json()
-}
-
-export async function updateDQSuggestion(
-  id: number,
-  payload: Partial<Pick<DQSuggestion, 'rule_name' | 'rule_sql' | 'severity' | 'note' | 'suggestion_status'>>,
-): Promise<DQSuggestion> {
-  const res = await fetch(`/api/dq-suggestions/${id}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  })
-  if (!res.ok) throw (await res.json()) as APIError
-  return res.json()
-}
-
-export async function bulkUpdateDQSuggestions(
-  ids: number[],
-  action: 'accept' | 'reject',
-): Promise<void> {
-  const res = await fetch('/api/dq-suggestions/bulk', {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ids, action }),
-  })
-  if (!res.ok) throw (await res.json()) as APIError
-}
-
-export async function implementDQSuggestions(ids: number[]): Promise<void> {
-  const res = await fetch('/api/dq-suggestions/implement', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ids }),
-  })
-  if (!res.ok) throw (await res.json()) as APIError
-}
-
 export interface Group {
   id: number
   name: string
