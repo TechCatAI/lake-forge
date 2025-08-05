@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { flexRender, Row, Table, RowModel, type RowData } from "@tanstack/react-table";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronsUp, ChevronsDown, ChevronsUpDown } from "lucide-react";
