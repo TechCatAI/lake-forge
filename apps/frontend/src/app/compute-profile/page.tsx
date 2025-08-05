@@ -11,7 +11,6 @@ import {
 import LoadingSpinner from "../../components/LoadingSpinner";
 import { toast } from "sonner";
 import { EditableCell } from "../../components/EditableCell";
-import { JsonEditorCell } from "../../components/JsonEditorCell";
 import Switch from "../../components/ui/switch";
 import Button from "../../components/ui/button";
 import GradientText from "../../components/GradientText";
@@ -184,9 +183,17 @@ export default function ComputeProfilePage() {
       accessorKey: "cluster_json",
       header: "Cluster JSON",
       cell: ({ row, getValue }) => (
-        <JsonEditorCell
-          initialValue={getValue<Record<string, unknown>>() ?? {}}
+        <EditableCell
+          initialValue={getValue<Record<string, unknown>>()}
           onSave={(v) => handleEdit(row.original.id, "cluster_json", v)}
+          format={(v) => JSON.stringify(v ?? {})}
+          parse={(v) => {
+            try {
+              return JSON.parse(v);
+            } catch {
+              return {};
+            }
+          }}
           className="text-left"
         />
       ),
