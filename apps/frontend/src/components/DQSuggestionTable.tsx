@@ -155,7 +155,23 @@ export default function DQSuggestionTable({ suggestions, refresh }: Props) {
       ),
     },
     { accessorKey: 'suggestion_status', header: 'suggestion_status' },
-    { accessorKey: 'profiled_at', header: 'profiled_at' },
+    {
+      accessorKey: 'profiled_at',
+      header: 'profiled_at',
+      cell: ({ getValue }) => {
+        const val = getValue<string>()
+        if (!val) return <div className="text-right">&mdash;</div>
+        const date = new Date(val)
+        return (
+          <div className="text-right">
+            {date.toLocaleString('en-US', {
+              dateStyle: 'short',
+              timeStyle: 'short',
+            })}
+          </div>
+        )
+      },
+    },
     {
       accessorKey: 'note',
       header: 'note',
