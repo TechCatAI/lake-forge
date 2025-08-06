@@ -228,7 +228,7 @@ export default function BronzeConfigPage() {
       header: 'Raw Config',
       cell: ({ row, getValue }) => (
         <select
-          className="border rounded px-1"
+          className="border rounded px-1 w-full max-w-[16rem] truncate"
           defaultValue={getValue<number>()}
           onChange={(e) => handleEdit(row.original.id, 'raw_config_id', Number(e.target.value))}
         >
