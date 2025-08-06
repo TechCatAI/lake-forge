@@ -5,13 +5,6 @@ import { JsonEditor, githubDarkTheme } from 'json-edit-react'
 import { cn } from '../lib/utils'
 import Spinner from './Spinner'
 import Button from './ui/button'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetFooter,
-  SheetTitle,
-} from './ui/sheet'
 
 export interface JsonEditorCellProps<T extends object> {
   initialValue: T
@@ -72,32 +65,32 @@ export function JsonEditorCellInner<T extends object>({
       >
         {JSON.stringify(initialValue ?? {})}
       </div>
-      <Sheet
-        open={open}
-        onOpenChange={(o) => {
-          setOpen(o)
-          if (!o) setValue(initialValue)
-        }}
-      >
-        <SheetContent side="bottom" className="h-[80vh] flex flex-col">
-          <SheetHeader>
-            <SheetTitle>Edit JSON</SheetTitle>
-          </SheetHeader>
-          <div className="flex-1 overflow-auto">
-            <JsonEditor
-              data={value}
-              setData={(d) => setValue(d as T)}
-              theme={githubDarkTheme}
-            />
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50" onClick={handleCancel} />
+          <div
+            className={cn(
+              'relative bg-background rounded-sm shadow-lg w-[80vw] max-w-2xl h-[80vh] flex flex-col p-4',
+              'animate-in fade-in-0 zoom-in-95',
+            )}
+          >
+            <h2 className="font-semibold mb-2">Edit JSON</h2>
+            <div className="flex-1 overflow-auto">
+              <JsonEditor
+                data={value}
+                setData={(d) => setValue(d as T)}
+                theme={githubDarkTheme}
+              />
+            </div>
+            <div className="mt-4 flex justify-end gap-2">
+              <Button onClick={handleSave}>Save</Button>
+              <Button variant="outline" onClick={handleCancel}>
+                Cancel
+              </Button>
+            </div>
           </div>
-          <SheetFooter className="flex-row justify-end gap-2">
-            <Button onClick={handleSave}>Save</Button>
-            <Button variant="outline" onClick={handleCancel}>
-              Cancel
-            </Button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
+        </div>
+      )}
     </>
   )
 }
