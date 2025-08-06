@@ -1,6 +1,12 @@
 'use client'
 import React, { useState, useEffect } from 'react'
-import { ColumnDef, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import {
+  ColumnDef,
+  SortingState,
+  getCoreRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from '@tanstack/react-table'
 import DataTable from './DataTable'
 import { EditableCell } from './EditableCell'
 import Button from './ui/button'
@@ -21,6 +27,7 @@ interface Props {
 export default function DQSuggestionTable({ suggestions, refresh }: Props) {
   const [data, setData] = useState<DQSuggestion[]>([])
   const [selected, setSelected] = useState<Set<number>>(new Set())
+  const [sorting, setSorting] = useState<SortingState>([])
 
   useEffect(() => setData(suggestions), [suggestions])
 
@@ -93,6 +100,7 @@ export default function DQSuggestionTable({ suggestions, refresh }: Props) {
   const columns: ColumnDef<DQSuggestion>[] = [
     {
       id: 'select',
+      enableSorting: false,
       header: () => (
         <input
           type="checkbox"
@@ -123,11 +131,10 @@ export default function DQSuggestionTable({ suggestions, refresh }: Props) {
       accessorKey: 'rule_sql',
       header: 'rule_sql',
       cell: ({ row }) => (
-        <textarea
-          className="border w-60 h-24 bg-background p-1"
-          value={row.original.rule_sql}
-          onChange={(e) => updateLocal(row.original.id, { rule_sql: e.target.value })}
-          onBlur={(e) => handleEdit(row.original.id, 'rule_sql', e.target.value)}
+        <EditableCell
+          className="w-60"
+          initialValue={row.original.rule_sql}
+          onSave={(v) => handleEdit(row.original.id, 'rule_sql', v)}
         />
       ),
     },
@@ -161,16 +168,22 @@ export default function DQSuggestionTable({ suggestions, refresh }: Props) {
     },
   ]
 
-  const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel() })
+  const table = useReactTable({
+    data,
+    columns,
+    state: { sorting },
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  })
 
   const anySelected = selected.size > 0
   const allAccepted = anySelected && Array.from(selected).every((id) => data.find((r) => r.id === id)?.suggestion_status === 'accepted')
 
   return (
     <div className="space-y-2">
-      <DataTable table={table} />
       {anySelected && (
-        <div className="flex gap-2">
+        <div className="flex justify-end gap-2">
           <Button onClick={() => bulk('accept')}>Accept</Button>
           <Button onClick={() => bulk('reject')}>Reject</Button>
           <Button disabled={!allAccepted} onClick={submit}>
@@ -178,6 +191,7 @@ export default function DQSuggestionTable({ suggestions, refresh }: Props) {
           </Button>
         </div>
       )}
+      <DataTable table={table} />
     </div>
   )
 }

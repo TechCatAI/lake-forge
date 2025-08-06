@@ -67,24 +67,32 @@ export default function DataTable<T extends RowData>({
                     : sorted === "desc"
                     ? ChevronsDown
                     : ChevronsUpDown;
+                const canSort = header.column.getCanSort();
                 return (
                   <th
                     key={header.id}
                     className="px-3 py-2 text-center
-                               whitespace-nowrap w-max 
+                               whitespace-nowrap w-max
                                first:rounded-tl-[calc(var(--radius)-3px)]
                                last:rounded-tr-[calc(var(--radius)-3px)]"
                   >
-                    <button
-                      className="inline-flex items-center gap-1 select-none"
-                      onClick={header.column.getToggleSortingHandler()}
-                    >
-                      {flexRender(
+                    {canSort ? (
+                      <button
+                        className="inline-flex items-center gap-1 select-none"
+                        onClick={header.column.getToggleSortingHandler()}
+                      >
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                        <Icon className="h-3 w-3" />
+                      </button>
+                    ) : (
+                      flexRender(
                         header.column.columnDef.header,
                         header.getContext()
-                      )}
-                      <Icon className="h-3 w-3" />
-                    </button>
+                      )
+                    )}
                   </th>
                 );
               })}
