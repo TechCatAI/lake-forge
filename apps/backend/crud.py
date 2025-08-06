@@ -344,8 +344,29 @@ def list_dq_suggestions() -> list[DQSuggestionOut]:
 def update_dq_suggestion(id: int, delta: DQSuggestionUpdate) -> DQSuggestionOut:
     fields = delta.dict(exclude_none=True)
     user = fields.pop("updated_by", None) or "system"
-    stmt, params = build_update_sql("mdf_app.dq_suggestion", fields)
-    params.update({"id": id, "updated_by": user})
+    if not fields:
+        raise ValueError("No fields provided")
+
+    assignments = [sql.SQL(f"{col} = %({col})s") for col in fields.keys()]
+    assignments.append(sql.SQL("updated_at = now()"))
+    assignments.append(sql.SQL("updated_by = %(updated_by)s"))
+
+    stmt = sql.SQL(
+        """
+        UPDATE mdf_app.dq_suggestion
+           SET {assign}
+         WHERE id = %(id)s
+     RETURNING *,
+               (
+                   SELECT bc.catalog||'.'||bc.schema_name||'.'||bc.table_name
+                     FROM mdf_app.bronze_config bc
+                    WHERE bc.id = mdf_app.dq_suggestion.table_config_id
+               ) AS table_name;
+        """
+    ).format(assign=sql.SQL(", ").join(assignments))
+
+    params = {**fields, "id": id, "updated_by": user}
+
     with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(stmt, params)
         row = cur.fetchone()
