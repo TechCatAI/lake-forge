@@ -41,7 +41,7 @@ export default function DataTable<T extends RowData>({
                     overflow-x-auto overflow-y-auto p-5
                     backdrop-blur-sm">
       {/* ─── DATA TABLE ─────────────────────────────────────────────── */}
-        <table className="w-full min-w-max table-auto text-sm border-collapse
+        <table className="w-full table-auto text-sm border-collapse
                           border border-[color:var(--border)/60]
                           rounded-[calc(var(--radius)-2px)] overflow-hidden
                           bg-[color-mix(in_lab,var(--background),white_7%)]">
@@ -71,8 +71,7 @@ export default function DataTable<T extends RowData>({
                 return (
                   <th
                     key={header.id}
-                    className="px-3 py-2 text-center
-                               whitespace-nowrap w-max
+                    className="px-3 py-2 text-center whitespace-nowrap max-w-[16rem]
                                first:rounded-tl-[calc(var(--radius)-3px)]
                                last:rounded-tr-[calc(var(--radius)-3px)]"
                   >
@@ -127,7 +126,7 @@ export default function DataTable<T extends RowData>({
                   <td
                     key={cell.id}
                     className={cn(
-                      "px-6 py-4 text-left",
+                      "px-6 py-4 text-left max-w-[16rem] break-words",
                       stickyFirstCol &&
                         idx === 0 &&
                         "sticky left-0 bg-[color:var(--card)]"
