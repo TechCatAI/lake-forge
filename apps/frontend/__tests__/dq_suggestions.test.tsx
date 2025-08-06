@@ -35,6 +35,14 @@ describe('dq suggestions page', () => {
     await waitFor(() => expect(update).toHaveBeenCalled())
   })
 
+  it('formats profiled_at column', async () => {
+    vi.spyOn(api, 'fetchDQSuggestions').mockResolvedValue(SAMPLE)
+    render(<DQSuggestionsPage />)
+    expect(
+      await screen.findByText('1/1/24, 12:00 AM'),
+    ).toBeInTheDocument()
+  })
+
   it('accept/reject toggles status', async () => {
     vi.spyOn(api, 'fetchDQSuggestions').mockResolvedValue(SAMPLE)
     vi.spyOn(api, 'updateDQSuggestion').mockResolvedValue(SAMPLE[0])
