@@ -11,6 +11,7 @@ import {
 import LoadingSpinner from '../../components/LoadingSpinner'
 import { toast } from 'sonner'
 import { EditableCell } from '../../components/EditableCell'
+import { JsonEditorCell } from '../../components/JsonEditorCell'
 import Switch from '../../components/ui/switch'
 import Button from '../../components/ui/button'
 import GradientText from '../../components/GradientText'
@@ -339,17 +340,9 @@ export default function BronzeConfigPage() {
       accessorKey: 'ingest_options',
       header: 'Ingest Options',
       cell: ({ row, getValue }) => (
-        <EditableCell
-          initialValue={getValue<Record<string, unknown>>()}
+        <JsonEditorCell
+          initialValue={getValue<Record<string, unknown>>() ?? {}}
           onSave={(v) => handleEdit(row.original.id, 'ingest_options', v)}
-          format={(v) => JSON.stringify(v ?? {})}
-          parse={(v) => {
-            try {
-              return JSON.parse(v)
-            } catch {
-              return {}
-            }
-          }}
           className="text-left"
         />
       ),
