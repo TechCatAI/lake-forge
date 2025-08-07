@@ -24,7 +24,16 @@ GROUP_ROW = {
     "compute_profile_id": None,
     "updated_at": None,
 }
-SCHED_ROW = {"id": 1, "name": "s", "description": None, "days": [1], "times": ["05:00"], "is_enabled": True, "updated_at": None}
+SCHED_ROW = {
+    "id": 1,
+    "name": "s",
+    "description": None,
+    "month_days": [],
+    "weekdays": [1],
+    "times": ["05:00"],
+    "is_enabled": True,
+    "updated_at": None,
+}
 
 
 def stub_create_group(p: GroupIn) -> GroupOut:
@@ -93,7 +102,14 @@ def test_schedules_flow(monkeypatch):
     assert resp.json() == []
 
     monkeypatch.setattr(crud, "create_schedule", stub_create_schedule)
-    payload = {"name": "s", "description": None, "days": [1], "times": ["05:00"], "is_enabled": True}
+    payload = {
+        "name": "s",
+        "description": None,
+        "month_days": [],
+        "weekdays": [1],
+        "times": ["05:00"],
+        "is_enabled": True,
+    }
     resp = client.post("/api/schedules", json=payload)
     assert resp.status_code == 201
     assert resp.json()["id"] == 1
@@ -113,10 +129,21 @@ def test_schedules_flow(monkeypatch):
 
 
 def test_schedule_validation_errors():
-    payload = {"name": "bad", "days": [8], "times": ["05:00"], "is_enabled": True}
+    payload = {"name": "bad", "weekdays": [8], "times": ["05:00"], "is_enabled": True}
     resp = client.post("/api/schedules", json=payload)
     assert resp.status_code == 422
 
-    payload = {"name": "bad", "days": [1], "times": ["25:00"], "is_enabled": True}
+    payload = {"name": "bad", "weekdays": [1], "times": ["25:00"], "is_enabled": True}
+
+    resp = client.post("/api/schedules", json=payload)
+    assert resp.status_code == 422
+
+    payload = {
+        "name": "bad",
+        "month_days": [1],
+        "weekdays": [1],
+        "times": ["05:00"],
+        "is_enabled": True,
+    }
     resp = client.post("/api/schedules", json=payload)
     assert resp.status_code == 422

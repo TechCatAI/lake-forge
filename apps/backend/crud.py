@@ -551,8 +551,8 @@ def list_schedules() -> list[ScheduleOut]:
 
 def create_schedule(p: ScheduleIn) -> ScheduleOut:
     q = (
-        "INSERT INTO mdf_app.schedule (name, description, days, times, is_enabled, created_by, updated_by) "
-        "VALUES (%(name)s, %(description)s, %(days)s, %(times)s, %(is_enabled)s, %(user)s, %(user)s) RETURNING *;"
+        "INSERT INTO mdf_app.schedule (name, description, month_days, weekdays, times, is_enabled, created_by, updated_by) "
+        "VALUES (%(name)s, %(description)s, %(month_days)s, %(weekdays)s, %(times)s, %(is_enabled)s, %(user)s, %(user)s) RETURNING *;"
     )
     data = p.dict()
     data["times"] = [dt.time.fromisoformat(t) for t in data["times"]]
