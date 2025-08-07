@@ -19,6 +19,7 @@ export interface AddPayload {
   is_enabled: boolean;
   is_raw: boolean;
   is_bronze: boolean;
+  is_dlt: boolean;
   schedule_id: number | null;
   compute_profile_id: number | null;
 }
@@ -31,6 +32,7 @@ export default function AddGroupDialog({ onCreate }: { onCreate(g: Group): void 
     is_enabled: true,
     is_raw: false,
     is_bronze: false,
+    is_dlt: false,
     schedule_id: null,
     compute_profile_id: null,
   });
@@ -63,6 +65,7 @@ export default function AddGroupDialog({ onCreate }: { onCreate(g: Group): void 
         is_enabled: true,
         is_raw: false,
         is_bronze: false,
+        is_dlt: false,
         schedule_id: null,
         compute_profile_id: null,
       });

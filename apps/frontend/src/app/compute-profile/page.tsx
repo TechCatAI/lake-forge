@@ -195,17 +195,9 @@ export default function ComputeProfilePage() {
       accessorKey: "default_libraries",
       header: "Default Libraries",
       cell: ({ row, getValue }) => (
-        <EditableCell
-          initialValue={getValue<Array<Record<string, unknown>>>()} 
+        <JsonEditorCell
+          initialValue={getValue<Array<Record<string, unknown>>>() ?? []}
           onSave={(v) => handleEdit(row.original.id, "default_libraries", v)}
-          format={(v) => JSON.stringify(v ?? [])}
-          parse={(v) => {
-            try {
-              return JSON.parse(v);
-            } catch {
-              return [];
-            }
-          }}
           className="text-left"
         />
       ),

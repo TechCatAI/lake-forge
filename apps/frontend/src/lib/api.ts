@@ -179,6 +179,7 @@ export interface Group {
   is_enabled: boolean
   is_raw: boolean
   is_bronze: boolean
+  is_dlt: boolean
   schedule_id: number | null
   compute_profile_id: number | null
   updated_at: string | null
@@ -381,8 +382,7 @@ export interface BronzeConfig {
   load_type: 'full' | 'incremental' | 'append' | 'mergedelete'
   is_stream: boolean
   pk_columns: string[]
-  partition_cols: string[] | null
-  zorder_cols: string[] | null
+  clusterby_cols: string[] | null
   watermark_col: string | null
   scd_type: number | null
   ingest_options: Record<string, unknown>

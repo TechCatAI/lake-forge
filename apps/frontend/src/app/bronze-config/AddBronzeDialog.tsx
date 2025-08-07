@@ -22,8 +22,7 @@ export interface AddPayload {
   load_type: 'full' | 'incremental' | 'append' | 'mergedelete'
   is_stream: boolean
   pk_columns: string
-  partition_cols: string
-  zorder_cols: string
+  clusterby_cols: string
   watermark_col: string
   scd_type: number | null
   ingest_options: string
@@ -42,8 +41,7 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
     load_type: 'full',
     is_stream: false,
     pk_columns: '',
-    partition_cols: '',
-    zorder_cols: '',
+    clusterby_cols: '',
     watermark_col: '',
     scd_type: null,
     ingest_options: '{}',
@@ -86,8 +84,9 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
         load_type: form.load_type,
         is_stream: form.is_stream,
         pk_columns: form.pk_columns.split(/\s*,\s*/).filter(Boolean),
-        partition_cols: form.partition_cols ? form.partition_cols.split(/\s*,\s*/).filter(Boolean) : [],
-        zorder_cols: form.zorder_cols ? form.zorder_cols.split(/\s*,\s*/).filter(Boolean) : [],
+        clusterby_cols: form.clusterby_cols
+          ? form.clusterby_cols.split(/\s*,\s*/).filter(Boolean)
+          : [],
         watermark_col: form.watermark_col || null,
         scd_type: form.scd_type,
         ingest_options: JSON.parse(form.ingest_options || '{}') as Record<string, unknown>,
@@ -107,8 +106,7 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
         load_type: 'full',
         is_stream: false,
         pk_columns: '',
-        partition_cols: '',
-        zorder_cols: '',
+        clusterby_cols: '',
         watermark_col: '',
         scd_type: null,
         ingest_options: '{}',
@@ -205,6 +203,12 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
               placeholder="id,date"
               value={form.pk_columns}
               onChange={(e) => setForm({ ...form, pk_columns: e.target.value })}
+            />
+            <input
+              className="border w-full px-1"
+              placeholder="Liquid Clustering"
+              value={form.clusterby_cols}
+              onChange={(e) => setForm({ ...form, clusterby_cols: e.target.value })}
             />
             <input
               className="border w-full px-1"

@@ -19,6 +19,7 @@ GROUP_ROW = {
     "is_enabled": True,
     "is_raw": False,
     "is_bronze": True,
+    "is_dlt": False,
     "schedule_id": None,
     "compute_profile_id": None,
     "updated_at": None,

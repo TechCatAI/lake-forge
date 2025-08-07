@@ -369,25 +369,12 @@ export default function BronzeConfigPage() {
       ),
     },
     {
-      accessorKey: 'partition_cols',
-      header: 'Partition Cols',
+      accessorKey: 'clusterby_cols',
+      header: 'Liquid Clustering',
       cell: ({ row, getValue }) => (
         <EditableCell
           initialValue={getValue<string[] | null>() ?? []}
-          onSave={(v) => handleEdit(row.original.id, 'partition_cols', Array.isArray(v) && v.length ? v : [])}
-          parse={(v) => v.split(',').map((s) => s.trim()).filter(Boolean)}
-          format={(v) => (Array.isArray(v) ? v.join(', ') : '')}
-          className="text-left"
-        />
-      ),
-    },
-    {
-      accessorKey: 'zorder_cols',
-      header: 'Z-Order Cols',
-      cell: ({ row, getValue }) => (
-        <EditableCell
-          initialValue={getValue<string[] | null>() ?? []}
-          onSave={(v) => handleEdit(row.original.id, 'zorder_cols', Array.isArray(v) && v.length ? v : [])}
+          onSave={(v) => handleEdit(row.original.id, 'clusterby_cols', Array.isArray(v) && v.length ? v : [])}
           parse={(v) => v.split(',').map((s) => s.trim()).filter(Boolean)}
           format={(v) => (Array.isArray(v) ? v.join(', ') : '')}
           className="text-left"

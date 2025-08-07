@@ -68,8 +68,7 @@ class BronzeConfigBase(BaseModel):
     load_type: Literal["full", "incremental", "append", "mergedelete"]
     is_stream: bool = False
     pk_columns: List[str]
-    partition_cols: Optional[List[str]] = None
-    zorder_cols: Optional[List[str]] = None
+    clusterby_cols: Optional[List[str]] = None
     watermark_col: Optional[str] = None
     scd_type: Optional[int] = 0
     ingest_options: dict = {}
@@ -78,7 +77,7 @@ class BronzeConfigBase(BaseModel):
 
 
 class BronzeConfigIn(BronzeConfigBase):
-    @validator("pk_columns", "partition_cols", "zorder_cols", pre=True)
+    @validator("pk_columns", "clusterby_cols", pre=True)
     def _parse_list(cls, v):
         if v is None or v == "":
             return []
@@ -117,8 +116,7 @@ class BronzeConfigUpdate(BaseModel):
     load_type: Optional[Literal["full", "incremental", "append", "mergedelete"]] = None
     is_stream: Optional[bool] = None
     pk_columns: Optional[List[str] | str] = None
-    partition_cols: Optional[List[str] | str] = None
-    zorder_cols: Optional[List[str] | str] = None
+    clusterby_cols: Optional[List[str] | str] = None
     watermark_col: Optional[str] = None
     scd_type: Optional[int] = None
     ingest_options: Optional[dict] = None
@@ -126,7 +124,7 @@ class BronzeConfigUpdate(BaseModel):
     is_enabled: Optional[bool] = None
     updated_by: Optional[str] = None
 
-    @validator("pk_columns", "partition_cols", "zorder_cols", pre=True)
+    @validator("pk_columns", "clusterby_cols", pre=True)
     def _parse_list_u(cls, v):
         if v is None or v == "":
             return []
@@ -257,6 +255,7 @@ class GroupBase(BaseModel):
     is_bronze: bool = False
     schedule_id: Optional[int] = None
     compute_profile_id: Optional[int] = None
+    is_dlt: bool = False
 
 
 class GroupIn(GroupBase):
@@ -279,6 +278,7 @@ class GroupUpdate(BaseModel):
     is_bronze: Optional[bool] = None
     schedule_id: Optional[int] = None
     compute_profile_id: Optional[int] = None
+    is_dlt: Optional[bool] = None
 
 
 # ---------- Schedule ----------
