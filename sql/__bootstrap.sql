@@ -77,9 +77,10 @@ ON CONFLICT (id) DO NOTHING;
 -- 2.4  Group / Schedule tables
 -----------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS schedule (
-    id		     SERIAL PRIMARY KEY,
-    name         TEXT UNIQUE NOT NULL,
+    id		     SERIAL      PRIMARY KEY,
+    name         TEXT        UNIQUE NOT NULL,
     description  TEXT,
+	month_days   SMALLINT[]  NOT NULL DEFAULT '{}',
     days         SMALLINT[]  NOT NULL DEFAULT '{}',   -- Sunday-Saturday
     times        TIME[]      NOT NULL DEFAULT '{}',   -- ‘05:00’, ‘18:30’ …
     is_enabled   BOOLEAN     NOT NULL DEFAULT TRUE,
@@ -89,6 +90,10 @@ CREATE TABLE IF NOT EXISTS schedule (
     updated_by   TEXT        NOT NULL DEFAULT current_user,
     CONSTRAINT   chk_days_range  CHECK (days <@ '{0,1,2,3,4,5,6}'::SMALLINT[]),
     CONSTRAINT   chk_times_not_empty CHECK (array_length(times,1) > 0)
+	ADD CONSTRAINT chk_month_days_range -- 0 = “last day of month” by convention
+        CHECK (month_days <@ array[0,1,2,3,4,5,6,7,8,9,
+                                   10,11,12,13,14,15,16,17,18,19,
+                                   20,21,22,23,24,25,26,27,28,29,30,31]::SMALLINT[])
 );
 
 CREATE TABLE IF NOT EXISTS "group" (
