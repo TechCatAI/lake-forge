@@ -273,7 +273,7 @@ export interface Schedule {
   id: number
   name: string
   description: string | null
-  month_days: number[]
+  month_days: string[]
   weekdays: number[]
   times: string[]
   is_enabled: boolean

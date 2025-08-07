@@ -285,7 +285,7 @@ class GroupUpdate(BaseModel):
 class ScheduleBase(BaseModel):
     name: constr(strip_whitespace=True, min_length=1)
     description: Optional[str] = None
-    month_days: list[int] = []
+    month_days: list[str] = []
     weekdays: list[int] = []
     times: list[str] = []
     is_enabled: bool = True
@@ -298,9 +298,10 @@ class ScheduleBase(BaseModel):
 
     @validator("month_days", each_item=True)
     def month_day_range(cls, d):
-        if d < 0 or d > 31:
-            raise ValueError("month day must be 0-31")
-        return d
+        if d.upper() != "L":
+            if not d.isdigit() or int(d) < 1 or int(d) > 31:
+                raise ValueError("month day must be 1-31 or 'L'")
+        return d.upper()
 
     @validator("times", each_item=True)
     def time_format(cls, t):
@@ -329,7 +330,7 @@ class ScheduleUpdate(BaseModel):
 
     name: Optional[constr(strip_whitespace=True, min_length=1)] = None
     description: Optional[str] = None
-    month_days: Optional[list[int]] = None
+    month_days: Optional[list[str]] = None
     weekdays: Optional[list[int]] = None
     times: Optional[list[str]] = None
     is_enabled: Optional[bool] = None
@@ -342,9 +343,10 @@ class ScheduleUpdate(BaseModel):
 
     @validator("month_days", each_item=True)
     def month_day_range(cls, d):
-        if d < 0 or d > 31:
-            raise ValueError("month day must be 0-31")
-        return d
+        if d.upper() != "L":
+            if not d.isdigit() or int(d) < 1 or int(d) > 31:
+                raise ValueError("month day must be 1-31 or 'L'")
+        return d.upper()
 
     @root_validator(skip_on_failure=True)
     def exclusive(cls, values):

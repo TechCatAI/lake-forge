@@ -40,7 +40,7 @@ export default function AddScheduleDialog({ onCreate }: { onCreate(s: Schedule):
   const valid =
     form.name.trim().length > 0 &&
     /^[0-9:, ]*$/.test(form.times) &&
-    /^[0-9, ]*$/.test(form.month_days);
+    /^[0-9lL, ]*$/.test(form.month_days);
 
   function parseTimes(): string[] {
     return form.times
@@ -57,8 +57,12 @@ export default function AddScheduleDialog({ onCreate }: { onCreate(s: Schedule):
     try {
       const monthDays = form.month_days
         .split(/[,\s]+/)
-        .map((n) => Number(n))
-        .filter((n) => !isNaN(n) && n >= 0 && n <= 31);
+        .map((s) => s.trim().toUpperCase())
+        .filter(
+          (s) =>
+            s &&
+            (s === "L" || (/^\d+$/.test(s) && Number(s) >= 1 && Number(s) <= 31)),
+        );
       const row = await createSchedule({
         name: form.name,
         description: form.description || null,
@@ -130,8 +134,8 @@ export default function AddScheduleDialog({ onCreate }: { onCreate(s: Schedule):
             </div>
             <input
               className="border w-full px-1"
-              placeholder="Month days e.g. 1,15,0"
-              title="1-31 or 0 = last day"
+              placeholder="Month days e.g. 1,15,L"
+              title="1-31 or L = last day"
               value={form.month_days}
               onChange={(e) => setForm({ ...form, month_days: e.target.value })}
               disabled={form.weekdays.length > 0}

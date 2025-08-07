@@ -192,11 +192,11 @@ export default function SchedulesPage() {
       cell: ({ row, getValue }) => {
         const disabled = row.original.weekdays.length > 0;
         if (disabled) {
-          return <div className="text-left opacity-50">{getValue<number[]>().join(", ")}</div>;
+          return <div className="text-left opacity-50">{getValue<string[]>().join(", ")}</div>;
         }
         return (
-          <EditableCell<number[]>
-            initialValue={getValue<number[]>()}
+          <EditableCell<string[]>
+            initialValue={getValue<string[]>()}
             onSave={(v) => {
               handleEdit(row.original.id, "month_days", v);
               if (v.length > 0) handleEdit(row.original.id, "weekdays", []);
@@ -204,8 +204,12 @@ export default function SchedulesPage() {
             parse={(val) =>
               val
                 .split(/[,\s]+/)
-                .map((n) => Number(n))
-                .filter((n) => !isNaN(n) && n >= 0 && n <= 31)
+                .map((s) => s.trim().toUpperCase())
+                .filter(
+                  (s) =>
+                    s &&
+                    (s === "L" || (/^\d+$/.test(s) && Number(s) >= 1 && Number(s) <= 31)),
+                )
             }
             format={(val) => val.join(", ")}
             className="text-left"
