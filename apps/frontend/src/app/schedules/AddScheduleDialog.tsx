@@ -5,7 +5,7 @@ import Spinner from "../../components/Spinner";
 import { toast } from "sonner";
 import { createSchedule, type Schedule, type APIError } from "../../lib/api";
 
-export const DAY_OPTIONS = [
+export const WEEKDAY_OPTIONS = [
   { label: "Sun", value: 0 },
   { label: "Mon", value: 1 },
   { label: "Tue", value: 2 },
@@ -18,18 +18,29 @@ export const DAY_OPTIONS = [
 export interface AddPayload {
   name: string;
   description: string;
-  days: number[];
+  month_days: string;
+  weekdays: number[];
   times: string;
   is_enabled: boolean;
 }
 
 export default function AddScheduleDialog({ onCreate }: { onCreate(s: Schedule): void }) {
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState<AddPayload>({ name: "", description: "", days: [], times: "", is_enabled: true });
+  const [form, setForm] = useState<AddPayload>({
+    name: "",
+    description: "",
+    month_days: "",
+    weekdays: [],
+    times: "",
+    is_enabled: true,
+  });
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const valid = form.name.trim().length > 0 && /^[0-9:, ]*$/.test(form.times);
+  const valid =
+    form.name.trim().length > 0 &&
+    /^[0-9:, ]*$/.test(form.times) &&
+    /^[0-9, ]*$/.test(form.month_days);
 
   function parseTimes(): string[] {
     return form.times
@@ -44,16 +55,21 @@ export default function AddScheduleDialog({ onCreate }: { onCreate(s: Schedule):
     setSaving(true);
     setErrors({});
     try {
+      const monthDays = form.month_days
+        .split(/[,\s]+/)
+        .map((n) => Number(n))
+        .filter((n) => !isNaN(n) && n >= 0 && n <= 31);
       const row = await createSchedule({
         name: form.name,
         description: form.description || null,
-        days: [...form.days].sort((a, b) => a - b),
+        month_days: monthDays,
+        weekdays: monthDays.length ? [] : [...form.weekdays].sort((a, b) => a - b),
         times: parseTimes(),
         is_enabled: form.is_enabled,
       });
       onCreate(row);
       toast.success("Schedule added");
-      setForm({ name: "", description: "", days: [], times: "", is_enabled: true });
+      setForm({ name: "", description: "", month_days: "", weekdays: [], times: "", is_enabled: true });
       setOpen(false);
     } catch (err) {
       const error = err as APIError & { detail?: unknown };
@@ -71,10 +87,12 @@ export default function AddScheduleDialog({ onCreate }: { onCreate(s: Schedule):
     }
   }
 
-  function toggleDay(d: number) {
+  function toggleWeekday(d: number) {
     setForm((f) => {
-      const days = f.days.includes(d) ? f.days.filter((x) => x !== d) : [...f.days, d];
-      return { ...f, days };
+      const weekdays = f.weekdays.includes(d)
+        ? f.weekdays.filter((x) => x !== d)
+        : [...f.weekdays, d];
+      return { ...f, weekdays };
     });
   }
 
@@ -98,17 +116,26 @@ export default function AddScheduleDialog({ onCreate }: { onCreate(s: Schedule):
               onChange={(e) => setForm({ ...form, description: e.target.value })}
             />
             <div className="flex flex-wrap gap-1">
-              {DAY_OPTIONS.map((d) => (
+              {WEEKDAY_OPTIONS.map((d) => (
                 <label key={d.value} className="flex items-center gap-1 text-sm">
                   <input
                     type="checkbox"
-                    checked={form.days.includes(d.value)}
-                    onChange={() => toggleDay(d.value)}
+                    disabled={form.month_days.trim().length > 0}
+                    checked={form.weekdays.includes(d.value)}
+                    onChange={() => toggleWeekday(d.value)}
                   />
                   {d.label}
                 </label>
               ))}
             </div>
+            <input
+              className="border w-full px-1"
+              placeholder="Month days e.g. 1,15,0"
+              title="1-31 or 0 = last day"
+              value={form.month_days}
+              onChange={(e) => setForm({ ...form, month_days: e.target.value })}
+              disabled={form.weekdays.length > 0}
+            />
             <input
               className={`border w-full px-1 ${errors.times ? "border-red-500" : ""}`}
               placeholder="HH:MM, HH:MM"

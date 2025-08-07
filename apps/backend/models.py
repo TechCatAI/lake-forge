@@ -1,5 +1,5 @@
 # apps/backend/models.py
-from pydantic import BaseModel, validator, Field, constr
+from pydantic import BaseModel, validator, Field, constr, root_validator
 from typing import List, Optional, Literal
 import datetime as dt
 
@@ -285,20 +285,33 @@ class GroupUpdate(BaseModel):
 class ScheduleBase(BaseModel):
     name: constr(strip_whitespace=True, min_length=1)
     description: Optional[str] = None
-    days: list[int] = []
+    month_days: list[int] = []
+    weekdays: list[int] = []
     times: list[str] = []
     is_enabled: bool = True
 
-    @validator("days", each_item=True)
-    def day_range(cls, d):
+    @validator("weekdays", each_item=True)
+    def weekday_range(cls, d):
         if d < 0 or d > 6:
-            raise ValueError("day must be 0-6")
+            raise ValueError("weekday must be 0-6")
+        return d
+
+    @validator("month_days", each_item=True)
+    def month_day_range(cls, d):
+        if d < 0 or d > 31:
+            raise ValueError("month day must be 0-31")
         return d
 
     @validator("times", each_item=True)
     def time_format(cls, t):
         dt.time.fromisoformat(t)
         return t
+
+    @root_validator(skip_on_failure=True)
+    def exclusive(cls, values):
+        if values.get("month_days") and values.get("weekdays"):
+            raise ValueError("provide either month_days or weekdays, not both")
+        return values
 
 
 class ScheduleIn(ScheduleBase):
@@ -316,9 +329,28 @@ class ScheduleUpdate(BaseModel):
 
     name: Optional[constr(strip_whitespace=True, min_length=1)] = None
     description: Optional[str] = None
-    days: Optional[list[int]] = None
+    month_days: Optional[list[int]] = None
+    weekdays: Optional[list[int]] = None
     times: Optional[list[str]] = None
     is_enabled: Optional[bool] = None
+
+    @validator("weekdays", each_item=True)
+    def weekday_range(cls, d):
+        if d < 0 or d > 6:
+            raise ValueError("weekday must be 0-6")
+        return d
+
+    @validator("month_days", each_item=True)
+    def month_day_range(cls, d):
+        if d < 0 or d > 31:
+            raise ValueError("month day must be 0-31")
+        return d
+
+    @root_validator(skip_on_failure=True)
+    def exclusive(cls, values):
+        if values.get("month_days") and values.get("weekdays"):
+            raise ValueError("provide either month_days or weekdays, not both")
+        return values
 
 
 # ---------- SourceSystem ----------

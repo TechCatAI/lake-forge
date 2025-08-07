@@ -130,7 +130,7 @@ Secrets can be injected in `databricks.yml` using `{{secrets/<scope>/<key>}}`.
 
 ## ⏱️ Orchestration flow
 
-1. **Schedules** (`mdf_app.schedule`) define *days* & *times*.
+1. **Schedules** (`mdf_app.schedule`) define either *month_days* or *weekdays* and the *times*.
 2. Notebook **SyncJobs.ipynb** converts each schedule into a **Databricks Job** with a Quartz cron trigger.
 3. At run‑time the generated Schedule Job executes **OrchestrateBatch** with `schedule_id` parameter.
 4. **OrchestrateBatch** looks up *active* groups tied to that schedule and spawns a per‑group Job via the Jobs API.

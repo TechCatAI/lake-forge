@@ -80,15 +80,15 @@ CREATE TABLE IF NOT EXISTS schedule (
     id		     SERIAL      PRIMARY KEY,
     name         TEXT        UNIQUE NOT NULL,
     description  TEXT,
-	month_days   SMALLINT[]  NOT NULL DEFAULT '{}',
-    days         SMALLINT[]  NOT NULL DEFAULT '{}',   -- Sunday-Saturday
+        month_days   SMALLINT[]  NOT NULL DEFAULT '{}',
+    weekdays     SMALLINT[]  NOT NULL DEFAULT '{}',   -- Sunday-Saturday
     times        TIME[]      NOT NULL DEFAULT '{}',   -- ‘05:00’, ‘18:30’ …
     is_enabled   BOOLEAN     NOT NULL DEFAULT TRUE,
     created_at   TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     created_by   TEXT        NOT NULL DEFAULT current_user,
     updated_at   TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     updated_by   TEXT        NOT NULL DEFAULT current_user,
-    CONSTRAINT   chk_days_range  CHECK (days <@ '{0,1,2,3,4,5,6}'::SMALLINT[]),
+    CONSTRAINT   chk_weekdays_range  CHECK (weekdays <@ '{0,1,2,3,4,5,6}'::SMALLINT[]),
     CONSTRAINT   chk_times_not_empty CHECK (array_length(times,1) > 0)
 	ADD CONSTRAINT chk_month_days_range -- 0 = “last day of month” by convention
         CHECK (month_days <@ array[0,1,2,3,4,5,6,7,8,9,

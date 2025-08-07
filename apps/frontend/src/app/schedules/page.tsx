@@ -14,7 +14,7 @@ import { EditableCell } from "../../components/EditableCell";
 import Switch from '../../components/ui/switch'
 import Button from "../../components/ui/button";
 import GradientText from "../../components/GradientText";
-import AddScheduleDialog, { DAY_OPTIONS } from "./AddScheduleDialog";
+import AddScheduleDialog, { WEEKDAY_OPTIONS } from "./AddScheduleDialog";
 import DataTable from "../../components/DataTable";
 import {
   fetchSchedules,
@@ -187,22 +187,55 @@ export default function SchedulesPage() {
       ),
     },
     {
-      accessorKey: "days",
-      header: "Days",
+      accessorKey: "month_days",
+      header: "Month Days",
+      cell: ({ row, getValue }) => {
+        const disabled = row.original.weekdays.length > 0;
+        if (disabled) {
+          return <div className="text-left opacity-50">{getValue<number[]>().join(", ")}</div>;
+        }
+        return (
+          <EditableCell<number[]>
+            initialValue={getValue<number[]>()}
+            onSave={(v) => {
+              handleEdit(row.original.id, "month_days", v);
+              if (v.length > 0) handleEdit(row.original.id, "weekdays", []);
+            }}
+            parse={(val) =>
+              val
+                .split(/[,\s]+/)
+                .map((n) => Number(n))
+                .filter((n) => !isNaN(n) && n >= 0 && n <= 31)
+            }
+            format={(val) => val.join(", ")}
+            className="text-left"
+          />
+        );
+      },
+    },
+    {
+      accessorKey: "weekdays",
+      header: "Weekdays",
       cell: ({ row, getValue }) => {
         const selected = getValue<number[]>();
+        const disabled = row.original.month_days.length > 0;
         function toggleDay(d: number) {
-          const days = selected.includes(d)
+          const weekdays = selected.includes(d)
             ? selected.filter((x) => x !== d)
             : [...selected, d];
-          handleEdit(row.original.id, "days", days);
+          handleEdit(row.original.id, "weekdays", weekdays);
+          if (weekdays.length > 0) handleEdit(row.original.id, "month_days", []);
         }
         return (
           <div className="flex flex-wrap gap-1">
-            {DAY_OPTIONS.map((d) => (
-              <label key={d.value} className="flex items-center gap-1 text-xs">
+            {WEEKDAY_OPTIONS.map((d) => (
+              <label
+                key={d.value}
+                className={`flex items-center gap-1 text-xs ${disabled ? "opacity-50" : ""}`}
+              >
                 <input
                   type="checkbox"
+                  disabled={disabled}
                   checked={selected.includes(d.value)}
                   onChange={() => toggleDay(d.value)}
                 />
