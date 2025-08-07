@@ -110,6 +110,13 @@
   --sidebar-ring: oklch(0.541 0.281 293.009);
 }
 
+/* Overwrite JsonEditorCell's TextEditor styles, Otherwise, text is nearly invisible in dark mode */
+.dark .jer-collection-text-area {
+  color: var(--foreground) !important;         /* light text */
+  background-color: var(--background) !important;
+  caret-color: var(--foreground) !important;
+}
+
 @theme inline {
   --color-primary: var(--primary);
   --color-secondary: var(--secondary);

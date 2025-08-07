@@ -6,6 +6,7 @@ import { cn } from '../lib/utils'
 import Spinner from './Spinner'
 import Button from './ui/button'
 
+
 export interface JsonEditorCellProps<T extends object> {
   initialValue: T
   onSave(value: T): void

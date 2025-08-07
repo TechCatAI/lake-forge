@@ -99,6 +99,7 @@ CREATE TABLE IF NOT EXISTS "group" (
     is_raw      BOOLEAN      NOT NULL DEFAULT FALSE,
     is_bronze   BOOLEAN      NOT NULL DEFAULT FALSE,
     schedule_id INT          REFERENCES schedule(id),
+	is_dlt      BOOLEAN      NOT NULL DEFAULT FALSE,
 	compute_profile_id INT   REFERENCES mdf_app.compute_profile(id);
     created_at  TIMESTAMPTZ  NOT NULL DEFAULT current_timestamp,
     created_by  TEXT         NOT NULL DEFAULT current_user,
@@ -106,11 +107,11 @@ CREATE TABLE IF NOT EXISTS "group" (
     updated_by  TEXT         NOT NULL DEFAULT current_user
 );
 
-CREATE TABLE mdf_app.group_schedule (
-    group_id     INT NOT NULL REFERENCES mdf_app."group"(id) ON DELETE CASCADE,
-    schedule_id  INT NOT NULL REFERENCES mdf_app.schedule(id) ON DELETE CASCADE,
-    PRIMARY KEY (group_id, schedule_id)
-);
+-- CREATE TABLE mdf_app.group_schedule (
+--     group_id     INT NOT NULL REFERENCES mdf_app."group"(id) ON DELETE CASCADE,
+--     schedule_id  INT NOT NULL REFERENCES mdf_app.schedule(id) ON DELETE CASCADE,
+--     PRIMARY KEY (group_id, schedule_id)
+-- );
 -----------------------------------------------------------------------
 -- 2.5  Global and Group Profile/Settings tables
 -----------------------------------------------------------------------
@@ -211,8 +212,7 @@ CREATE TABLE IF NOT EXISTS bronze_config (
     is_stream       BOOLEAN NOT NULL DEFAULT FALSE,
 
     pk_columns      TEXT[],
-    partition_cols  TEXT[],
-    zorder_cols     TEXT[],
+    clusterby_cols  TEXT[],
     watermark_col   TEXT,
     scd_type        SMALLINT DEFAULT 0 CHECK (scd_type IN (0,1,2,3,6)),       
     ingest_options  JSONB NOT NULL DEFAULT '{}'::jsonb,
@@ -250,7 +250,8 @@ CREATE TABLE IF NOT EXISTS dq_rule (
     created_at      TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     created_by      TEXT        NOT NULL DEFAULT current_user,
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
-    updated_by      TEXT        NOT NULL DEFAULT current_user
+    updated_by      TEXT        NOT NULL DEFAULT current_user,
+	CONSTRAINT uq_dq_rule_config_name UNIQUE (bronze_config_id, rule_name)
 );
 CREATE INDEX idx_dq_rule_table ON dq_rule(bronze_config_id);
 
@@ -488,8 +489,7 @@ SELECT b.raw_config_id,
 	   b.watermark_col,
 	   b.is_stream,
 	   b.quarantine,
-	   b.partition_cols,
-	   b.zorder_cols,
+	   b.clusterby_cols,
 	   b.scd_type,
        wm.last_value AS bronze_last_wm_val,
 	   tsc.ddl AS ddl_schema
@@ -501,7 +501,28 @@ LEFT   JOIN watermark_cache wm ON wm.table_config_id = b.id AND wm.zone_id = 2
 LEFT   JOIN table_schema_cache tsc ON tsc.table_config_id = b.id AND tsc.zone_id = 2
 WHERE b.is_enabled = True;
 
+-----------------------------------------------------------------------
+-- 6.3  vw_profile_extended (Used to build synthetic data)
+-----------------------------------------------------------------------
+CREATE OR REPLACE VIEW vw_profile_extended AS
+SELECT
+    pc.zone_id,
+    pc.table_config_id,
+    bc.catalog,
+    bc.schema_name,
+    bc.table_name,
+    bc.pk_columns    AS unique_cols,
+    tsc.ddl          AS ddl_schema,            -- nullable
+    pc.summary_stats,
+    pc.profiles_json
+FROM   mdf_app.profile_cache pc
+JOIN   mdf_app.bronze_config bc
+       ON bc.id = pc.table_config_id AND pc.zone_id = 2
+LEFT  JOIN mdf_app.table_schema_cache tsc
+       ON tsc.table_config_id = pc.table_config_id
+WHERE  pc.sample_fraction > 0;
+
 /*======================================================================
-  6.  GRANTS / INDEXES  (add as needed)
+  7.  GRANTS / INDEXES  (add as needed)
 ======================================================================*/
 

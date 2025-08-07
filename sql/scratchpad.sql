@@ -47,6 +47,7 @@ SELECT * FROM dq_run;
 ----------------------------
 SELECT * FROM vw_raw_extended;
 SELECT * FROM vw_bronze_extended; -- view that will be called by RawToBronze (classic and DLT)
+SELECT * FROM vw_profile_extended; -- view used to build synthetic data
 
 -- SELECT * FROM mdf_app.vw_table_with_group; -- This view called by DLT loop for table configs.
 -- SELECT * FROM mdf_app.vw_batch_latest;     -- This view called by dashboard
@@ -55,6 +56,7 @@ SELECT * FROM vw_bronze_extended; -- view that will be called by RawToBronze (cl
 -- RESET DROP TABLES to rebuild
 -- DROP VIEW mdf_app.vw_raw_extended;
 -- DROP VIEW mdf_app.vw_bronze_extended;
+-- DROP VIEW mdf_app.vw_profile_extended;
 -- logging --
 -- DROP TABLE mdf_app.dq_run;
 -- DROP TABLE mdf_app.step_run;
