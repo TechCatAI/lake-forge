@@ -267,6 +267,13 @@ export default function GroupsPage() {
       },
     },
     {
+      accessorKey: "is_dlt",
+      header: "DLT",
+      cell: ({ row, getValue }) => (
+        <Switch checked={getValue<boolean>()} onChange={(v) => handleEdit(row.original.id, "is_dlt", v)} />
+      ),
+    },
+    {
       accessorKey: "updated_at",
       header: "Updated At",
       cell: ({ getValue }) => {

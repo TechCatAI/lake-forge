@@ -150,7 +150,7 @@ def create_bronze(cfg: BronzeConfigIn, db=None) -> BronzeConfigOut:
         val = data.get(f)
         if isinstance(val, str) and not val.strip():
             raise ValueError(f"{f} is required")
-    for field in ["pk_columns", "partition_cols", "zorder_cols"]:
+    for field in ["pk_columns", "clusterby_cols"]:
         cols = data.get(field)
         if cols in (None, ""):
             cols = []
@@ -175,12 +175,12 @@ def create_bronze(cfg: BronzeConfigIn, db=None) -> BronzeConfigOut:
     INSERT INTO mdf_app.bronze_config
       (group_id, raw_config_id, source_kind, catalog, schema_name, table_name,
        connection_id, load_type, is_stream, pk_columns,
-       partition_cols, zorder_cols, watermark_col, scd_type, ingest_options,
+       clusterby_cols, watermark_col, scd_type, ingest_options,
        quarantine, is_enabled, created_by, updated_by)
     VALUES (%(group_id)s, %(raw_config_id)s, %(source_kind)s, %(catalog)s,
             %(schema_name)s, %(table_name)s,
             %(connection_id)s, %(load_type)s, %(is_stream)s, %(pk_columns)s,
-            %(partition_cols)s, %(zorder_cols)s, %(watermark_col)s, %(scd_type)s,
+            %(clusterby_cols)s, %(watermark_col)s, %(scd_type)s,
             %(ingest_options)s, %(quarantine)s, %(is_enabled)s,
             %(user)s, %(user)s)
     RETURNING *;
@@ -198,7 +198,7 @@ def update_bronze(id: int, payload: BronzeConfigUpdate, db=None) -> BronzeConfig
     fields = payload.dict(exclude_none=True)
     user = fields.pop("updated_by", None) or "system"
 
-    allowed_lists = {"pk_columns", "partition_cols", "zorder_cols", "ingest_options"}
+    allowed_lists = {"pk_columns", "clusterby_cols", "ingest_options"}
     invalid = [
         c
         for c, v in fields.items()
@@ -214,7 +214,7 @@ def update_bronze(id: int, payload: BronzeConfigUpdate, db=None) -> BronzeConfig
         fields["ingest_options"] = psycopg2.extras.Json(
             fields["ingest_options"], dumps=lambda v: json.dumps(v, default=str)
         )
-    for f in ["pk_columns", "partition_cols", "zorder_cols"]:
+    for f in ["pk_columns", "clusterby_cols"]:
         if f in fields and isinstance(fields[f], str):
             fields[f] = [part.strip() for part in fields[f].split(",") if part.strip()]
 
@@ -466,8 +466,8 @@ def list_groups() -> list[GroupOut]:
 
 def create_group(payload: GroupIn) -> GroupOut:
     q = (
-        "INSERT INTO mdf_app.\"group\" (name, description, is_enabled, is_raw, is_bronze, schedule_id, compute_profile_id) "
-        "VALUES (%(name)s, %(description)s, %(is_enabled)s, %(is_raw)s, %(is_bronze)s, %(schedule_id)s, %(compute_profile_id)s) RETURNING *;"
+        "INSERT INTO mdf_app.\"group\" (name, description, is_enabled, is_raw, is_bronze, schedule_id, compute_profile_id, is_dlt) "
+        "VALUES (%(name)s, %(description)s, %(is_enabled)s, %(is_raw)s, %(is_bronze)s, %(schedule_id)s, %(compute_profile_id)s, %(is_dlt)s) RETURNING *;"
     )
     with get_conn() as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(q, payload.dict())
