@@ -448,6 +448,7 @@ SELECT
        ss.type                AS source_type,          -- adls / sql / restapi
 
        rc.connection_id,
+	   cn.options             AS connection_options,
        rc.source_path,
        rc.output_directory,
 	   rc.file_format,
@@ -465,6 +466,7 @@ FROM   raw_config        rc
 LEFT   JOIN source_system ss   ON ss.id = rc.source_system_id
 LEFT   JOIN "group"      g     ON g.id  = rc.group_id
 LEFT   JOIN watermark_cache wc ON wc.table_config_id = rc.id AND wc.zone_id = 1    -- RAW
+LEFT   JOIN connection cn      ON rc.connection_id = cn.id
 WHERE  rc.is_enabled = True;
 
 -----------------------------------------------------------------------
