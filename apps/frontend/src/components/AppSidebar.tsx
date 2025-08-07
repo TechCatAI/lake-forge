@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Home, LayoutDashboard, Database, Plug, Component, CalendarDays, Bolt, Layers, ListChecks, User, Cpu } from 'lucide-react';
+import { Home, LayoutDashboard, Database, Plug, Component, CalendarDays, Bolt, Layers, ListChecks, Lightbulb, User, Cpu } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -15,16 +15,16 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
 const navItems = [
-  { title: 'Dashboard',      url: '/dashboard',     icon: LayoutDashboard,  navGroup: 'Observability' },
-  { title: 'Source Systems', url: '/source-system', icon: Database,         navGroup: 'Connection'    },
-  { title: 'Connection',     url: '/connection',    icon: Plug,             navGroup: 'Connection'    },
-  { title: 'Groups',         url: '/groups',        icon: Component,        navGroup: 'Orchestration' },
-  { title: 'Schedules',      url: '/schedules',     icon: CalendarDays,     navGroup: 'Orchestration' },
-  { title: 'Raw Config',     url: '/raw-config',    icon: Bolt,             navGroup: 'Configuration' },
-  { title: 'Bronze Config',  url: '/bronze-config', icon: Layers,           navGroup: 'Configuration' },
-  { title: 'DQ Rules',       url: '/dq-rules',      icon: ListChecks,       navGroup: 'Data Quality'  },
-  { title: 'DQ Suggestions', url: '/dq-suggestions', icon: ListChecks,     navGroup: 'Data Quality'  },
-  { title: 'Compute Profiles', url: '/compute-profile', icon: Cpu, navGroup: 'Settings' },
+  { title: 'Dashboard',        url: '/dashboard',       icon: LayoutDashboard,  navGroup: 'Observability' },
+  { title: 'Source Systems',   url: '/source-system',   icon: Database,         navGroup: 'Connection'    },
+  { title: 'Connection',       url: '/connection',      icon: Plug,             navGroup: 'Connection'    },
+  { title: 'Schedules',        url: '/schedules',       icon: CalendarDays,     navGroup: 'Orchestration' },
+  { title: 'Groups',           url: '/groups',          icon: Component,        navGroup: 'Orchestration' },
+  { title: 'Raw Config',       url: '/raw-config',      icon: Bolt,             navGroup: 'Configuration' },
+  { title: 'Bronze Config',    url: '/bronze-config',   icon: Layers,           navGroup: 'Configuration' },
+  { title: 'Rules',            url: '/dq-rules',        icon: ListChecks,       navGroup: 'Data Quality'  },
+  { title: 'Suggestions',      url: '/dq-suggestions',  icon: Lightbulb,        navGroup: 'Data Quality'  },
+  { title: 'Compute Profiles', url: '/compute-profile', icon: Cpu,              navGroup: 'Settings' },
 ]
 
 export function AppSidebar() {
