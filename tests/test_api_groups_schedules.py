@@ -140,7 +140,7 @@ def test_schedule_validation_errors():
 
     payload = {
         "name": "bad",
-        "month_days": [1],
+        "month_days": ["1"],
         "weekdays": [1],
         "times": ["05:00"],
         "is_enabled": True,

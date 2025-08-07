@@ -24,15 +24,15 @@ COMMENT ON COLUMN mdf_app."group".is_bronze IS 'If TRUE this group triggers bron
 
 /* ────────────────────────────────────────────────────────────────
    2. SCHEDULES  – when to trigger a group
-      - month_days: 0-31 where 0 = last day  (nullable ⇒ every day)
-      - weekdays:   0-6 where 0 = Sunday     (nullable ⇒ every day)
-      - times:      array of TIME(s)          (nullable ⇒ every hour 00:00)
+      - month_days: '1'-'31' where 'L' = last day  (nullable ⇒ every day)
+      - weekdays:   0-6 where 0 = Sunday       (nullable ⇒ every day)
+      - times:      array of TIME(s)           (nullable ⇒ every hour 00:00)
 ──────────────────────────────────────────────────────────────── */
 CREATE TABLE mdf_app.schedule (
     id		     SERIAL PRIMARY KEY,
     name         TEXT UNIQUE NOT NULL,
     description  TEXT,
-    month_days   SMALLINT[]  NOT NULL DEFAULT '{}',
+    month_days   TEXT[]      NOT NULL DEFAULT '{}',
     weekdays     SMALLINT[]  NOT NULL DEFAULT '{}',   -- Sunday-Saturday
     times        TIME[]      NOT NULL DEFAULT '{}',   -- ‘05:00’, ‘18:30’ …
     is_enabled   BOOLEAN     NOT NULL DEFAULT TRUE,
@@ -43,9 +43,11 @@ CREATE TABLE mdf_app.schedule (
     CONSTRAINT chk_weekdays_range  CHECK (weekdays <@ '{0,1,2,3,4,5,6}'::SMALLINT[]),
     CONSTRAINT chk_times_not_empty CHECK (array_length(times,1) > 0),
     CONSTRAINT chk_month_days_range CHECK (
-        month_days <@ array[0,1,2,3,4,5,6,7,8,9,
-                             10,11,12,13,14,15,16,17,18,19,
-                             20,21,22,23,24,25,26,27,28,29,30,31]::SMALLINT[]
+        month_days <@ ARRAY[
+            'L','1','2','3','4','5','6','7','8','9','10',
+            '11','12','13','14','15','16','17','18','19','20',
+            '21','22','23','24','25','26','27','28','29','30','31'
+        ]::TEXT[]
     )
 );
 
