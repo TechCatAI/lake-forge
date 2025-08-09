@@ -301,17 +301,16 @@ export default function GroupsPage() {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="p-4 w-full">
-      <div className="sticky top-0 bg-background z-10 mb-2 w-full">
-        <div className="relative flex justify-center w-full">
-          <GradientText
-            animationSpeed={3}
-            showBorder={false}
-            className="text-2xl font-bold font-display"
-          >
-            Groups
-          </GradientText>
-          <div className="absolute right-0 top-0 flex items-center gap-2">
+    <div className="p-4 overflow-auto">
+      <div className="relative mb-2 sticky top-0 bg-background z-10 flex justify-center">
+        <GradientText
+          animationSpeed={3}
+          showBorder={false}
+          className="text-2xl font-bold font-display"
+        >
+          Groups
+        </GradientText>
+        <div className="absolute right-0 top-0 flex items-center gap-2">
           {dirtyCount > 0 && (
             <Button onClick={saveChanges} disabled={savingAll}>
               {savingAll && <span className="h-4 w-4 mr-1 border-2 border-current border-t-transparent rounded-full animate-spin" />}
@@ -321,26 +320,24 @@ export default function GroupsPage() {
           <AddGroupDialog onCreate={addRow} />
         </div>
       </div>
-      <div className="overflow-auto w-full">
-        <DataTable
-          table={table}
-          cellRef={(row, idx) =>
-            idx === 3
-              ? (el) => {
-                  firstCellRefs.current[row.original.id] = el;
-                }
-              : undefined
-          }
-          renderRowActions={(row) => (
-            <Trash
-              className="h-4 w-4 opacity-0 group-hover:opacity-100 text-red-500 cursor-pointer"
-              onClick={() =>
-                setConfirmDelete({ id: row.original.id, row: row.original, index: row.index })
+      <DataTable
+        table={table}
+        cellRef={(row, idx) =>
+          idx === 3
+            ? (el) => {
+                firstCellRefs.current[row.original.id] = el;
               }
-            />
-          )}
-        />
-      </div>
+            : undefined
+        }
+        renderRowActions={(row) => (
+          <Trash
+            className="h-4 w-4 opacity-0 group-hover:opacity-100 text-red-500 cursor-pointer"
+            onClick={() =>
+              setConfirmDelete({ id: row.original.id, row: row.original, index: row.index })
+            }
+          />
+        )}
+      />
       <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
         {confirmDelete && (
           <>

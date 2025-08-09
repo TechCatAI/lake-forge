@@ -269,17 +269,16 @@ export default function ConnectionPage() {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="p-4 w-full flex flex-col gap-2">
-      <div className="sticky top-0 bg-background z-10 mb-2 w-full">
-        <div className="relative flex justify-center w-full">
-          <GradientText
-            animationSpeed={3}
-            showBorder={false}
-            className="text-2xl font-bold font-display"
-          >
-            Connections
-          </GradientText>
-          <div className="absolute right-0 top-0 flex items-center gap-2">
+    <div className="p-4 flex flex-col gap-2">
+      <div className="relative mb-2 sticky top-0 bg-background z-10 flex justify-center">
+        <GradientText
+          animationSpeed={3}
+          showBorder={false}
+          className="text-2xl font-bold font-display"
+        >
+          Connections
+        </GradientText>
+        <div className="absolute right-0 top-0 flex items-center gap-2">
           {dirtyCount > 0 && (
             <Button onClick={saveChanges} disabled={savingAll}>
               {savingAll && (
@@ -291,7 +290,6 @@ export default function ConnectionPage() {
           <AddConnectionDialog onCreate={addRow} />
         </div>
       </div>
-      <div className="overflow-auto w-full">
       <DataTable
         table={table}
         cellRef={(row, idx) =>
@@ -310,7 +308,6 @@ export default function ConnectionPage() {
           />
         )}
       />
-      </div>
       <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
         {confirmDelete && (
           <>
