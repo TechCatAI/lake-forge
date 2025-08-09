@@ -163,7 +163,7 @@ VALUES  ('Default-SingleNode-Small',
 	      $$[
             { "pypi": { "package": "databricks-sdk>=0.61.0" } },
             { "pypi": { "package": "psycopg2-binary" } },
-            { "pypi": { "package": "databricks-labs-dqx==0.7.0" } }
+            { "pypi": { "package": "databricks-labs-dqx==0.7.1" } }
           ]$$::jsonb,
          TRUE)
 ON CONFLICT (name) DO NOTHING;   -- safe re-runs
@@ -187,7 +187,6 @@ CREATE TABLE IF NOT EXISTS raw_config (
 	file_format      TEXT,
 
     -- watermark fields
-    watermark_col           TEXT,
     watermark               TIMESTAMPTZ,
     watermark_increment_sec INT,
     watermark_initial       TIMESTAMPTZ,
@@ -208,7 +207,6 @@ CREATE TABLE IF NOT EXISTS bronze_config (
     raw_config_id   INT NOT NULL UNIQUE REFERENCES raw_config(id) ON DELETE CASCADE,
     group_id        INT REFERENCES "group"(id),
 
-    source_kind     TEXT NOT NULL CHECK (source_kind IN ('volume','external','jdbc')),
     catalog         TEXT NOT NULL,
     schema_name     TEXT NOT NULL,
     table_name      TEXT NOT NULL,
@@ -273,6 +271,18 @@ CREATE TABLE IF NOT EXISTS watermark_cache (
 );
 
 COMMENT ON TABLE watermark_cache IS 'Stores last successfully processed watermark per table, across all data layer zones';
+
+-----------------------------------------------------------------------
+-- 3.4  Watermark Audit table For Changes
+-----------------------------------------------------------------------
+-- CREATE TABLE mdf_app.watermark_audit(
+--   audit_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--   zone_id SMALLINT, table_config_id INT,
+--   old_value TIMESTAMPTZ, new_value TIMESTAMPTZ,
+--   changed_by TEXT DEFAULT current_user,
+--   changed_at TIMESTAMPTZ DEFAULT current_timestamp,
+--   reason TEXT
+-- );
 
 -----------------------------------------------------------------------
 -- 3.5  DDL Schema side table
@@ -465,7 +475,7 @@ SELECT
        rc.watermark_col,
        rc.watermark_increment_sec,
        rc.watermark_initial,
-       wc.last_value          AS raw_last_wm_val,     -- last successful watermark
+       COALESCE(wc.last_value, rc.watermark_initial)          AS raw_last_wm_val,     -- last successful watermark
 
        rc.is_enabled
 FROM   raw_config        rc
@@ -485,7 +495,6 @@ SELECT b.raw_config_id,
 	   g.name AS group_name,
 	   ss.name  AS raw_source_name,
        ss.type  AS raw_source_type,
-	   b.source_kind,
 	   r.output_directory AS source_path,
 	   r.file_format,
 	   b.ingest_options,
@@ -494,7 +503,7 @@ SELECT b.raw_config_id,
 	   b.schema_name,
 	   b.table_name,
 	   b.pk_columns,
-	   b.watermark_col,
+	   r.watermark_col,
 	   b.is_stream,
 	   b.quarantine,
 	   b.clusterby_cols,
