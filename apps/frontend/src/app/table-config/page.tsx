@@ -397,17 +397,16 @@ export default function TableConfigPage() {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="p-4 w-full">
-      <div className="sticky top-0 bg-background z-10 mb-2 w-full">
-        <div className="relative flex justify-center w-full">
-          <GradientText
-            animationSpeed={3}
-            showBorder={false}
-            className="text-2xl font-bold font-display"
-          >
-            Table Configuration
-          </GradientText>
-          <div className="absolute right-0 top-0 flex items-center gap-2">
+    <div className="p-4 overflow-auto">
+      <div className="relative mb-2 sticky top-0 bg-background z-10 flex justify-center">
+        <GradientText
+          animationSpeed={3}
+          showBorder={false}
+          className="text-2xl font-bold font-display"
+        >
+          Table Configuration
+        </GradientText>
+        <div className="absolute right-0 top-0 flex items-center gap-2">
           {dirtyCount > 0 && (
             <Button onClick={saveChanges} disabled={savingAll}>
               {savingAll && (
@@ -419,7 +418,6 @@ export default function TableConfigPage() {
           <AddTableDialog onCreate={addRow} />
         </div>
       </div>
-      <div className="overflow-auto w-full">
       <table className="min-w-full text-sm border-collapse">
         <thead className="sticky top-10 bg-background">
           {table.getHeaderGroups().map((hg) => (
@@ -481,7 +479,6 @@ export default function TableConfigPage() {
           </AnimatePresence>
         </tbody>
       </table>
-      </div>
       <AlertDialog
         open={!!confirmDelete}
         onOpenChange={(o) => !o && setConfirmDelete(null)}

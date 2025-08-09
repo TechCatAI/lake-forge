@@ -30,21 +30,17 @@ export default function DQSuggestionsPage() {
   return loading ? (
     <Skeleton className="h-32 w-full" />
   ) : (
-    <div className="p-4 w-full">
-      <div className="sticky top-0 bg-background z-10 mb-2 w-full">
-        <div className="relative flex justify-center w-full">
-          <GradientText
-            animationSpeed={3}
-            showBorder={false}
-            className="text-2xl font-bold font-display"
-          >
-            DQ Rule Suggestions
-          </GradientText>
-        </div>
+    <div className="p-4 overflow-auto">
+      <div className="relative mb-2 sticky top-0 bg-background z-10 flex justify-center">
+        <GradientText
+          animationSpeed={3}
+          showBorder={false}
+          className="text-2xl font-bold font-display"
+        >
+          DQ Rule Suggestions
+        </GradientText>
       </div>
-      <div className="overflow-auto w-full">
-        <DQSuggestionTable suggestions={data} refresh={load} />
-      </div>
+      <DQSuggestionTable suggestions={data} refresh={load} />
     </div>
   )
 }
