@@ -389,9 +389,9 @@ export default function RawConfigPage() {
   if (loading) return <LoadingSpinner />
 
   return (
-    <div className="p-4">
-      <div className="sticky top-0 bg-background z-10 mb-2">
-        <div className="relative flex justify-center">
+    <div className="p-4 w-full">
+      <div className="sticky top-0 bg-background z-10 mb-2 w-full">
+        <div className="relative flex justify-center w-full">
           <GradientText
             animationSpeed={3}
             showBorder={false}
@@ -412,7 +412,7 @@ export default function RawConfigPage() {
           </div>
         </div>
       </div>
-      <div className="overflow-auto">
+      <div className="overflow-auto w-full">
         <DataTable
           table={table}
           cellRef={(row, idx) =>
