@@ -2,13 +2,11 @@
 -- database: lakeforge_db
 -- schema: mdf_app
 -- raw_config: external source → raw landing
-CREATE TYPE mdf_app.source_kind_raw  AS ENUM ('sftp','jdbc','api','cloud_storage', 'manual');
 CREATE TYPE mdf_app.ingestion_type   AS ENUM ('databricks','adf', 'manual');
 
 CREATE TABLE mdf_app.raw_config (
     id              SERIAL PRIMARY KEY,
     group_id        INT    REFERENCES mdf_app."group"(id),      -- optional; falls back to dataset’s default group
-    source_kind     mdf_app.source_kind_raw NOT NULL,
     source_system   TEXT NOT NULL,             -- human-readable description. Base url of source system or api
     connection_id   INT  REFERENCES mdf_app.connection(id),
     source_path     TEXT,                      -- path / table / URL
@@ -32,8 +30,7 @@ CREATE TABLE mdf_app.bronze_config (
 	group_id        INT REFERENCES mdf_app."group"(id),
 	raw_config_id   INT NOT NULL UNIQUE REFERENCES mdf_app.raw_config(id) ON DELETE CASCADE,
     -- what & where ---------------------------------------------------------
-    source_kind     TEXT NOT NULL   CHECK (source_kind IN ('volume','external','jdbc')),
-    catalog         TEXT NOT NULL, 
+    catalog         TEXT NOT NULL,
     schema_name     TEXT NOT NULL, 
     table_name      TEXT NOT NULL, 
     is_enabled      BOOLEAN                DEFAULT false,
@@ -52,7 +49,7 @@ CREATE TABLE mdf_app.bronze_config (
     updated_at      TIMESTAMPTZ   NOT NULL DEFAULT current_timestamp,
     updated_by      TEXT          NOT NULL
 );
-CREATE UNIQUE INDEX uq_table_path ON mdf_app.bronze_config(source_kind, source_path);
+--CREATE UNIQUE INDEX uq_table_path ON mdf_app.bronze_config(source_path);
 COMMENT ON TABLE mdf_app.bronze_config IS 'Config for Raw → Bronze Delta ingestion.';
 
 -- optional helper view for bronze ingestion notebooks

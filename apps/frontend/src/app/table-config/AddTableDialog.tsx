@@ -12,7 +12,6 @@ import {
 } from "../../lib/api";
 
 export interface AddPayload {
-  source_kind: "volume" | "external" | "jdbc";
   source_system: string;
   catalog: string;
   schema_name: string;
@@ -33,7 +32,6 @@ export default function AddTableDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<AddPayload>({
-    source_kind: "volume",
     source_system: "",
     catalog: "",
     schema_name: "",
@@ -85,7 +83,6 @@ export default function AddTableDialog({
       onCreate(row);
       toast.success("Table Config added");
       setForm({
-        source_kind: "volume",
         source_system: "",
         catalog: "",
         schema_name: "",
@@ -163,20 +160,6 @@ export default function AddTableDialog({
                   {g.name}
                 </option>
               ))}
-            </select>
-            <select
-              className="border w-full px-1"
-              value={form.source_kind}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  source_kind: e.target.value as AddPayload["source_kind"],
-                })
-              }
-            >
-              <option value="volume">volume</option>
-              <option value="external">external</option>
-              <option value="jdbc">jdbc</option>
             </select>
             <input
               className={`border w-full px-1 ${errors.source_path ? "border-red-500" : ""}`}

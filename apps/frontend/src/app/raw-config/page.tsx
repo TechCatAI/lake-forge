@@ -343,15 +343,12 @@ export default function RawConfigPage() {
       ),
     },
     {
-      accessorKey: 'watermark',
+      accessorKey: 'current_wm',
       header: 'Current WM',
-      cell: ({ row, getValue }) => (
-        <EditableCell
-          initialValue={getValue<string | null>() ?? ''}
-          onSave={(v) => handleEdit(row.original.id, 'watermark', v)}
-          className="text-left"
-        />
-      ),
+      cell: ({ getValue }) => {
+        const val = getValue<string | null>()
+        return <div className="text-left">{val ?? ''}</div>
+      },
     },
     {
       accessorKey: 'watermark_initial',
@@ -392,45 +389,49 @@ export default function RawConfigPage() {
   if (loading) return <LoadingSpinner />
 
   return (
-    <div className="p-4 overflow-auto">
-      <div className="relative mb-2 sticky top-0 bg-background z-10 flex justify-center">
-        <GradientText
-          animationSpeed={3}
-          showBorder={false}
-          className="text-2xl font-bold font-display"
-        >
-          Raw Config
-        </GradientText>
-        <div className="absolute right-0 top-0 flex items-center gap-2">
-          {dirtyCount > 0 && (
-            <Button onClick={saveChanges} disabled={savingAll}>
-              {savingAll && (
-                <span className="h-4 w-4 mr-1 border-2 border-current border-t-transparent rounded-full animate-spin" />
-              )}
-              Save changes ({dirtyCount})
-            </Button>
-          )}
-          <AddRawDialog onCreate={addRow} />
+    <div className="p-4">
+      <div className="sticky top-0 bg-background z-10 mb-2">
+        <div className="relative flex justify-center">
+          <GradientText
+            animationSpeed={3}
+            showBorder={false}
+            className="text-2xl font-bold font-display"
+          >
+            Raw Config
+          </GradientText>
+          <div className="absolute right-0 top-0 flex items-center gap-2">
+            {dirtyCount > 0 && (
+              <Button onClick={saveChanges} disabled={savingAll}>
+                {savingAll && (
+                  <span className="h-4 w-4 mr-1 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                )}
+                Save changes ({dirtyCount})
+              </Button>
+            )}
+            <AddRawDialog onCreate={addRow} />
+          </div>
         </div>
       </div>
-      <DataTable
-        table={table}
-        cellRef={(row, idx) =>
-          idx === 2
-            ? (el) => {
-                firstCellRefs.current[row.original.id] = el;
+      <div className="overflow-auto">
+        <DataTable
+          table={table}
+          cellRef={(row, idx) =>
+            idx === 2
+              ? (el) => {
+                  firstCellRefs.current[row.original.id] = el;
+                }
+              : undefined
+          }
+          renderRowActions={(row) => (
+            <Trash
+              className="h-4 w-4 opacity-0 group-hover:opacity-100 text-red-500 cursor-pointer"
+              onClick={() =>
+                setConfirmDelete({ id: row.original.id, row: row.original, index: row.index })
               }
-            : undefined
-        }
-        renderRowActions={(row) => (
-          <Trash
-            className="h-4 w-4 opacity-0 group-hover:opacity-100 text-red-500 cursor-pointer"
-            onClick={() =>
-              setConfirmDelete({ id: row.original.id, row: row.original, index: row.index })
-            }
-          />
-        )}
-      />
+            />
+          )}
+        />
+      </div>
       <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
         {confirmDelete && (
           <>

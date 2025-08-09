@@ -32,7 +32,6 @@ def test_create_bronze_allows_empty_pk_for_full(monkeypatch):
                 "id": 1,
                 "group_id": p["group_id"],
                 "raw_config_id": p["raw_config_id"],
-                "source_kind": p["source_kind"],
                 "catalog": p["catalog"],
                 "schema_name": p["schema_name"],
                 "table_name": p["table_name"],
@@ -64,7 +63,6 @@ def test_create_bronze_allows_empty_pk_for_full(monkeypatch):
     cfg = BronzeConfigIn(
         group_id=None,
         raw_config_id=1,
-        source_kind="volume",
         catalog="c",
         schema_name="s",
         table_name="t",

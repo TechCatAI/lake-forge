@@ -15,7 +15,6 @@ class RawConfigBase(BaseModel):
     output_directory: str
     file_format: Optional[str] = None
     watermark_col: Optional[str] = None
-    watermark: Optional[dt.datetime] = None
     watermark_increment_sec: Optional[int] = None
     watermark_initial: Optional[dt.datetime] = None
     is_enabled: bool = True
@@ -34,6 +33,7 @@ class RawConfigIn(RawConfigBase):
 class RawConfigOut(RawConfigBase):
     id: int
     updated_at: Optional[dt.datetime] = None
+    current_wm: Optional[dt.datetime] = None
 
 
 class RawConfigUpdate(BaseModel):
@@ -49,7 +49,6 @@ class RawConfigUpdate(BaseModel):
     output_directory: Optional[str] = None
     file_format: Optional[str] = None
     watermark_col: Optional[str] = None
-    watermark: Optional[dt.datetime] = None
     watermark_increment_sec: Optional[int] = None
     watermark_initial: Optional[dt.datetime] = None
     is_enabled: Optional[bool] = None
@@ -60,7 +59,6 @@ class RawConfigUpdate(BaseModel):
 class BronzeConfigBase(BaseModel):
     group_id: Optional[int] = None
     raw_config_id: int
-    source_kind: Literal["volume", "external", "jdbc"]
     catalog: str
     schema_name: str
     table_name: str
@@ -108,7 +106,6 @@ class BronzeConfigUpdate(BaseModel):
 
     group_id: Optional[int] = None
     raw_config_id: Optional[int] = None
-    source_kind: Optional[Literal["volume", "external", "jdbc"]] = None
     catalog: Optional[str] = None
     schema_name: Optional[str] = None
     table_name: Optional[str] = None

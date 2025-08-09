@@ -187,7 +187,6 @@ CREATE TABLE IF NOT EXISTS raw_config (
 	file_format      TEXT,
 
     -- watermark fields
-    watermark               TIMESTAMPTZ,
     watermark_increment_sec INT,
     watermark_initial       TIMESTAMPTZ,
 

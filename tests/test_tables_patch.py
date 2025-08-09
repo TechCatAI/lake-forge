@@ -15,7 +15,6 @@ SAMPLE_ROW = {
     "id": 1,
     "group_id": None,
     "raw_config_id": 1,
-    "source_kind": "volume",
     "catalog": "c",
     "schema_name": "s",
     "table_name": "t",
@@ -35,7 +34,7 @@ def stub_update_bronze(id: int, payload: BronzeConfigUpdate) -> BronzeConfigOut:
 
 def test_patch_happy(monkeypatch):
     monkeypatch.setattr(crud, "update_bronze", stub_update_bronze)
-    resp = client.patch("/api/bronze-config/1", json={"source_kind": "volume"})
+    resp = client.patch("/api/bronze-config/1", json={"catalog": "d"})
     assert resp.status_code == 200
     assert resp.json()["id"] == 1
     assert resp.json()["pk_columns"] == ["id"]

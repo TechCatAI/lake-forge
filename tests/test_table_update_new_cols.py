@@ -15,7 +15,6 @@ SAMPLE_ROW = {
     "id": 1,
     "group_id": None,
     "raw_config_id": 1,
-    "source_kind": "volume",
     "catalog": "c",
     "schema_name": "s",
     "table_name": "t",
@@ -37,18 +36,9 @@ def test_patch_update_new_columns(monkeypatch):
     monkeypatch.setattr(crud, "update_bronze", stub_update_bronze)
     resp = client.patch(
         "/api/bronze-config/1",
-        json={
-            "source_kind": "external",
-            "ingest_options": {"mode": "auto"},
-        },
+        json={"ingest_options": {"mode": "auto"}},
     )
     assert resp.status_code == 200
-    assert resp.json()["source_kind"] == "external"
     assert resp.json()["ingest_options"] == {"mode": "auto"}
-
-
-def test_patch_bad_source_kind():
-    resp = client.patch("/api/bronze-config/1", json={"source_kind": "foo"})
-    assert resp.status_code == 422
 
 
