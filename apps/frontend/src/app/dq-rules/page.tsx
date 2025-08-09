@@ -306,7 +306,7 @@ export default function DQRulesPage() {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="p-4 w-full">
+    <div className="p-4 w-screen overflow-x-hidden">
       <div className="sticky top-0 bg-background z-10 mb-2 w-full">
         <div className="relative flex justify-center w-full">
           <GradientText
