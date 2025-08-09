@@ -71,7 +71,15 @@ def build_update_sql(
 def list_raw(db=None) -> list[RawConfigOut]:
     conn = db or get_conn()
     with conn as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-        cur.execute("SELECT * FROM mdf_app.raw_config ORDER BY id;")
+        cur.execute(
+            """
+            SELECT rc.*, COALESCE(wc.last_value, rc.watermark_initial) AS current_wm
+              FROM mdf_app.raw_config rc
+              LEFT JOIN mdf_app.watermark_cache wc
+                     ON wc.table_config_id = rc.id AND wc.zone_id = 1
+          ORDER BY rc.id;
+            """
+        )
         rows = cur.fetchall()
     return [RawConfigOut(**row) for row in rows]
 
@@ -84,12 +92,12 @@ def create_raw(p: RawConfigIn, db=None) -> RawConfigOut:
         INSERT INTO mdf_app.raw_config
             (group_id, source_system_id, connection_id, source_path,
              ingestion_type, copy_options, output_directory,
-             file_format, watermark_col, watermark, watermark_increment_sec,
+             file_format, watermark_col, watermark_increment_sec,
              watermark_initial, is_enabled, created_by, updated_by)
         VALUES (%(group_id)s, %(source_system_id)s, %(connection_id)s,
                 %(source_path)s, %(ingestion_type)s,
                 %(copy_options)s, %(output_directory)s, %(file_format)s,
-                %(watermark_col)s, %(watermark)s,
+                %(watermark_col)s,
                 %(watermark_increment_sec)s, %(watermark_initial)s,
                 %(is_enabled)s, %(user)s, %(user)s)
         RETURNING *;
@@ -98,6 +106,7 @@ def create_raw(p: RawConfigIn, db=None) -> RawConfigOut:
     with conn as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(q, {**data, "user": "lake-forge-api"})
         row = cur.fetchone()
+        row["current_wm"] = row.get("watermark_initial")
     return RawConfigOut(**row)
 
 
@@ -112,6 +121,17 @@ def update_raw(id: int, delta: RawConfigUpdate, db=None) -> RawConfigOut:
     with conn as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(stmt, params)
         row = cur.fetchone()
+        cur.execute(
+            """
+            SELECT COALESCE(wc.last_value, rc.watermark_initial) AS current_wm
+              FROM mdf_app.raw_config rc
+              LEFT JOIN mdf_app.watermark_cache wc
+                     ON wc.table_config_id = rc.id AND wc.zone_id = 1
+             WHERE rc.id = %s;
+            """,
+            (id,),
+        )
+        row["current_wm"] = cur.fetchone()["current_wm"]
     return RawConfigOut(**row)
 
 
@@ -173,11 +193,11 @@ def create_bronze(cfg: BronzeConfigIn, db=None) -> BronzeConfigOut:
 
     q = """
     INSERT INTO mdf_app.bronze_config
-      (group_id, raw_config_id, source_kind, catalog, schema_name, table_name,
+      (group_id, raw_config_id, catalog, schema_name, table_name,
        connection_id, load_type, is_stream, pk_columns,
        clusterby_cols, watermark_col, scd_type, ingest_options,
        quarantine, is_enabled, created_by, updated_by)
-    VALUES (%(group_id)s, %(raw_config_id)s, %(source_kind)s, %(catalog)s,
+    VALUES (%(group_id)s, %(raw_config_id)s, %(catalog)s,
             %(schema_name)s, %(table_name)s,
             %(connection_id)s, %(load_type)s, %(is_stream)s, %(pk_columns)s,
             %(clusterby_cols)s, %(watermark_col)s, %(scd_type)s,

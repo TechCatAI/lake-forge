@@ -30,18 +30,17 @@ RAW_ROW = {
     "output_directory": "/out",
     "file_format": None,
     "watermark_col": None,
-    "watermark": None,
     "watermark_increment_sec": None,
     "watermark_initial": None,
     "is_enabled": True,
     "updated_at": None,
+    "current_wm": None,
 }
 
 BRONZE_ROW = {
     "id": 1,
     "group_id": None,
     "raw_config_id": 1,
-    "source_kind": "volume",
     "catalog": "c",
     "schema_name": "s",
     "table_name": "t",
@@ -87,7 +86,6 @@ def raw_payload():
         "output_directory": "/out",
         "file_format": None,
         "watermark_col": None,
-        "watermark": None,
         "watermark_increment_sec": None,
         "watermark_initial": None,
         "is_enabled": True,
@@ -98,7 +96,6 @@ def bronze_payload():
     return {
         "group_id": None,
         "raw_config_id": 1,
-        "source_kind": "volume",
         "catalog": "c",
         "schema_name": "s",
         "table_name": "t",

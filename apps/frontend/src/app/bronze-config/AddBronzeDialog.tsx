@@ -15,7 +15,6 @@ import {
 
 export interface AddPayload {
   raw_config_id: number | null
-  source_kind: 'volume' | 'external' | 'jdbc'
   catalog: string
   schema_name: string
   table_name: string
@@ -34,7 +33,6 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState<AddPayload>({
     raw_config_id: null,
-    source_kind: 'volume',
     catalog: '',
     schema_name: '',
     table_name: '',
@@ -75,7 +73,6 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
     try {
       const row = await createBronzeConfig({
         raw_config_id: form.raw_config_id!,
-        source_kind: form.source_kind,
         catalog: form.catalog,
         schema_name: form.schema_name,
         table_name: form.table_name,
@@ -98,7 +95,6 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
       toast.success('Bronze Config added')
       setForm({
         raw_config_id: null,
-        source_kind: 'volume',
         catalog: '',
         schema_name: '',
         table_name: '',
@@ -156,17 +152,6 @@ export default function AddBronzeDialog({ onCreate }: { onCreate(r: BronzeConfig
                   </option>
                 )
               })}
-            </select>
-            <select
-              className="border w-full px-1"
-              value={form.source_kind}
-              onChange={(e) =>
-                setForm({ ...form, source_kind: e.target.value as AddPayload['source_kind'] })
-              }
-            >
-              <option value="volume">volume</option>
-              <option value="external">external</option>
-              <option value="jdbc">jdbc</option>
             </select>
             <input
               className={`border w-full px-1 ${errors.catalog ? 'border-red-500' : ''}`}

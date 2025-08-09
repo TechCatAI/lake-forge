@@ -50,7 +50,6 @@ export default function AddRawDialog({ onCreate }: { onCreate(r: RawConfig): voi
         connection_id: null,
         copy_options: {},
         watermark_col: null,
-        watermark: null,
         watermark_increment_sec: null,
         watermark_initial: null,
       })

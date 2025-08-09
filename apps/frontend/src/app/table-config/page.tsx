@@ -287,27 +287,6 @@ export default function TableConfigPage() {
       },
     },
     {
-      accessorKey: "source_kind",
-      header: "Source Kind",
-      cell: ({ row, getValue }) => (
-        <select
-          className="border rounded px-1 w-28"
-          defaultValue={getValue<string>()}
-          onChange={(e) =>
-            handleEdit(
-              row.original.id,
-              "source_kind",
-              e.target.value as TableConfig["source_kind"],
-            )
-          }
-        >
-          <option value="volume">volume</option>
-          <option value="external">external</option>
-          <option value="jdbc">jdbc</option>
-        </select>
-      ),
-    },
-    {
       accessorKey: "source_path",
       header: "Source Path",
       cell: ({ row, getValue }) => (

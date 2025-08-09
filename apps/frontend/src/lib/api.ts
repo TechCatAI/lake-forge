@@ -4,7 +4,6 @@ export interface APIError {
 
 export interface TableConfig {
   id: number
-  source_kind: string
   source_system: string
   catalog: string
   schema_name: string
@@ -327,14 +326,14 @@ export interface RawConfig {
   output_directory: string
   file_format: string | null
   watermark_col: string | null
-  watermark: string | null
   watermark_increment_sec: number | null
   watermark_initial: string | null
   is_enabled: boolean
   updated_at: string | null
+  current_wm: string | null
 }
 
-export type RawConfigInput = Omit<RawConfig, 'id' | 'updated_at'> & {
+export type RawConfigInput = Omit<RawConfig, 'id' | 'updated_at' | 'current_wm'> & {
   group_id?: number | null
   connection_id?: number | null
   copy_options?: Record<string, unknown>
@@ -375,7 +374,6 @@ export async function deleteRawConfig(id: number): Promise<void> {
 export interface BronzeConfig {
   id: number
   raw_config_id: number
-  source_kind: 'volume' | 'external' | 'jdbc'
   catalog: string
   schema_name: string
   table_name: string
