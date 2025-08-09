@@ -240,7 +240,7 @@ export default function ComputeProfilePage() {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="p-4 w-screen overflow-x-hidden flex flex-col gap-2">
+    <div className="p-4 w-full flex flex-col gap-2">
       <div className="sticky top-0 bg-background z-10 mb-2 w-full">
         <div className="relative flex justify-center w-full">
           <GradientText animationSpeed={3} showBorder={false} className="text-2xl font-bold font-display">
