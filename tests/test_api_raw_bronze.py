@@ -15,6 +15,7 @@ from apps.backend.models import (
     BronzeConfigIn,
     BronzeConfigOut,
     BronzeConfigUpdate,
+    WatermarkUpdateIn,
 )
 
 client = TestClient(app)
@@ -135,6 +136,18 @@ def test_raw_flow(monkeypatch):
     assert resp.status_code == 204
     assert called["id"] == 1
 
+
+def test_update_raw_watermark(monkeypatch):
+    def stub(id: int, p: WatermarkUpdateIn) -> RawConfigOut:
+        assert p.mode == "set"
+        return RawConfigOut(**RAW_ROW)
+
+    monkeypatch.setattr(crud, "update_raw_watermark", stub)
+    resp = client.post(
+        "/api/raw-config/1/watermark",
+        json={"mode": "set", "new_value": "2024-01-01T00:00:00Z"},
+    )
+    assert resp.status_code == 200
 
 def test_bronze_flow(monkeypatch):
     monkeypatch.setattr(crud, "list_bronze", lambda: [])

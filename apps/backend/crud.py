@@ -8,6 +8,7 @@ from models import (
     RawConfigIn,
     RawConfigOut,
     RawConfigUpdate,
+    WatermarkUpdateIn,
     BronzeConfigIn,
     BronzeConfigOut,
     BronzeConfigUpdate,
@@ -133,6 +134,56 @@ def update_raw(id: int, delta: RawConfigUpdate, db=None) -> RawConfigOut:
         )
         row["current_wm"] = cur.fetchone()["current_wm"]
     return RawConfigOut(**row)
+
+
+def update_raw_watermark(id: int, p: WatermarkUpdateIn, db=None) -> RawConfigOut:
+    conn = db or get_conn()
+    user = p.updated_by or "lake-forge-api"
+    with conn as c, c.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(
+            """
+            SELECT rc.watermark_initial, wc.last_value AS current_wm
+              FROM mdf_app.raw_config rc
+              LEFT JOIN mdf_app.watermark_cache wc
+                     ON wc.table_config_id = rc.id AND wc.zone_id = 1
+             WHERE rc.id = %s FOR UPDATE;
+            """,
+            (id,),
+        )
+        row = cur.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Raw config not found")
+        old_value = row["current_wm"] or row["watermark_initial"]
+        new_val = p.new_value if p.mode == "set" else None
+
+        cur.execute(
+            """
+            INSERT INTO mdf_app.watermark_cache(zone_id, table_config_id, last_value)
+            VALUES (1, %s, %s)
+            ON CONFLICT (zone_id, table_config_id)
+            DO UPDATE SET last_value = EXCLUDED.last_value, updated_at = now();
+            """,
+            (id, new_val),
+        )
+        cur.execute(
+            """
+            INSERT INTO mdf_app.watermark_audit(zone_id, table_config_id, old_value, new_value, changed_by, reason)
+            VALUES (1, %s, %s, %s, %s, %s);
+            """,
+            (id, old_value, new_val, user, p.reason),
+        )
+        cur.execute(
+            """
+            SELECT rc.*, COALESCE(wc.last_value, rc.watermark_initial) AS current_wm
+              FROM mdf_app.raw_config rc
+              LEFT JOIN mdf_app.watermark_cache wc
+                     ON wc.table_config_id = rc.id AND wc.zone_id = 1
+             WHERE rc.id = %s;
+            """,
+            (id,),
+        )
+        updated = cur.fetchone()
+    return RawConfigOut(**updated)
 
 
 def delete_raw(id: int, db=None) -> None:
