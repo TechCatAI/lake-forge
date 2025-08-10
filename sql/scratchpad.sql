@@ -22,11 +22,13 @@ SELECT * FROM dq_rule;
 SELECT * FROM watermark_cache;
 	DELETE FROM watermark_cache;
 SELECT * FROM table_schema_cache;
+    DELETE FROM table_schema_cache;
 -- SELECT * FROM mdf_app.table_group;
 SELECT * FROM profile_cache;
 	DELETE FROM profile_cache;
 SELECT * FROM dq_suggestion;
 	DELETE FROM dq_suggestion;
+SELECT * FROM watermark_audit;
 
 --------------------------
 ----- LOGGING TABLES -----
@@ -64,6 +66,7 @@ SELECT * FROM vw_profile_extended; -- view used to build synthetic data
 -- DROP TABLE mdf_app.zone_run;
 -- DROP TABLE mdf_app.batch_run;
 -- table config --
+-- DROP TABLE mdf_app.watermark_audit;
 -- DROP TABLE mdf_app.dq_suggestion;
 -- DROP TABLE mdf_app.profile_cache;
 -- DROP TABLE mdf_app.table_schema_cache;

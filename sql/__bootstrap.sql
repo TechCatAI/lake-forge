@@ -187,6 +187,7 @@ CREATE TABLE IF NOT EXISTS raw_config (
 	file_format      TEXT,
 
     -- watermark fields
+    watermark               TIMESTAMPTZ,
     watermark_increment_sec INT,
     watermark_initial       TIMESTAMPTZ,
 
@@ -272,18 +273,6 @@ CREATE TABLE IF NOT EXISTS watermark_cache (
 COMMENT ON TABLE watermark_cache IS 'Stores last successfully processed watermark per table, across all data layer zones';
 
 -----------------------------------------------------------------------
--- 3.4  Watermark Audit table For Changes
------------------------------------------------------------------------
--- CREATE TABLE mdf_app.watermark_audit(
---   audit_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
---   zone_id SMALLINT, table_config_id INT,
---   old_value TIMESTAMPTZ, new_value TIMESTAMPTZ,
---   changed_by TEXT DEFAULT current_user,
---   changed_at TIMESTAMPTZ DEFAULT current_timestamp,
---   reason TEXT
--- );
-
------------------------------------------------------------------------
 -- 3.5  DDL Schema side table
 -----------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS table_schema_cache (
@@ -343,8 +332,14 @@ CREATE TABLE IF NOT EXISTS table_run (
     table_config_id INT NOT NULL REFERENCES bronze_config(id),
     started_at      TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     finished_at     TIMESTAMPTZ,
+	src             TEXT,
+	dest            TEXT,
 	stage			TEXT NOT NULL CHECK (stage in ('source_to_raw', 'raw_to_bronze','bronze_to_silver','silver_to_gold')),
     status          run_status NOT NULL DEFAULT 'running',
+	bytes_written   BIGINT,
+	files_written   INT,
+	watermark_begin TIMESTAMPTZ,
+	watermark_end   TIMESTAMPTZ,
     row_ct_in       BIGINT,
     row_ct_out      BIGINT,
     message         TEXT
@@ -445,6 +440,21 @@ CREATE TABLE IF NOT EXISTS dq_suggestion (
     UNIQUE (table_config_id, zone_id, column_name, rule_name, profiled_at)
 );
 COMMENT ON TABLE dq_suggestion IS 'Machine-generated data-quality rules awaiting human review (one row per rule candidate).';
+
+-----------------------------------------------------------------------
+-- 5.3  Watermark Audit table For Changes
+-----------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS watermark_audit(
+    audit_id      UUID          PRIMARY KEY DEFAULT gen_random_uuid(),
+    zone_id       SMALLINT      NOT NULL,
+    table_config_id INT         NOT NULL,
+    old_value     TIMESTAMPTZ,
+    new_value     TIMESTAMPTZ,
+    changed_by    TEXT          DEFAULT current_user,
+    changed_at    TIMESTAMPTZ   DEFAULT current_timestamp,
+    reason        TEXT,
+    FOREIGN KEY (zone_id, table_config_id) REFERENCES watermark_cache(zone_id, table_config_id) ON DELETE CASCADE
+);
   
 /*======================================================================
   6.  HELPER VIEW  (bronze + raw + source_system)
