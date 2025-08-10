@@ -146,7 +146,8 @@ def update_raw_watermark(id: int, p: WatermarkUpdateIn, db=None) -> RawConfigOut
               FROM mdf_app.raw_config rc
               LEFT JOIN mdf_app.watermark_cache wc
                      ON wc.table_config_id = rc.id AND wc.zone_id = 1
-             WHERE rc.id = %s FOR UPDATE;
+             WHERE rc.id = %s
+             FOR UPDATE OF rc;
             """,
             (id,),
         )
