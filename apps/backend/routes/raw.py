@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from models import RawConfigIn, RawConfigOut, RawConfigUpdate
+from models import RawConfigIn, RawConfigOut, RawConfigUpdate, WatermarkUpdateIn
 import crud
 
 router = APIRouter(prefix="/api/raw-config", tags=["raw-config"])
@@ -24,4 +24,9 @@ def update_raw(id: int, payload: RawConfigUpdate):
 def delete_raw(id: int):
     crud.delete_raw(id)
     return
+
+
+@router.post("/{id}/watermark", response_model=RawConfigOut)
+def update_watermark(id: int, payload: WatermarkUpdateIn):
+    return crud.update_raw_watermark(id, payload)
 

@@ -55,6 +55,25 @@ class RawConfigUpdate(BaseModel):
     updated_by: Optional[str] = None
 
 
+class WatermarkUpdateIn(BaseModel):
+    """Payload for updating or clearing a RAW watermark."""
+
+    mode: Literal["set", "clear"]
+    new_value: Optional[dt.datetime] = None
+    reason: Optional[constr(max_length=500)] = None
+    updated_by: Optional[str] = None
+
+    @root_validator(skip_on_failure=True)
+    def _check_mode(cls, values):
+        mode = values.get("mode")
+        new_val = values.get("new_value")
+        if mode == "set" and new_val is None:
+            raise ValueError("new_value required when mode is 'set'")
+        if mode == "clear":
+            values["new_value"] = None
+        return values
+
+
 # ---------- BronzeConfig ----------
 class BronzeConfigBase(BaseModel):
     group_id: Optional[int] = None

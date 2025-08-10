@@ -370,6 +370,26 @@ export async function deleteRawConfig(id: number): Promise<void> {
   if (!res.ok) throw (await res.json()) as APIError
 }
 
+export interface WatermarkUpdatePayload {
+  mode: 'set' | 'clear'
+  new_value?: string
+  reason?: string
+  updated_by?: string
+}
+
+export async function updateRawWatermark(
+  id: number,
+  payload: WatermarkUpdatePayload,
+): Promise<RawConfig> {
+  const res = await fetch(`/api/raw-config/${id}/watermark`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) throw (await res.json()) as APIError
+  return res.json()
+}
+
 // ----- Bronze Config -----
 export interface BronzeConfig {
   id: number

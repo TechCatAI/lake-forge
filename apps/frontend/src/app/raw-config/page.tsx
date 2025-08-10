@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
-import { Trash } from 'lucide-react'
+import { MoreHorizontal } from 'lucide-react'
 import {
   ColumnDef,
   getCoreRowModel,
@@ -17,6 +17,12 @@ import GradientText from '../../components/GradientText'
 import AddRawDialog from './AddRawDialog'
 import { Tooltip } from '../../components/ui/tooltip'
 import DataTable from '../../components/DataTable'
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '../../components/ui/dropdown-menu'
 import {
   fetchRawConfigs,
   updateRawConfig,
@@ -36,6 +42,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
 } from '../../components/ui/alert-dialog'
+import UpdateWatermarkDialog from './UpdateWatermarkDialog'
 
 export default function RawConfigPage() {
   const [data, setData] = useState<RawConfig[]>([])
@@ -55,6 +62,7 @@ export default function RawConfigPage() {
     row: RawConfig
     index: number
   } | null>(null)
+  const [wmRow, setWmRow] = useState<RawConfig | null>(null)
 
   useEffect(() => {
     loadData()
@@ -168,6 +176,11 @@ export default function RawConfigPage() {
       const msg = Array.isArray(detail) ? detail[0].msg : detail
       toast.error(msg || 'Error deleting')
     }
+  }
+
+  function handleWatermarkUpdated(row: RawConfig) {
+    setData((ds) => ds.map((r) => (r.id === row.id ? row : r)))
+    origData.current.set(row.id, row)
   }
 
   const columns: ColumnDef<RawConfig>[] = [
@@ -423,15 +436,38 @@ export default function RawConfigPage() {
               : undefined
           }
           renderRowActions={(row) => (
-            <Trash
-              className="h-4 w-4 opacity-0 group-hover:opacity-100 text-red-500 cursor-pointer"
-              onClick={() =>
-                setConfirmDelete({ id: row.original.id, row: row.original, index: row.index })
-              }
-            />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <MoreHorizontal className="h-4 w-4 opacity-0 group-hover:opacity-100 cursor-pointer" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setWmRow(row.original)}>
+                  Update Watermark…
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={() =>
+                    setConfirmDelete({
+                      id: row.original.id,
+                      row: row.original,
+                      index: row.index,
+                    })
+                  }
+                >
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         />
       </div>
+      {wmRow && (
+        <UpdateWatermarkDialog
+          row={wmRow}
+          onUpdated={handleWatermarkUpdated}
+          onClose={() => setWmRow(null)}
+        />
+      )}
       <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
         {confirmDelete && (
           <>
