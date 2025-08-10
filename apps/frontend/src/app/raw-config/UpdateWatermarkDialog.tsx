@@ -50,27 +50,33 @@ export default function UpdateWatermarkDialog({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-      <form className="bg-background p-4 space-y-2 w-80" onSubmit={submit}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+      <form
+        className="relative z-10 w-80 space-y-2 rounded-md bg-card p-4 text-card-foreground shadow-lg"
+        onSubmit={submit}
+      >
         <h2 className="font-semibold">Update Watermark</h2>
         <select
-          className="border px-1 w-full"
+          className="w-full border px-1"
           value={mode}
-          onChange={(e) => setMode(e.target.value as WatermarkUpdatePayload['mode'])}
+          onChange={(e) =>
+            setMode(e.target.value as WatermarkUpdatePayload['mode'])
+          }
         >
           <option value="set">Set</option>
           <option value="clear">Clear</option>
         </select>
         {mode === 'set' && (
           <input
-            className="border w-full px-1"
+            className="w-full border px-1"
             placeholder="ISO Timestamp"
             value={newValue}
             onChange={(e) => setNewValue(e.target.value)}
           />
         )}
         <input
-          className="border w-full px-1"
+          className="w-full border px-1"
           placeholder="Reason (optional)"
           value={reason}
           onChange={(e) => setReason(e.target.value)}
