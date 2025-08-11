@@ -2,19 +2,28 @@
 import { ReactNode } from 'react';
 
 export function AlertDialog({ open, onOpenChange, children }: {
-  open: boolean;
-  onOpenChange(open: boolean): void;
-  children: ReactNode;
+  open: boolean
+  onOpenChange(open: boolean): void
+  children: React.ReactNode
 }) {
-  if (!open) return null;
+  if (!open) return null
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={() => onOpenChange(false)} />
-      <div className="bg-background p-4 z-10 max-w-sm w-full">
+      <div
+        className="absolute inset-0 bg-black/50"
+        onClick={() => onOpenChange(false)}
+      />
+
+      {/* card wrapper -------------------------------------------------- */}
+      <div
+        className="bg-sidebar border border-sidebar-border
+                   rounded-[var(--radius)] shadow-md p-4
+                   z-10 max-w-sm w-full"
+      >
         {children}
       </div>
     </div>
-  );
+  )
 }
 
 export function AlertDialogTitle({ children }: { children: ReactNode }) {
