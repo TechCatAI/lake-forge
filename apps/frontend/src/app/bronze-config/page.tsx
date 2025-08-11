@@ -60,12 +60,14 @@ export default function BronzeConfigPage() {
   type BronzeWithExtras = BronzeConfig & {
     source_path?: string
     file_format?: string | null
+    source_kind?: string | null
   }
 
   function sanitize(row: BronzeWithExtras): BronzeConfig {
-    const { source_path, file_format, ...rest } = row
+    const { source_path, file_format, source_kind, ...rest } = row
     void source_path
     void file_format
+    void source_kind
     return rest
   }
 
