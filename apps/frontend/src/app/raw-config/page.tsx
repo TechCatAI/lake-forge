@@ -440,23 +440,43 @@ export default function RawConfigPage() {
               <DropdownMenuTrigger asChild>
                 <MoreHorizontal className="h-4 w-4 opacity-0 group-hover:opacity-100 cursor-pointer" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setWmRow(row.original)}>
-                  Update Watermark…
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  variant="destructive"
-                  onClick={() =>
-                    setConfirmDelete({
-                      id: row.original.id,
-                      row: row.original,
-                      index: row.index,
-                    })
-                  }
+                <DropdownMenuContent
+                  align="end"
+                  className="w-44 p-1
+                            bg-sidebar border border-sidebar-border
+                            rounded-[var(--radius)] shadow-md"
                 >
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
+                  <DropdownMenuItem
+                    /* subtle violet glow */
+                    className="rounded-[var(--radius)] px-2 py-1 cursor-pointer
+                              transition-colors shadow-none
+                              hover:bg-[color:var(--primary)] hover:text-[color:var(--primary-foreground)]
+                              hover:shadow-[0_0_8px_0px_theme(colors.primary/0.5)]
+                              focus:bg-[color:var(--primary)] focus:text-[color:var(--primary-foreground)]"
+                    onClick={() => setWmRow(row.original)}
+                  >
+                    Update Watermark…
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    /* red glow for destructive */
+                    variant="destructive"
+                    className="rounded-[var(--radius)] px-2 py-1 cursor-pointer
+                              transition-colors shadow-none
+                              hover:bg-red-600 hover:text-white
+                              hover:shadow-[0_0_8px_0px_theme(colors.red.600/0.5)]
+                              focus:bg-red-600 focus:text-white"
+                    onClick={() =>
+                      setConfirmDelete({
+                        id: row.original.id,
+                        row: row.original,
+                        index: row.index,
+                      })
+                    }
+                  >
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
             </DropdownMenu>
           )}
         />

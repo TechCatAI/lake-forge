@@ -53,7 +53,9 @@ export default function UpdateWatermarkDialog({
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
       <form
-        className="relative z-10 w-80 space-y-2 rounded-md bg-card p-4 text-card-foreground shadow-lg"
+        className="relative z-10 w-80 space-y-2
+                  bg-sidebar border border-sidebar-border
+                  rounded-[var(--radius)] shadow-md p-4"
         onSubmit={submit}
       >
         <h2 className="font-semibold">Update Watermark</h2>
