@@ -33,29 +33,30 @@ export default function DataTable<T extends RowData>({
   }
 
   return (
-    /* ─── CARD WRAPPER ──────────────────────────────────────────────── */
-      <div
-        className="bg-sidebar border border-sidebar-border
-                    rounded-[var(--radius)] shadow-md ring-1 ring-[color:var(--border)/25]
-                    w-full flex-1 min-h-[calc(100svh-6.25rem)]
-                    overflow-x-auto overflow-y-auto p-5
-                    backdrop-blur-sm">
-      {/* ─── DATA TABLE ─────────────────────────────────────────────── */}
-        <table className="w-full table-auto text-sm border-collapse
-                          border border-[color:var(--border)/60]
-                          rounded-[calc(var(--radius)-2px)] overflow-hidden
-                          bg-[color-mix(in_lab,var(--background),white_7%)]">
+    /* CHANGE: Added `h-full` and `overflow-auto`.
+      - `h-full`: Makes the card fill the vertical space of its parent.
+      - `overflow-auto`: Makes this card, not the page, scroll when content is too big.
+    */
+    <div
+      className="bg-sidebar border border-sidebar-border
+                 rounded-[var(--radius)] shadow-md ring-1 ring-[color:var(--border)/25]
+                 p-5 backdrop-blur-sm h-full overflow-auto"
+    >
+      <table className="w-full table-auto text-sm border-collapse
+                        border border-[color:var(--border)/60]
+                        rounded-[calc(var(--radius)-2px)] overflow-hidden
+                        bg-[color-mix(in_lab,var(--background),white_7%)]">
         <thead>
           {table.getHeaderGroups().map((hg) => (
             <tr
               key={hg.id}
-              className="bg-gradient-to-b from-[color:var(--primary)] to-[color:var(--secondary)] 
-                          divide-x divide-[color:var(--border)/30]
-                          text-[color:var(--primary-foreground)]
-                          uppercase tracking-wider
-                          font-semibold          
-                          text-sm leading-tight  
-                          [&>th]:py-1"           
+              className="bg-gradient-to-b from-[color:var(--primary)] to-[color:var(--secondary)]
+                         divide-x divide-[color:var(--border)/30]
+                         text-[color:var(--primary-foreground)]
+                         uppercase tracking-wider
+                         font-semibold
+                         text-sm leading-tight
+                         [&>th]:py-1"
             >
               {hg.headers.map((header) => {
                 if (header.isPlaceholder) return null;
@@ -107,9 +108,9 @@ export default function DataTable<T extends RowData>({
             {(() => {
               const rows = hasSortedRowModel(table)
                 ? (table as Table<T> & {getSortedRowModel: () => RowModel<T>;
-                    }
-                  ).getSortedRowModel().rows // available when you added the sorted-row-model
-                : (table as Table<T>).getCoreRowModel().rows;    // always available
+                  }
+                ).getSortedRowModel().rows
+                : (table as Table<T>).getCoreRowModel().rows;
               return rows;
             })().map((row: Row<T>) => (
               <motion.tr

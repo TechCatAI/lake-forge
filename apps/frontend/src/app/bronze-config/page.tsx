@@ -411,9 +411,11 @@ export default function BronzeConfigPage() {
   if (loading) return <LoadingSpinner />
 
   return (
-    <div className="p-4 w-full">
-      <div className="sticky top-0 bg-background z-10 mb-2 w-full">
-        <div className="relative flex justify-center w-full">
+    <div className="p-4 grid grid-rows-[auto_1fr] h-full gap-4">
+      {/* Header Row */}
+      <div className="grid grid-cols-3 items-center">
+        <div>{/* Placeholder for filters */}</div>
+        <div className="flex justify-center">
           <GradientText
             animationSpeed={3}
             showBorder={false}
@@ -421,39 +423,41 @@ export default function BronzeConfigPage() {
           >
             Bronze Config
           </GradientText>
-          <div className="absolute right-0 top-0 flex items-center gap-2">
-            {dirtyCount > 0 && (
-              <Button onClick={saveChanges} disabled={savingAll}>
-                {savingAll && (
-                  <span className="h-4 w-4 mr-1 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                )}
-                Save changes ({dirtyCount})
-              </Button>
-            )}
-            <AddBronzeDialog onCreate={addRow} />
-          </div>
+        </div>
+        <div className="flex justify-end items-center gap-2">
+          {dirtyCount > 0 && (
+            <Button onClick={saveChanges} disabled={savingAll}>
+              {savingAll && (
+                <span className="h-4 w-4 mr-1 border-2 border-current border-t-transparent rounded-full animate-spin" />
+              )}
+              Save changes ({dirtyCount})
+            </Button>
+          )}
+          <AddBronzeDialog onCreate={addRow} />
         </div>
       </div>
-      <div className="overflow-auto w-full">
-        <DataTable
-          table={table}
-          cellRef={(row, idx) =>
-            idx === 2
-              ? (el) => {
-                  firstCellRefs.current[row.original.id] = el;
-                }
-              : undefined
-          }
-          renderRowActions={(row) => (
-            <Trash
-              className="h-4 w-4 opacity-0 group-hover:opacity-100 text-red-500 cursor-pointer"
-              onClick={() =>
-                setConfirmDelete({ id: row.original.id, row: row.original, index: row.index })
+
+      {/* CHANGE: The `DataTable` is now the direct child of the content grid row.
+      */}
+      <DataTable
+        table={table}
+        cellRef={(row, idx) =>
+          idx === 2
+            ? (el) => {
+                firstCellRefs.current[row.original.id] = el;
               }
-            />
-          )}
-        />
-      </div>
+            : undefined
+        }
+        renderRowActions={(row) => (
+          <Trash
+            className="h-4 w-4 opacity-0 group-hover:opacity-100 text-red-500 cursor-pointer"
+            onClick={() =>
+              setConfirmDelete({ id: row.original.id, row: row.original, index: row.index })
+            }
+          />
+        )}
+      />
+
       <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
         {confirmDelete && (
           <>
@@ -466,7 +470,7 @@ export default function BronzeConfigPage() {
                   if (confirmDelete)
                     handleDelete(confirmDelete.id, confirmDelete.row, confirmDelete.index).then(() =>
                       setConfirmDelete(null)
-                    )
+                    );
                 }}
               >
                 Delete
@@ -476,5 +480,5 @@ export default function BronzeConfigPage() {
         )}
       </AlertDialog>
     </div>
-  )
+  );
 }

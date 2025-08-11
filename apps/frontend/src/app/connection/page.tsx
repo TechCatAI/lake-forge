@@ -269,9 +269,10 @@ export default function ConnectionPage() {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="p-4 w-full flex flex-col gap-2">
-      <div className="sticky top-0 bg-background z-10 mb-2 w-full">
-        <div className="relative flex justify-center w-full">
+    <div className="p-4 grid grid-rows-[auto_1fr] h-full gap-4">
+      <div className="grid grid-cols-3 items-center">
+        <div>{/* Placeholder for filters */}</div>
+        <div className="flex justify-center">
           <GradientText
             animationSpeed={3}
             showBorder={false}
@@ -279,7 +280,8 @@ export default function ConnectionPage() {
           >
             Connections
           </GradientText>
-          <div className="absolute right-0 top-0 flex items-center gap-2">
+        </div>
+        <div className="flex justify-end items-center gap-2">
           {dirtyCount > 0 && (
             <Button onClick={saveChanges} disabled={savingAll}>
               {savingAll && (
@@ -288,29 +290,28 @@ export default function ConnectionPage() {
               Save changes ({dirtyCount})
             </Button>
           )}
-            <AddConnectionDialog onCreate={addRow} />
-          </div>
+          <AddConnectionDialog onCreate={addRow} />
         </div>
       </div>
-        <div className="overflow-auto w-full">
-      <DataTable
-        table={table}
-        cellRef={(row, idx) =>
-          idx === 0
-            ? (el) => {
-                firstCellRefs.current[row.original.id] = el;
+      <div className="overflow-auto">
+        <DataTable
+          table={table}
+          cellRef={(row, idx) =>
+            idx === 0
+              ? (el) => {
+                  firstCellRefs.current[row.original.id] = el;
+                }
+              : undefined
+          }
+          renderRowActions={(row) => (
+            <Trash
+              className="h-4 w-4 opacity-0 group-hover:opacity-100 text-red-500 cursor-pointer"
+              onClick={() =>
+                setConfirmDelete({ id: row.original.id, row: row.original, index: row.index })
               }
-            : undefined
-        }
-        renderRowActions={(row) => (
-          <Trash
-            className="h-4 w-4 opacity-0 group-hover:opacity-100 text-red-500 cursor-pointer"
-            onClick={() =>
-              setConfirmDelete({ id: row.original.id, row: row.original, index: row.index })
-            }
-          />
-        )}
-      />
+            />
+          )}
+        />
       </div>
       <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
         {confirmDelete && (

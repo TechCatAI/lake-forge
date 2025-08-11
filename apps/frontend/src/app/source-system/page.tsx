@@ -233,9 +233,10 @@ export default function SourceSystemPage() {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="p-4 w-full">
-      <div className="sticky top-0 bg-background z-10 mb-2 w-full">
-        <div className="relative flex justify-center w-full">
+    <div className="p-4 grid grid-rows-[auto_1fr] h-full gap-4">
+      <div className="grid grid-cols-3 items-center">
+        <div>{/* Placeholder for filters */}</div>
+        <div className="flex justify-center">
           <GradientText
             animationSpeed={3}
             showBorder={false}
@@ -243,7 +244,8 @@ export default function SourceSystemPage() {
           >
             Source Systems
           </GradientText>
-          <div className="absolute right-0 top-0 flex items-center gap-2">
+        </div>
+        <div className="flex justify-end items-center gap-2">
           {dirtyCount > 0 && (
             <Button onClick={saveChanges} disabled={savingAll}>
               {savingAll && (
@@ -252,11 +254,10 @@ export default function SourceSystemPage() {
               Save changes ({dirtyCount})
             </Button>
           )}
-            <AddSourceDialog onCreate={addRow} />
-          </div>
+          <AddSourceDialog onCreate={addRow} />
         </div>
-        </div>
-        <div className="overflow-auto w-full">
+      </div>
+      <div className="overflow-auto">
         <DataTable
           table={table}
           cellRef={(row, idx) =>

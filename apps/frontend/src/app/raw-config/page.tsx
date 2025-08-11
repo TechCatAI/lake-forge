@@ -402,9 +402,11 @@ export default function RawConfigPage() {
   if (loading) return <LoadingSpinner />
 
   return (
-    <div className="p-4 w-full">
-      <div className="sticky top-0 bg-background z-10 mb-2 w-full">
-        <div className="relative flex justify-center w-full">
+    <div className="p-4 grid grid-rows-[auto_1fr] h-full gap-4">
+      {/* Header Row */}
+      <div className="grid grid-cols-3 items-center">
+        <div>{/* Placeholder for filters */}</div>
+        <div className="flex justify-center">
           <GradientText
             animationSpeed={3}
             showBorder={false}
@@ -412,75 +414,65 @@ export default function RawConfigPage() {
           >
             Raw Config
           </GradientText>
-          <div className="absolute right-0 top-0 flex items-center gap-2">
-            {dirtyCount > 0 && (
-              <Button onClick={saveChanges} disabled={savingAll}>
-                {savingAll && (
-                  <span className="h-4 w-4 mr-1 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                )}
-                Save changes ({dirtyCount})
-              </Button>
-            )}
-            <AddRawDialog onCreate={addRow} />
-          </div>
+        </div>
+        <div className="flex justify-end items-center gap-2">
+          {dirtyCount > 0 && (
+            <Button onClick={saveChanges} disabled={savingAll}>
+              {savingAll && (
+                <span className="h-4 w-4 mr-1 border-2 border-current border-t-transparent rounded-full animate-spin" />
+              )}
+              Save changes ({dirtyCount})
+            </Button>
+          )}
+          <AddRawDialog onCreate={addRow} />
         </div>
       </div>
-      <div className="overflow-auto w-full">
-        <DataTable
-          table={table}
-          cellRef={(row, idx) =>
-            idx === 2
-              ? (el) => {
-                  firstCellRefs.current[row.original.id] = el;
-                }
-              : undefined
-          }
-          renderRowActions={(row) => (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <MoreHorizontal className="h-4 w-4 opacity-0 group-hover:opacity-100 cursor-pointer" />
-              </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="end"
-                  className="w-44 p-1
-                            bg-sidebar border border-sidebar-border
-                            rounded-[var(--radius)] shadow-md"
-                >
-                  <DropdownMenuItem
-                    /* subtle violet glow */
-                    className="rounded-[var(--radius)] px-2 py-1 cursor-pointer
-                              transition-colors shadow-none
-                              hover:bg-[color:var(--primary)] hover:text-[color:var(--primary-foreground)]
-                              hover:shadow-[0_0_8px_0px_theme(colors.primary/0.5)]
-                              focus:bg-[color:var(--primary)] focus:text-[color:var(--primary-foreground)]"
-                    onClick={() => setWmRow(row.original)}
-                  >
-                    Update Watermark…
-                  </DropdownMenuItem>
 
-                  <DropdownMenuItem
-                    /* red glow for destructive */
-                    variant="destructive"
-                    className="rounded-[var(--radius)] px-2 py-1 cursor-pointer
-                              transition-colors shadow-none
-                              hover:bg-red-600 hover:text-white
-                              hover:shadow-[0_0_8px_0px_theme(colors.red.600/0.5)]
-                              focus:bg-red-600 focus:text-white"
-                    onClick={() =>
-                      setConfirmDelete({
-                        id: row.original.id,
-                        row: row.original,
-                        index: row.index,
-                      })
-                    }
-                  >
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        />
-      </div>
+      {/* CHANGE: The `DataTable` is now the direct child of the content grid row.
+        It will fill the available space and handle its own scrolling.
+      */}
+      <DataTable
+        table={table}
+        cellRef={(row, idx) =>
+          idx === 2
+            ? (el) => {
+                firstCellRefs.current[row.original.id] = el;
+              }
+            : undefined
+        }
+        renderRowActions={(row) => (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <MoreHorizontal className="h-4 w-4 opacity-0 group-hover:opacity-100 cursor-pointer" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="w-44 p-1 bg-sidebar border border-sidebar-border rounded-[var(--radius)] shadow-md"
+            >
+              <DropdownMenuItem
+                className="rounded-[var(--radius)] px-2 py-1 cursor-pointer transition-colors shadow-none hover:bg-[color:var(--primary)] hover:text-[color:var(--primary-foreground)] hover:shadow-[0_0_8px_0px_theme(colors.primary/0.5)] focus:bg-[color:var(--primary)] focus:text-[color:var(--primary-foreground)]"
+                onClick={() => setWmRow(row.original)}
+              >
+                Update Watermark…
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                variant="destructive"
+                className="rounded-[var(--radius)] px-2 py-1 cursor-pointer transition-colors shadow-none hover:bg-red-600 hover:text-white hover:shadow-[0_0_8px_0px_theme(colors.red.600/0.5)] focus:bg-red-600 focus:text-white"
+                onClick={() =>
+                  setConfirmDelete({
+                    id: row.original.id,
+                    row: row.original,
+                    index: row.index,
+                  })
+                }
+              >
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      />
+      
       {wmRow && (
         <UpdateWatermarkDialog
           row={wmRow}
@@ -500,7 +492,7 @@ export default function RawConfigPage() {
                   if (confirmDelete)
                     handleDelete(confirmDelete.id, confirmDelete.row, confirmDelete.index).then(() =>
                       setConfirmDelete(null)
-                    )
+                    );
                 }}
               >
                 Delete
@@ -510,5 +502,5 @@ export default function RawConfigPage() {
         )}
       </AlertDialog>
     </div>
-  )
+  );
 }

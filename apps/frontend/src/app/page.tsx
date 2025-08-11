@@ -4,7 +4,8 @@ import BlurText from '../components/BlurText';
 
 export default function Home() {
   return (
-    <div className="relative w-full h-screen overflow-hidden">
+    // Change h-screen to h-full to respect the parent <main> tag's height.
+    <div className="relative w-full h-full overflow-hidden">
       <div className="absolute inset-0">
         <Threads amplitude={1} distance={0} enableMouseInteraction />
       </div>
